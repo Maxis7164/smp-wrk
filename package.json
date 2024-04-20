@@ -12,7 +12,8 @@
     "firebase": "^10.11.0",
     "sass": "^1.75.0",
     "vue": "^3.2.47",
-    "vue-router": "^4.3.2"
+    "vue-router": "^4.3.2",
+    "vuefire": "^3.1.23"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.1.0",
