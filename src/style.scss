@@ -1,0 +1,89 @@
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+p,
+span {
+  transition: background-color 250ms, color 250ms;
+}
+
+body {
+  --bg: #e6e6e6;
+  --srf: hsl(130, 100%, 100%);
+  --srf1: hsl(130, 100%, 95%);
+  --brd: hsl(130, 15%, 90%);
+  --p: hsl(130, 100%, 40%);
+  --p1: hsl(130, 100%, 35%);
+  --txt: hsl(130, 100%, 20%);
+  --txt1: hsl(130, 100%, 30%);
+
+  &.dark {
+    --bg: #000;
+    --srf: hsl(130, 12%, 10%);
+    --srf1: hsl(130, 12%, 15%);
+    --brd: hsl(130, 14%, 40%);
+    --p: hsl(130, 100%, 40%);
+    --p1: hsl(130, 100%, 35%);
+    --txt: hsl(0, 0%, 100%);
+    --txt1: hsl(130, 0%, 90%);
+  }
+
+  font-family: Inter, "Segoe UI";
+  background: var(--bg);
+  color: var(--txt);
+  padding: 1rem;
+}
+
+button {
+  transition: background-color 250ms, color 250ms;
+  background: var(--srf);
+  padding: 1rem 1.25rem;
+  font-family: inherit;
+  border-radius: 1rem;
+  font-size: inherit;
+  color: var(--txt);
+  font-weight: 600;
+  cursor: pointer;
+  border: unset;
+
+  &:hover {
+    background: var(--srf1);
+  }
+
+  &.high {
+    background: var(--p);
+
+    &:hover {
+      background: var(--p1);
+    }
+  }
+
+  &.text {
+    background: transparent;
+    padding: 5px;
+
+    &:hover {
+      color: var(--txt1);
+    }
+  }
+
+  &.risk {
+    color: hsl(0, 100%, 50%);
+
+    &:hover {
+      color: hsl(0, 100%, 30%);
+    }
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  transition: background-color 250ms, color 250ms;
+  font-weight: 600;
+}
