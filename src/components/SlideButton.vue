@@ -35,7 +35,7 @@ div.slider {
   width: 100%;
 
   button {
-    padding: 1rem;
+    padding: 1.25rem;
     height: 100%;
     width: 33.3%;
     z-index: 2;

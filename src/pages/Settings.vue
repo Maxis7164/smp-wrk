@@ -78,6 +78,11 @@ section {
       p {
         text-align: end;
       }
+
+      button {
+        font-size: 0.875rem;
+        font-weight: 400;
+      }
     }
 
     li.add {
@@ -93,7 +98,7 @@ section {
     width: 100%;
   }
   > h2 {
-    margin: 0.25rem 0.125rem;
+    margin: 0.625rem 0.125rem;
   }
 
   ul {
