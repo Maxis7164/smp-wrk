@@ -41,7 +41,7 @@ body {
 button {
   transition: background-color 250ms, color 250ms;
   background: var(--srf);
-  padding: 1rem 1.25rem;
+  padding: 1rem 1.5rem;
   font-family: inherit;
   border-radius: 1rem;
   font-size: inherit;
@@ -116,4 +116,14 @@ h2 {
 }
 h3 {
   font-size: 1rem;
+}
+
+input {
+  background: var(--srf);
+  font-family: inherit;
+  border-radius: 1rem;
+  color: var(--txt);
+  font-size: 1rem;
+  padding: 1rem;
+  border: unset;
 }

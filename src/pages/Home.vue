@@ -1,15 +1,25 @@
 <script lang="ts" setup>
+import { useFirebaseAuth } from "vuefire";
 import { ref } from "vue";
 
+const auth = useFirebaseAuth();
+
+const display = ref<string>("loading...");
 const currentHours = ref<number>(0);
 const currentPay = ref<number>(0);
 const hours = ref<number>(0);
+
+auth!.onAuthStateChanged((user) => {
+  if (user) {
+    display.value = user.displayName ?? user.email ?? "ERR";
+  }
+});
 </script>
 
 <template>
   <div id="wrap">
     <header>
-      <h1>Hallo Max!</h1>
+      <h1>Hallo {{ display }}!</h1>
     </header>
     <section class="current">
       <ul>

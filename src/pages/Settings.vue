@@ -1,7 +1,31 @@
 <script lang="ts" setup>
 import { setTheme, getTheme, type Theme } from "../theme";
+import { onAuthStateChanged } from "firebase/auth";
+import { call } from "../components/banner";
+import { useFirebaseAuth } from "vuefire";
+import { useRouter } from "vue-router";
+import { ref } from "vue";
 
 import SlideButton from "../components/SlideButton.vue";
+
+const auth = useFirebaseAuth();
+const r = useRouter();
+
+const display = ref<string>("loading...");
+
+onAuthStateChanged(auth!, (user) => {
+  if (user) {
+    display.value = user.displayName ?? user.email ?? "ERR";
+  }
+});
+
+function signOut(): void {
+  if (!auth)
+    call("error", "Ein unerwarteter Fehler kam auf - bitte versuche es erneut");
+
+  auth!.signOut();
+  r.push("/load");
+}
 </script>
 
 <template>
@@ -11,8 +35,8 @@ import SlideButton from "../components/SlideButton.vue";
     </header>
     <section class="account">
       <p>Angemeldet als:</p>
-      <h2>Max</h2>
-      <button class="text risk">abmelden</button>
+      <h2>{{ display }}</h2>
+      <button @click="signOut" class="text risk">abmelden</button>
     </section>
     <section class="profiles">
       <h2>Arbeitsprofile</h2>

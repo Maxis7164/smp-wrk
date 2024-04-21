@@ -12,6 +12,7 @@ import App from "./App.vue";
 import Home from "./pages/Home.vue";
 import Settings from "./pages/Settings.vue";
 import Load from "./pages/Load.vue";
+import Login from "./pages/Login.vue";
 
 const app = createApp(App);
 
@@ -20,6 +21,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/", component: Home },
   { path: "/settings", component: Settings },
   { path: "/load", component: Load },
+  { path: "/login", component: Login },
 ];
 
 const router = createRouter({
