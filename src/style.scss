@@ -50,14 +50,14 @@ button {
   cursor: pointer;
   border: unset;
 
-  &:hover {
+  &:not(:disabled):hover {
     background: var(--srf1);
   }
 
   &.high {
     background: var(--p);
 
-    &:hover {
+    &:not(:disabled):hover {
       background: var(--p1);
     }
   }
@@ -66,7 +66,7 @@ button {
     background: transparent;
     padding: 5px;
 
-    &:hover {
+    &:not(:disabled):hover {
       color: var(--txt1);
     }
   }
@@ -74,7 +74,7 @@ button {
   &.risk {
     color: hsl(0, 100%, 50%);
 
-    &:hover {
+    &:not(:disabled):hover {
       color: hsl(0, 100%, 30%);
     }
   }

@@ -16,9 +16,9 @@ const r = useRouter();
 
 const load = ref<boolean>(false);
 
-// onAuthStateChanged(auth!, (user) =>
-//   user && !load ? setTimeout(() => r.push("/"), 1000) : null
-// );
+onAuthStateChanged(auth!, (user) =>
+  user && !load ? setTimeout(() => r.push("/"), 1000) : null
+);
 
 async function loginGoogle(): Promise<void> {
   if (!auth)
@@ -40,7 +40,7 @@ async function loginGoogle(): Promise<void> {
     call("error", "Login failed, please try again.");
   }
 
-  if (isValid) r.push("/");
+  if (isValid) r.push({ path: "/editProfile", query: { setup: 1 } });
   else load.value = true;
 }
 

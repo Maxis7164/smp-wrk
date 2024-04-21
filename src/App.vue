@@ -8,9 +8,11 @@ loadTheme();
 </script>
 
 <template>
+  <suspense>
+    <router-view />
+  </suspense>
   <Modal />
   <Banner />
-  <router-view />
 </template>
 
 <style scoped></style>

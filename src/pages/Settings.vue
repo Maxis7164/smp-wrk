@@ -1,23 +1,31 @@
 <script lang="ts" setup>
+import {
+  useFirebaseAuth,
+  useCurrentUser,
+  useCollection,
+  getCurrentUser,
+} from "vuefire";
+import { collection, query, where } from "firebase/firestore";
 import { setTheme, getTheme, type Theme } from "../theme";
-import { onAuthStateChanged } from "firebase/auth";
 import { call } from "../components/banner";
-import { useFirebaseAuth } from "vuefire";
 import { useRouter } from "vue-router";
+import { db } from "../fire";
 import { ref } from "vue";
 
 import SlideButton from "../components/SlideButton.vue";
 
 const auth = useFirebaseAuth();
+const user = useCurrentUser();
 const r = useRouter();
 
-const display = ref<string>("loading...");
+await getCurrentUser();
 
-onAuthStateChanged(auth!, (user) => {
-  if (user) {
-    display.value = user.displayName ?? user.email ?? "ERR";
-  }
-});
+const a = query(
+  collection(db, "profiles"),
+  where("owner", "==", user.value?.uid ?? "ERR")
+);
+
+const b = useCollection<Profile>(a);
 
 function signOut(): void {
   if (!auth)
@@ -35,15 +43,15 @@ function signOut(): void {
     </header>
     <section class="account">
       <p>Angemeldet als:</p>
-      <h2>{{ display }}</h2>
+      <h2>{{ user?.displayName ?? "loading..." }}</h2>
       <button @click="signOut" class="text risk">abmelden</button>
     </section>
     <section class="profiles">
       <h2>Arbeitsprofile</h2>
       <ul>
-        <li v-for="_ in [1]">
-          <h3>Subway</h3>
-          <p>12,41€/h</p>
+        <li v-if="user" v-for="d in b" :key="d.id">
+          <h3>{{ d.name }}</h3>
+          <p>{{ d.pph }}€/h</p>
           <button class="text">Bearbeiten</button>
           <button class="text risk">Löschen</button>
         </li>

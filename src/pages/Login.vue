@@ -53,7 +53,7 @@ async function loginEmail(): Promise<void> {
 
   load.value = false;
 
-  if (isValid) r.push("/");
+  if (isValid) r.push({ path: "/editProfile", query: { setup: 1 } });
 }
 </script>
 
