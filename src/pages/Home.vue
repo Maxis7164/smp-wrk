@@ -1,25 +1,61 @@
 <script lang="ts" setup>
-import { useFirebaseAuth } from "vuefire";
+import { useCurrentUser, getCurrentUser, useDocument } from "vuefire";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../fire";
 import { ref } from "vue";
 
-const auth = useFirebaseAuth();
+const user = useCurrentUser();
 
-const display = ref<string>("loading...");
+await getCurrentUser();
+
+const prof = useDocument<Typed<Profile>>(
+  doc(db, `profiles/${user.value!.uid}`)
+);
+const h = useDocument<Typed<Hour[]>>(doc(db, `hours/${user.value!.uid}`));
 const currentHours = ref<number>(0);
 const currentPay = ref<number>(0);
-const hours = ref<number>(0);
+const profs = ref<string[]>([]);
+const allHours = ref<number>(0);
 
-auth!.onAuthStateChanged((user) => {
-  if (user) {
-    display.value = user.displayName ?? user.email ?? "ERR";
-  }
-});
+const D = new Date();
+
+async function load(): Promise<void> {
+  const hoursDoc = await getDoc<Typed<Hour[]>, Typed<Hour[]>>(
+    doc(db, `hours/${user.value!.uid}`)
+  );
+  const profDoc = await getDoc<Typed<Profile>, Typed<Profile>>(
+    doc(db, `profiles/${user.value!.uid}`)
+  );
+
+  const hours = hoursDoc.data();
+  const profiles = profDoc.data();
+
+  if (!hours || !profiles) return;
+
+  profs.value = Object.keys(hours);
+
+  profs.value.forEach((p) => {
+    const cur = hours[p]
+      .filter((h) => parseInt(h.date[1]) === D.getMonth() + 1)
+      .map((h) => h.total);
+
+    if (cur.length === 0) return;
+
+    const h = cur.reduce((acc, cur) => acc + cur);
+
+    currentHours.value += h;
+    currentPay.value += h * profiles[p].pph;
+    allHours.value += h;
+  });
+}
+
+load();
 </script>
 
 <template>
   <div id="wrap">
     <header>
-      <h1>Hallo {{ display }}!</h1>
+      <h1>Hallo {{ user?.displayName ?? "ERR" }}!</h1>
     </header>
     <section class="current">
       <ul>
@@ -38,7 +74,7 @@ auth!.onAuthStateChanged((user) => {
       <ul>
         <li>
           <h3>Gesamt:</h3>
-          <p>{{ hours }} Stunden</p>
+          <p>{{ allHours }} Stunden</p>
         </li>
         <li v-for="_ in [1]">
           <h3>Subway:</h3>
@@ -68,7 +104,7 @@ auth!.onAuthStateChanged((user) => {
       </button>
     </section>
     <footer>
-      <button class="icon high add">
+      <button @click="$router.push('/editHours')" class="icon high add">
         <svg
           width="100"
           height="100"

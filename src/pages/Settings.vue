@@ -2,12 +2,12 @@
 import {
   useFirebaseAuth,
   useCurrentUser,
-  useCollection,
+  useDocument,
   getCurrentUser,
 } from "vuefire";
-import { collection, query, where } from "firebase/firestore";
 import { setTheme, getTheme, type Theme } from "../theme";
 import { call } from "../components/banner";
+import { doc } from "firebase/firestore";
 import { useRouter } from "vue-router";
 import { db } from "../fire";
 import { ref } from "vue";
@@ -20,12 +20,9 @@ const r = useRouter();
 
 await getCurrentUser();
 
-const a = query(
-  collection(db, "profiles"),
-  where("owner", "==", user.value?.uid ?? "ERR")
+const { data: profiles, error } = useDocument<Typed<Profile>>(
+  doc(db, `profiles/${user.value!.uid}`)
 );
-
-const b = useCollection<Profile>(a);
 
 function signOut(): void {
   if (!auth)
@@ -49,9 +46,9 @@ function signOut(): void {
     <section class="profiles">
       <h2>Arbeitsprofile</h2>
       <ul>
-        <li v-if="user" v-for="d in b" :key="d.id">
-          <h3>{{ d.name }}</h3>
-          <p>{{ d.pph }}€/h</p>
+        <li v-if="user" v-for="prof in profiles" :key="prof.name">
+          <h3>{{ prof.name }}</h3>
+          <p>{{ prof.pph }}€/h</p>
           <button class="text">Bearbeiten</button>
           <button class="text risk">Löschen</button>
         </li>

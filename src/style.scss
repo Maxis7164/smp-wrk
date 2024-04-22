@@ -26,8 +26,8 @@ body {
     --srf: hsl(130, 12%, 10%);
     --srf1: hsl(130, 12%, 15%);
     --brd: hsl(130, 14%, 40%);
-    --p: hsl(130, 100%, 40%);
-    --p1: hsl(130, 100%, 35%);
+    --p: hsl(130, 50%, 40%);
+    --p1: hsl(130, 50%, 35%);
     --txt: hsl(0, 0%, 100%);
     --txt1: hsl(130, 0%, 90%);
   }
@@ -119,12 +119,14 @@ h3 {
   font-size: 1rem;
 }
 
-input {
+input,
+select {
   background: var(--srf);
   font-family: inherit;
   border-radius: 1rem;
   color: var(--txt);
   font-size: 1rem;
+  cursor: pointer;
   padding: 1rem;
   border: unset;
 }

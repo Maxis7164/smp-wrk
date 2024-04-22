@@ -16,6 +16,7 @@ import { db } from "../fire";
 import { ref } from "vue";
 
 import Loading from "../components/Loading.vue";
+import { getDoc } from "firebase/firestore/lite";
 
 const auth = useFirebaseAuth();
 const route = useRoute();
@@ -50,15 +51,6 @@ async function save() {
   try {
     loading.value = true;
 
-    const profs = collection(db, "profiles");
-
-    const q = query(
-      profs,
-      where("owner", "==", uid),
-      where("name", "==", name.value),
-      limit(1)
-    );
-
     const pph =
       typeof pay.value === "string"
         ? parseFloat(pay.value.split(",").join("."))
@@ -66,17 +58,12 @@ async function save() {
 
     const profile: Profile = {
       name: name.value,
-      owner: uid,
       pph,
     };
 
-    const snap = await getDocs(q);
+    const prof = doc(db, "profiles", uid);
 
-    if (snap.docs.length > 0) {
-      setDoc(snap.docs[0].ref, profile);
-    } else {
-      addDoc(profs, profile);
-    }
+    setDoc(prof, profile);
   } catch (err) {
     console.error(err);
   }
