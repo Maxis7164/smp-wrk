@@ -5,9 +5,10 @@ import {
   useDocument,
   getCurrentUser,
 } from "vuefire";
+import { doc, updateDoc, deleteField } from "firebase/firestore";
 import { setTheme, getTheme, type Theme } from "../theme";
+import { confirm } from "../components/modal";
 import { call } from "../components/banner";
-import { doc } from "firebase/firestore";
 import { useRouter } from "vue-router";
 import { db } from "../fire";
 import { ref } from "vue";
@@ -23,6 +24,25 @@ await getCurrentUser();
 const { data: profiles, error } = useDocument<Typed<Profile>>(
   doc(db, `profiles/${user.value!.uid}`)
 );
+
+async function deleteProfile(profile: Profile): Promise<void> {
+  const doDel = await confirm(
+    "Möchtest du wirklich dieses Arbeitsprofil löschen? Alle Arbeitszeiten, die zu diesem Profil gehören, werden ebenfalls gelöscht. Diese Aktion lässt sich nicht rückgängig machen!",
+    "Arbeitsprofil löschen"
+  );
+
+  if (doDel) {
+    const profs = doc(db, `profiles/${user.value!.uid}`);
+    const hours = doc(db, `hours/${user.value!.uid}`);
+
+    try {
+      updateDoc(profs, { [profile.name]: deleteField() });
+      updateDoc(hours, { [profile.name]: deleteField() });
+    } catch (err) {
+      call("error", "Ein Fehler ist passiert - versuche es erneut");
+    }
+  }
+}
 
 function signOut(): void {
   if (!auth)
@@ -50,7 +70,9 @@ function signOut(): void {
           <h3>{{ prof.name }}</h3>
           <p>{{ prof.pph }}€/h</p>
           <button class="text">Bearbeiten</button>
-          <button class="text risk">Löschen</button>
+          <button @click="deleteProfile(prof)" class="text risk">
+            Löschen
+          </button>
         </li>
         <li class="add">
           <button>Profil hinzufügen</button>

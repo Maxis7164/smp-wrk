@@ -4,6 +4,8 @@ import { doc } from "firebase/firestore";
 import { ref, watch } from "vue";
 import { db } from "../fire";
 
+import Loading from "../components/Loading.vue";
+
 const user = useCurrentUser();
 
 await getCurrentUser();
@@ -11,7 +13,7 @@ await getCurrentUser();
 const { data: prof } = useDocument<Typed<Profile>>(
   doc(db, `profiles/${user.value!.uid}`)
 );
-const { data: hours } = useDocument<Typed<Hour[]>>(
+const { data: hours, pending } = useDocument<Typed<Hour[]>>(
   doc(db, `hours/${user.value!.uid}`)
 );
 
@@ -35,7 +37,7 @@ watch(hours, (hours) => {
       const h = cur.reduce((acc, cur) => acc + cur);
 
       currentHours.value += h;
-      currentPay.value += h * prof.value![p].pph;
+      currentPay.value += Math.floor(h * prof.value![p].pph * 100) / 100;
       allHours.value += h;
     });
   }
@@ -116,6 +118,7 @@ function getTotal(hours: Hour[]) {
       </button>
     </footer>
   </div>
+  <Loading back :load="pending" />
 </template>
 
 <style lang="scss" scoped>
