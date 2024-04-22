@@ -1,51 +1,51 @@
 <script lang="ts" setup>
-import { useCurrentUser, getCurrentUser } from "vuefire";
-import { doc, getDoc } from "firebase/firestore";
+import { useCurrentUser, getCurrentUser, useDocument } from "vuefire";
+import { doc } from "firebase/firestore";
+import { ref, watch } from "vue";
 import { db } from "../fire";
-import { ref } from "vue";
 
 const user = useCurrentUser();
 
 await getCurrentUser();
 
+const { data: prof } = useDocument<Typed<Profile>>(
+  doc(db, `profiles/${user.value!.uid}`)
+);
+const { data: hours } = useDocument<Typed<Hour[]>>(
+  doc(db, `hours/${user.value!.uid}`)
+);
+
 const currentHours = ref<number>(0);
 const currentPay = ref<number>(0);
-const profs = ref<string[]>([]);
 const allHours = ref<number>(0);
 
 const D = new Date();
 
-async function load(): Promise<void> {
-  const hoursDoc = await getDoc<Typed<Hour[]>, Typed<Hour[]>>(
-    doc(db, `hours/${user.value!.uid}`)
-  );
-  const profDoc = await getDoc<Typed<Profile>, Typed<Profile>>(
-    doc(db, `profiles/${user.value!.uid}`)
-  );
+watch(hours, (hours) => {
+  if (prof.value && hours) {
+    Object.keys(hours).forEach((p: string) => {
+      if (p === "id") return;
 
-  const hours = hoursDoc.data();
-  const profiles = profDoc.data();
+      const cur = hours[p]
+        .filter((h) => parseInt(h.date[1]) === D.getMonth() + 1)
+        .map((h) => h.total);
 
-  if (!hours || !profiles) return;
+      if (cur.length === 0) return;
 
-  profs.value = Object.keys(hours);
+      const h = cur.reduce((acc, cur) => acc + cur);
 
-  profs.value.forEach((p) => {
-    const cur = hours[p]
-      .filter((h) => parseInt(h.date[1]) === D.getMonth() + 1)
-      .map((h) => h.total);
+      currentHours.value += h;
+      currentPay.value += h * prof.value![p].pph;
+      allHours.value += h;
+    });
+  }
+});
 
-    if (cur.length === 0) return;
+function getTotal(hours: Hour[]) {
+  const nxt = hours.map((h) => h.total);
 
-    const h = cur.reduce((acc, cur) => acc + cur);
-
-    currentHours.value += h;
-    currentPay.value += h * profiles[p].pph;
-    allHours.value += h;
-  });
+  return nxt.length === 0 ? 0 : nxt.reduce((acc, cur) => acc + cur);
 }
-
-load();
 </script>
 
 <template>
@@ -72,9 +72,9 @@ load();
           <h3>Gesamt:</h3>
           <p>{{ allHours }} Stunden</p>
         </li>
-        <li v-for="_ in [1]">
-          <h3>Subway:</h3>
-          <p>72,54 Stunden</p>
+        <li v-for="(h, prof) in hours">
+          <h3>{{ prof }}</h3>
+          <p>{{ getTotal(h) }} Stunden</p>
         </li>
       </ul>
     </section>
