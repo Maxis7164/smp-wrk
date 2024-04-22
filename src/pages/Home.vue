@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useCurrentUser, getCurrentUser, useDocument } from "vuefire";
+import { useCurrentUser, getCurrentUser } from "vuefire";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../fire";
 import { ref } from "vue";
@@ -8,10 +8,6 @@ const user = useCurrentUser();
 
 await getCurrentUser();
 
-const prof = useDocument<Typed<Profile>>(
-  doc(db, `profiles/${user.value!.uid}`)
-);
-const h = useDocument<Typed<Hour[]>>(doc(db, `hours/${user.value!.uid}`));
 const currentHours = ref<number>(0);
 const currentPay = ref<number>(0);
 const profs = ref<string[]>([]);
