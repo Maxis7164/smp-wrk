@@ -67,6 +67,7 @@ button {
     padding: 5px;
 
     &:not(:disabled):hover {
+      background: transparent;
       color: var(--txt1);
     }
   }
