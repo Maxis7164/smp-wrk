@@ -75,38 +75,40 @@ async function save() {
 </script>
 
 <template>
-  <header>
-    <h1>Profil bearbeiten</h1>
-    <h3>Erstelle ein neues Arbeitsprofil</h3>
-  </header>
-  <main>
-    <label for="name">
-      <h3>Name:</h3>
-      <input
-        v-model="name"
-        placeholder="z. B. Freelance"
-        type="text"
-        name="name"
-        id="name"
-      />
-    </label>
-    <label for="pay">
-      <h3>Stundenlohn:</h3>
-      <input
-        v-model="pay"
-        step="0.25"
-        min="0"
-        type="number"
-        name="pay"
-        id="pay"
-      />
-    </label>
-  </main>
-  <footer>
-    <button @click="$router.back()">Zurück</button>
-    <button @click="save" class="high">Speichern</button>
-  </footer>
-  <Loading :load="loading" />
+  <div class="wrap">
+    <header>
+      <h1>Profil bearbeiten</h1>
+      <h3>Erstelle ein neues Arbeitsprofil</h3>
+    </header>
+    <main>
+      <label for="name">
+        <h3>Name:</h3>
+        <input
+          v-model="name"
+          placeholder="z. B. Freelance"
+          type="text"
+          name="name"
+          id="name"
+        />
+      </label>
+      <label for="pay">
+        <h3>Stundenlohn:</h3>
+        <input
+          v-model="pay"
+          step="0.25"
+          min="0"
+          type="number"
+          name="pay"
+          id="pay"
+        />
+      </label>
+    </main>
+    <footer>
+      <button @click="$router.back()">Zurück</button>
+      <button @click="save" class="high">Speichern</button>
+    </footer>
+    <Loading :load="loading" />
+  </div>
 </template>
 
 <style lang="scss" scoped>

@@ -51,7 +51,7 @@ function getTotal(hours: Hour[]) {
 </script>
 
 <template>
-  <div id="wrap">
+  <div class="wrap">
     <header>
       <h1>Hallo {{ user?.displayName ?? "ERR" }}!</h1>
     </header>
@@ -117,8 +117,8 @@ function getTotal(hours: Hour[]) {
         </svg>
       </button>
     </footer>
+    <Loading back :load="pending" />
   </div>
-  <Loading back :load="pending" />
 </template>
 
 <style lang="scss" scoped>
@@ -186,6 +186,7 @@ footer {
   button {
     --size: 2.25rem;
 
+    transition: right var(--anim-speed) ease-out, background-color 250ms;
     height: calc(var(--size) + 24px);
     width: calc(var(--size) + 24px);
     box-shadow: 0 0 4px 4px #0004;
@@ -197,5 +198,17 @@ footer {
       margin-right: 0;
     }
   }
+}
+.wrap.slide-left-enter-from button.add {
+  right: calc(100% + 1rem);
+}
+.wrap.slide-left-enter-to button.add {
+  right: 1rem;
+}
+.wrap.slide-right-leave-from button.add {
+  right: 1rem;
+}
+.wrap.slide-right-leave-to button.add {
+  right: calc(100% + 1rem);
 }
 </style>

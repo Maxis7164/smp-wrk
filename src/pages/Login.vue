@@ -58,25 +58,27 @@ async function loginEmail(): Promise<void> {
 </script>
 
 <template>
-  <header>
-    <h1>Willkommen!</h1>
-    <h3>per Email anmelden</h3>
-  </header>
-  <main>
-    <label for="email">
-      <h3>Email:</h3>
-      <input v-model="email" type="email" name="email" id="email" />
-    </label>
-    <label for="pswrd">
-      <h3>Password:</h3>
-      <input v-model="pswrd" type="password" name="pswrd" id="pswrd" />
-    </label>
-  </main>
-  <footer>
-    <button @click="$router.back()">Zurück</button>
-    <button @click="loginEmail" class="high">Weiter</button>
-  </footer>
-  <Loading back :load />
+  <div class="wrap">
+    <header>
+      <h1>Willkommen!</h1>
+      <h3>per Email anmelden</h3>
+    </header>
+    <main>
+      <label for="email">
+        <h3>Email:</h3>
+        <input v-model="email" type="email" name="email" id="email" />
+      </label>
+      <label for="pswrd">
+        <h3>Password:</h3>
+        <input v-model="pswrd" type="password" name="pswrd" id="pswrd" />
+      </label>
+    </main>
+    <footer>
+      <button @click="$router.back()">Zurück</button>
+      <button @click="loginEmail" class="high">Weiter</button>
+    </footer>
+    <Loading back :load />
+  </div>
 </template>
 
 <style lang="scss" scoped>

@@ -68,39 +68,41 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <header>
-    <h1>Arbeitszeit hinzufügen</h1>
-  </header>
-  <main>
-    <label for="profile">
-      <h3>Profil:</h3>
-      <select v-model="profile">
-        <option>- auswählen -</option>
-        <option v-for="prof in profiles" :key="prof.name">
-          {{ prof.name }}
-        </option>
-      </select>
-    </label>
-    <label for="date">
-      <h3>Tag:</h3>
-      <input v-model="date" type="date" name="date" id="date" />
-    </label>
-    <div class="hours">
-      <label for="start">
-        <h3>Von:</h3>
-        <input v-model="start" type="time" name="start" id="start" />
+  <div class="wrap">
+    <header>
+      <h1>Arbeitszeit hinzufügen</h1>
+    </header>
+    <main>
+      <label for="profile">
+        <h3>Profil:</h3>
+        <select v-model="profile">
+          <option>- auswählen -</option>
+          <option v-for="prof in profiles" :key="prof.name">
+            {{ prof.name }}
+          </option>
+        </select>
       </label>
-      <label for="end">
-        <h3>Bis:</h3>
-        <input v-model="end" type="time" name="end" id="end" />
+      <label for="date">
+        <h3>Tag:</h3>
+        <input v-model="date" type="date" name="date" id="date" />
       </label>
-    </div>
-  </main>
-  <footer>
-    <button @click="$router.back()">Zurück</button>
-    <button @click="save" class="high">Speichern</button>
-  </footer>
-  <Loading :load="loading" />
+      <div class="hours">
+        <label for="start">
+          <h3>Von:</h3>
+          <input v-model="start" type="time" name="start" id="start" />
+        </label>
+        <label for="end">
+          <h3>Bis:</h3>
+          <input v-model="end" type="time" name="end" id="end" />
+        </label>
+      </div>
+    </main>
+    <footer>
+      <button @click="$router.back()">Zurück</button>
+      <button @click="save" class="high">Speichern</button>
+    </footer>
+    <Loading :load="loading" />
+  </div>
 </template>
 
 <style lang="scss" scoped>

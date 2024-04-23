@@ -20,17 +20,24 @@ const app = createApp(App);
 
 //#region VueRouter
 const routes: RouteRecordRaw[] = [
-  { path: "/", component: Home },
+  { path: "/", component: Home, meta: { transition: "slide-right" } },
   { path: "/settings", component: Settings },
   { path: "/load", component: Load },
   { path: "/login", component: Login },
-  { path: "/editProfile", component: EditProfile },
+  { path: "/settings/editProfile", component: EditProfile },
   { path: "/editHours", component: EditHours },
 ];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+});
+
+router.afterEach((to, from) => {
+  const toDepth = to.path.split("/").length;
+  const fromDepth = from.path.split("/").length;
+  to.meta.transition =
+    toDepth < fromDepth || to.path === "/" ? "slide-right" : "slide-left";
 });
 
 app.use(router);

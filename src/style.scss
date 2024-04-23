@@ -11,6 +11,16 @@ span {
   transition: background-color 250ms, color 250ms;
 }
 
+div:not(.wrap),
+header,
+section,
+footer,
+main,
+ul,
+li::after {
+  transition: background-color 250ms;
+}
+
 body {
   --bg: #e6e6e6;
   --srf: hsl(130, 100%, 100%);
@@ -35,7 +45,7 @@ body {
   font-family: Inter, "Segoe UI";
   background: var(--bg);
   color: var(--txt);
-  padding: 1rem;
+  overflow: hidden;
 }
 
 button {
