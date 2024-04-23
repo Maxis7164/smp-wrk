@@ -63,7 +63,7 @@ async function save() {
 
     const prof = doc(db, "profiles", uid);
 
-    setDoc(prof, profile);
+    setDoc(prof, { [profile.name]: profile });
   } catch (err) {
     console.error(err);
   }
