@@ -24,9 +24,17 @@ const allHours = ref<number>(0);
 const D = new Date();
 
 watch(hours, (hours) => {
+  allHours.value = 0;
+  currentHours.value = 0;
+  currentPay.value = 0;
+
   if (prof.value && hours) {
     Object.keys(hours).forEach((p: string) => {
       if (p === "id") return;
+
+      const tot = hours[p].map((h) => h.total);
+      if (tot.length === 0) return;
+      allHours.value += tot.reduce((acc, cur) => acc + cur);
 
       const cur = hours[p]
         .filter((h) => parseInt(h.date[1]) === D.getMonth() + 1)
@@ -38,7 +46,6 @@ watch(hours, (hours) => {
 
       currentHours.value += h;
       currentPay.value += Math.floor(h * prof.value![p].pph * 100) / 100;
-      allHours.value += h;
     });
   }
 });
@@ -71,12 +78,16 @@ function getTotal(hours: Hour[]) {
       <h2>Deine Stunden</h2>
       <ul>
         <li>
-          <h3>Gesamt:</h3>
-          <p>{{ allHours }} Stunden</p>
+          <button @click="$router.push('/hours')">
+            <h3>Gesamt:</h3>
+            <p>{{ allHours }} Stunden</p>
+          </button>
         </li>
         <li v-for="(h, prof) in hours">
-          <h3>{{ prof }}</h3>
-          <p>{{ getTotal(h) }} Stunden</p>
+          <button>
+            <h3>{{ prof }}</h3>
+            <p>{{ getTotal(h) }} Stunden</p>
+          </button>
         </li>
       </ul>
     </section>
@@ -144,8 +155,18 @@ section {
   }
   &.hours {
     ul li {
-      justify-content: space-between;
-      display: flex;
+      padding: 0;
+
+      button {
+        justify-content: space-between;
+        padding: 1.25rem;
+        display: flex;
+        width: 100%;
+
+        p {
+          font-weight: 400;
+        }
+      }
     }
   }
   &.useful button {

@@ -15,6 +15,7 @@ import Load from "./pages/Load.vue";
 import Login from "./pages/Login.vue";
 import EditProfile from "./pages/EditProfile.vue";
 import EditHours from "./pages/EditHours.vue";
+import Hours from "./pages/Hours.vue";
 
 const app = createApp(App);
 
@@ -26,6 +27,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/login", component: Login },
   { path: "/settings/editProfile", component: EditProfile },
   { path: "/editHours", component: EditHours },
+  { path: "/hours", component: Hours },
 ];
 
 const router = createRouter({
