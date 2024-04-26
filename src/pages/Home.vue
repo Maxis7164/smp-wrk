@@ -45,7 +45,7 @@ watch(hours, (hours) => {
       const h = cur.reduce((acc, cur) => acc + cur);
 
       currentHours.value += h;
-      currentPay.value += Math.floor(h * prof.value![p].pph * 100) / 100;
+      currentPay.value += h * prof.value![p].pph;
     });
   }
 });
@@ -54,6 +54,10 @@ function getTotal(hours: Hour[]) {
   const nxt = hours.map((h) => h.total);
 
   return nxt.length === 0 ? 0 : nxt.reduce((acc, cur) => acc + cur);
+}
+
+function round(val: number): number {
+  return Math.round(val * 100) / 100;
 }
 </script>
 
@@ -65,12 +69,12 @@ function getTotal(hours: Hour[]) {
     <section class="current">
       <ul>
         <li>
-          <h2>{{ currentHours }} Stunden</h2>
+          <h2>{{ round(currentHours) }} Stunden</h2>
           <p>hast du diesen Monat gearbeitet</p>
         </li>
         <li>
           <p>damit verdienst du</p>
-          <h2>{{ currentPay }}€</h2>
+          <h2>{{ round(currentPay) }}€</h2>
         </li>
       </ul>
     </section>
@@ -80,13 +84,13 @@ function getTotal(hours: Hour[]) {
         <li>
           <button @click="$router.push('/hours')">
             <h3>Gesamt:</h3>
-            <p>{{ allHours }} Stunden</p>
+            <p>{{ round(allHours) }} Stunden</p>
           </button>
         </li>
         <li v-for="(h, prof) in hours">
           <button>
             <h3>{{ prof }}</h3>
-            <p>{{ getTotal(h) }} Stunden</p>
+            <p>{{ round(getTotal(h)) }} Stunden</p>
           </button>
         </li>
       </ul>
