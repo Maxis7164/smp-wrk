@@ -174,8 +174,8 @@ section {
     }
   }
   &.useful button {
-    padding: 1.25rem 1rem;
     text-align: left;
+    padding: 1rem;
     width: 100%;
   }
 
