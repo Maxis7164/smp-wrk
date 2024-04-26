@@ -147,7 +147,7 @@ section {
     text-align: center;
 
     ul li {
-      padding: 1.25rem;
+      padding: 1.5rem 1.25rem;
 
       :first-child {
         margin-bottom: 0.25rem;
@@ -174,6 +174,7 @@ section {
     }
   }
   &.useful button {
+    padding: 1.25rem 1rem;
     text-align: left;
     width: 100%;
   }
