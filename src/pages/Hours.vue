@@ -57,7 +57,7 @@ function getEuroDate(date: string[]): string[] {
 
 <style lang="scss" scoped>
 header {
-  margin-bottom: 1.25rem;
+  margin: 1rem 0 1.25rem 0;
 }
 ul {
   height: calc(100dvh - 75px);

@@ -134,6 +134,10 @@ section {
       margin-bottom: -5px;
       text-align: center;
     }
+    button {
+      font-weight: 400;
+      font-size: 0.875rem;
+    }
   }
   &.profiles ul {
     li:not(.add) {
