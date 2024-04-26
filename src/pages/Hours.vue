@@ -1,12 +1,14 @@
 <script lang="ts" setup>
+import { doc, updateDoc, arrayRemove } from "firebase/firestore";
 import { useDocument, getCurrentUser } from "vuefire";
-import { doc } from "firebase/firestore";
+import { computed } from "vue";
 import { db } from "../fire";
-import { computed, watch } from "vue";
 
 const user = await getCurrentUser();
+const hRef = doc(db, "hours", user!.uid);
 
-const hoursMap = useDocument<Typed<Hour[]>>(doc(db, "hours", user!.uid));
+const hoursMap = useDocument<Typed<Hour[]>>(hRef);
+const profiles = useDocument<Typed<Profile>>(doc(db, "profiles", user!.uid));
 const hours = computed<Hour[]>(() =>
   hoursMap.value
     ? ([] as Hour[])
@@ -17,8 +19,15 @@ const hours = computed<Hour[]>(() =>
     : []
 );
 
+function del(h: Hour): void {
+  updateDoc(hRef, { [h.profile]: arrayRemove(h) });
+}
+
 function getEuroDate(date: string[]): string[] {
   return [date[2], date[1], date[0]];
+}
+function round(val: number): number {
+  return Math.floor(val * 100) / 100;
 }
 </script>
 
@@ -30,10 +39,10 @@ function getEuroDate(date: string[]): string[] {
     <ul class="hours">
       <li v-for="h in hours" :key="h.begin + '@' + h.date.join('.')">
         <h3>{{ h.profile }}</h3>
-        <h3>74,46€</h3>
+        <h3>{{ round(h.total * (profiles?.[h.profile]?.pph ?? -1)) }}€</h3>
         <p>{{ getEuroDate(h.date).join(".") }}</p>
         <p>{{ h.total }} Stunden</p>
-        <button class="text risk">Löschen</button>
+        <button @click="del(h)" class="text risk">Löschen</button>
       </li>
     </ul>
     <footer>
@@ -75,6 +84,9 @@ ul {
     display: grid;
     padding: 1rem;
 
+    :nth-child(even) {
+      text-align: end;
+    }
     button {
       grid-column: 1 / 3;
     }
