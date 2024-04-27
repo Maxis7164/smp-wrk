@@ -14,6 +14,10 @@ const r = useRouter();
 
 const load = ref<boolean>(false);
 
+auth!.onAuthStateChanged((user) =>
+  user ? setTimeout(() => r.push("/"), 1_200) : null
+);
+
 async function loginGoogle(): Promise<void> {
   if (!auth)
     return console.error(
