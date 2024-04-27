@@ -1,20 +1,48 @@
 <script setup lang="ts">
+import { LoadFirebaseError } from "./fire";
+import { useFirebaseAuth } from "vuefire";
 import { loadTheme } from "./theme";
+import { ref } from "vue";
 
 import Modal from "./components/Modal.vue";
 import Banner from "./components/Banner.vue";
 
+const auth = useFirebaseAuth();
+
+const err = ref<LoadFirebaseError>();
+
 loadTheme();
+
+if (auth)
+  auth.onAuthStateChanged((user) => {
+    if (user)
+      localStorage.setItem("smp-wrk/isLoggedIn", "This is a filler text :)");
+    else localStorage.removeItem("smp-wrk/isLoggedIn");
+  });
+else console.error((err.value = new LoadFirebaseError("auth/none")));
+
+const reload = () => location.reload();
 </script>
 
 <template>
-  <suspense>
+  <suspense v-if="auth">
     <router-view v-slot="{ Component, route }">
       <transition :name="route.meta.transition as string ?? 'slide-left'">
         <component :is="Component" />
       </transition>
     </router-view>
   </suspense>
+  <div class="no-firebase" v-if="!auth">
+    <h1>Oops...</h1>
+    <p>
+      Something unexpected happened while loading the page - we're sorry for the
+      inconveiniance.
+    </p>
+    <p>
+      Error Code: <code>{{ err?.code }}</code>
+    </p>
+    <button @click="reload">Reload page</button>
+  </div>
   <Modal />
   <Banner />
 </template>
@@ -30,6 +58,30 @@ div.wrap {
   min-width: 100dvw;
   padding: 1rem;
   top: 0;
+}
+
+div.no-firebase {
+  transform: translate(-50%, -55%);
+  width: clamp(300px, 80%, 900px);
+  position: absolute;
+  left: 50%;
+  top: 55%;
+
+  h1 {
+    margin-bottom: 1rem;
+  }
+  p {
+    margin-bottom: 0.5rem;
+
+    code {
+      margin-left: 0.5rem;
+      font-size: 1rem;
+    }
+  }
+  button {
+    margin: 10rem auto 0 auto;
+    display: block;
+  }
 }
 
 div.wrap.slide-left-enter-active,

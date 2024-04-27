@@ -1,5 +1,9 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
@@ -12,7 +16,11 @@ const firebaseConfig = {
 
 export const firebaseApp = initializeApp(firebaseConfig);
 
-export const db = getFirestore(firebaseApp);
+export const db = initializeFirestore(firebaseApp, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
 
 export const MONTHS = [
   "Januar",
@@ -28,3 +36,18 @@ export const MONTHS = [
   "November",
   "Dezember",
 ] as const;
+
+const ERR: Typed<string> = {
+  "auth/none": "Auth instance is not defined!",
+};
+
+export class LoadFirebaseError extends Error {
+  code: string;
+
+  constructor(code: string, loc?: string) {
+    super(`${loc ? `<${loc}> ` : ""}${ERR[code]}`);
+
+    this.code = code;
+    this.name = "[!] Loading Firestore Failed";
+  }
+}

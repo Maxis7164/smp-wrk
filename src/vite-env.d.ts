@@ -14,3 +14,8 @@ type Hour = {
 };
 
 type Typed<T = any> = { [key: string]: T };
+
+type ErrorMap<T = any> = {
+  message: Typed<T>;
+  name: Typed<T>;
+};

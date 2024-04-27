@@ -1,21 +1,20 @@
 <script lang="ts" setup>
-import { useCurrentUser, getCurrentUser, useDocument } from "vuefire";
-import { doc } from "firebase/firestore";
+import { useCurrentUser, useFirebaseAuth } from "vuefire";
+import { doc, getDoc } from "firebase/firestore";
+import { db, LoadFirebaseError } from "../fire";
+import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
-import { db } from "../fire";
 
 import Loading from "../components/Loading.vue";
 
-const user = useCurrentUser();
+const curUser = useCurrentUser();
+const auth = useFirebaseAuth();
+const r = useRouter();
 
-await getCurrentUser();
+if (!auth) throw new LoadFirebaseError("auth/none");
 
-const { data: prof } = useDocument<Typed<Profile>>(
-  doc(db, `profiles/${user.value!.uid}`)
-);
-const { data: hours, pending } = useDocument<Typed<Hour[]>>(
-  doc(db, `hours/${user.value!.uid}`)
-);
+const profi = ref<Typed<Profile>>({});
+const hour = ref<Typed<Hour[]>>({});
 
 const currentHours = ref<number>(0);
 const currentPay = ref<number>(0);
@@ -23,12 +22,22 @@ const allHours = ref<number>(0);
 
 const D = new Date();
 
-watch(hours, (hours) => {
+auth.onAuthStateChanged(async (user) => {
+  if (!user) return r.push("/load");
+
+  const p = await getDoc(doc(db, "profiles", user.uid));
+  const h = await getDoc(doc(db, "hours", user.uid));
+
+  hour.value = h.data() as Typed<Hour[]>;
+  profi.value = p.data() as Typed<Profile>;
+});
+
+watch(hour, (hours) => {
   allHours.value = 0;
   currentHours.value = 0;
   currentPay.value = 0;
 
-  if (prof.value && hours) {
+  if (profi.value && hours) {
     Object.keys(hours).forEach((p: string) => {
       if (p === "id") return;
 
@@ -45,7 +54,7 @@ watch(hours, (hours) => {
       const h = cur.reduce((acc, cur) => acc + cur);
 
       currentHours.value += h;
-      currentPay.value += h * prof.value![p].pph;
+      currentPay.value += h * profi.value![p].pph;
     });
   }
 });
@@ -64,7 +73,7 @@ function round(val: number): number {
 <template>
   <div class="wrap">
     <header>
-      <h1>Hallo {{ user?.displayName ?? "ERR" }}!</h1>
+      <h1>Hallo {{ curUser?.displayName ?? "ERR" }}!</h1>
     </header>
     <section class="current">
       <ul>
@@ -87,7 +96,7 @@ function round(val: number): number {
             <p>{{ round(allHours) }} Stunden</p>
           </button>
         </li>
-        <li v-for="(h, prof) in hours">
+        <li v-for="(h, prof) in hour">
           <button>
             <h3>{{ prof }}</h3>
             <p>{{ round(getTotal(h)) }} Stunden</p>
@@ -132,7 +141,7 @@ function round(val: number): number {
         </svg>
       </button>
     </footer>
-    <Loading back :load="pending" />
+    <Loading back :load="!curUser" />
   </div>
 </template>
 
