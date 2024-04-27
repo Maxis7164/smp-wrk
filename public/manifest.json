@@ -1,0 +1,51 @@
+{
+  "name": "Simpler Work",
+  "short_name": "Simpler Work",
+  "start_url": "/load",
+  "display": "standalone",
+  "theme_color": "#006611",
+  "orientation": "portrait",
+  "id": "/load",
+  "icons": [
+    {
+      "src": "/Simpler-Work-128.svg",
+      "type": "image/svg+xml",
+      "sizes": "128x128"
+    },
+    {
+      "src": "/Simpler-Work-256.svg",
+      "type": "image/svg+xml",
+      "sizes": "256x256"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/L-Home.png",
+      "sizes": "1080x2062",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home Page (Light)"
+    },
+    {
+      "src": "/screenshots/L-Settings.png",
+      "sizes": "1080x2062",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Settings Page (Light)"
+    },
+    {
+      "src": "/screenshots/D-Home.png",
+      "sizes": "1080x2062",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home Page (Dark)"
+    },
+    {
+      "src": "/screenshots/D-Settings.png",
+      "sizes": "1080x2062",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Settings Page (Dark)"
+    }
+  ]
+}

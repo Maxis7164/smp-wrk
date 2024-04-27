@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/service_worker_api": "^0.0.9",
     "firebase": "^10.11.0",
     "sass": "^1.75.0",
     "vue": "^3.2.47",

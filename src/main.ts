@@ -19,6 +19,8 @@ import Hours from "./pages/Hours.vue";
 
 const app = createApp(App);
 
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
+
 //#region VueRouter
 const routes: RouteRecordRaw[] = [
   { path: "/", component: Home, meta: { transition: "slide-right" } },
@@ -43,7 +45,8 @@ router.afterEach((to, from) => {
 });
 
 router.beforeEach((to) => {
-  if (localStorage.getItem("smp-wrk/isLoggedIn")) return true;
+  if (to.path === "/load" || localStorage.getItem("smp-wrk/isLoggedIn"))
+    return true;
   else return { path: "/load", query: { redir: to.path } };
 });
 
