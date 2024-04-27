@@ -42,6 +42,11 @@ router.afterEach((to, from) => {
     toDepth < fromDepth || to.path === "/" ? "slide-right" : "slide-left";
 });
 
+router.beforeEach((to) => {
+  if (localStorage.getItem("smp-wrk/isLoggedIn")) return true;
+  else return { path: "/load", query: { redir: to.path } };
+});
+
 app.use(router);
 //#endregion
 
