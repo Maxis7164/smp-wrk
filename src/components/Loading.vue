@@ -3,20 +3,24 @@ import { ref, watch } from "vue";
 
 const props = defineProps<{ load: boolean; back?: boolean; icon?: boolean }>();
 
-watch(props, (nxt, cur) => {
-  if (nxt.load !== load.value) {
-    if (nxt.load) {
-      load.value = true;
-      setTimeout(() => (show.value = true));
-    } else {
-      show.value = false;
-      setTimeout(() => (load.value = false), 600);
-    }
-  }
-});
-
-const load = ref<boolean>(props.load);
+const load = ref<boolean>(false);
 const show = ref<boolean>(false);
+
+watch(
+  props,
+  (nxt) => {
+    if (nxt.load !== load.value) {
+      if (nxt.load) {
+        load.value = true;
+        setTimeout(() => (show.value = true));
+      } else {
+        show.value = false;
+        setTimeout(() => (load.value = false), 600);
+      }
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -53,6 +57,7 @@ div.back {
   position: absolute;
   height: 100dvh;
   width: 100dvw;
+  z-index: 3;
   opacity: 0;
   left: 0;
   top: 0;
@@ -66,6 +71,7 @@ svg {
   transition: opacity 600ms;
   position: absolute;
   opacity: 0;
+  z-index: 3;
   left: 50%;
   top: 45%;
 
