@@ -1,9 +1,14 @@
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
+  getDoc,
+  doc,
+  DocumentReference,
 } from "firebase/firestore";
+import { saveFile } from "./files";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
@@ -49,5 +54,39 @@ export class LoadFirebaseError extends Error {
 
     this.code = code;
     this.name = "[!] Loading Firestore Failed";
+  }
+}
+
+export async function expDb(): Promise<boolean> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user)
+    return (
+      false &&
+      console.error(
+        "[!] <src/fire.ts> Cannot access user data while not being signed in!"
+      )
+    );
+
+  const pd = doc(db, "profiles", user.uid) as DocumentReference<Profiles>;
+  const hd = doc(db, "hours", user.uid) as DocumentReference<Hours>;
+
+  const [profiles, hours] = await Promise.all([getDoc(pd), getDoc(hd)]);
+
+  const data: DatabaseExport = {
+    profiles: profiles.data() ?? {},
+    hours: hours.data() ?? {},
+    version: 0,
+  };
+
+  try {
+    saveFile([JSON.stringify(data)], "Simpler-Work-Data.json", {
+      type: "application/json",
+    });
+    return true;
+  } catch (err) {
+    console.error(`[!] <fire.ts> Could not save file: ${err}`);
+    return false;
   }
 }

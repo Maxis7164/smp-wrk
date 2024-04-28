@@ -9,6 +9,11 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
+type Profiles = { [key: string]: Profile };
+type Hours = { [key: string]: Hour[] };
+
+type DatabaseExport = { profiles: Profiles; hours: Hours; version: number };
+
 type Profile = {
   name: string;
   pph: number;

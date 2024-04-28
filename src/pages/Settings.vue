@@ -10,8 +10,7 @@ import { setTheme, getTheme, type Theme } from "../theme";
 import { confirm } from "../components/modal";
 import { call } from "../components/banner";
 import { useRouter } from "vue-router";
-import { db } from "../fire";
-import { ref } from "vue";
+import { db, expDb } from "../fire";
 
 import SlideButton from "../components/SlideButton.vue";
 
@@ -104,7 +103,7 @@ function signOut(): void {
       />
     </section>
     <section class="data">
-      <button>Daten exportieren</button>
+      <button @click="expDb">Daten exportieren</button>
     </section>
     <section class="appversion">
       <p>Version{{ APP_S !== "FINAL" ? " " + APP_S : "" }} {{ APP_V }}</p>

@@ -2,6 +2,7 @@
 import { LoadFirebaseError } from "./fire";
 import { useFirebaseAuth } from "vuefire";
 import { loadTheme } from "./theme";
+import { saveFile } from "./files";
 import { ref } from "vue";
 
 import Modal from "./components/Modal.vue";
