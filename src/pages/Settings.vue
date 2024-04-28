@@ -91,6 +91,9 @@ function signOut(): void {
     <section class="data">
       <button>Daten exportieren</button>
     </section>
+    <section class="appversion">
+      <p>Version ALPHA 0.0.4</p>
+    </section>
     <footer>
       <button @click="$router.back()" class="icon">
         <svg
@@ -162,6 +165,9 @@ section {
         width: 100%;
       }
     }
+  }
+  &.appversion {
+    text-align: center;
   }
 
   > button {

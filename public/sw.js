@@ -2,7 +2,7 @@
 /// <reference lib="esnext" />
 /// <reference lib="webworker" />
 
-console.log("[sw] test");
+console.info("[sw] Service Worker installed!");
 
 const CACHE = "smp-wrk-v1";
 

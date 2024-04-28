@@ -19,11 +19,15 @@ import Hours from "./pages/Hours.vue";
 
 const app = createApp(App);
 
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
+console.dir(location);
+
+//? prevent service worker from working in localhost to prevent stale app
+if (location.hostname !== "localhost")
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
 
 //#region VueRouter
 const routes: RouteRecordRaw[] = [
-  { path: "/", component: Home, meta: { transition: "slide-right" } },
+  { path: "/", component: Home },
   { path: "/settings", component: Settings },
   { path: "/load", component: Load },
   { path: "/login", component: Login },
