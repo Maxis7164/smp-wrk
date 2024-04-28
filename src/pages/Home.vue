@@ -15,6 +15,7 @@ if (!auth) throw new LoadFirebaseError("auth/none");
 
 const profi = ref<Typed<Profile>>({});
 const hour = ref<Typed<Hour[]>>({});
+const ready = ref<boolean>(false);
 
 const currentHours = ref<number>(0);
 const currentPay = ref<number>(0);
@@ -25,11 +26,15 @@ const D = new Date();
 auth.onAuthStateChanged(async (user) => {
   if (!user) return r.push("/load");
 
-  const p = await getDoc(doc(db, "profiles", user.uid));
-  const h = await getDoc(doc(db, "hours", user.uid));
+  const [p, h] = await Promise.all([
+    getDoc(doc(db, "profiles", user.uid)),
+    getDoc(doc(db, "hours", user.uid)),
+  ]);
 
   hour.value = h.data() as Typed<Hour[]>;
   profi.value = p.data() as Typed<Profile>;
+
+  ready.value = true;
 });
 
 watch(hour, (hours) => {
@@ -141,7 +146,7 @@ function round(val: number): number {
         </svg>
       </button>
     </footer>
-    <Loading back :load="!curUser" />
+    <Loading back :load="!ready" />
   </div>
 </template>
 
