@@ -19,8 +19,6 @@ import Hours from "./pages/Hours.vue";
 
 const app = createApp(App);
 
-console.dir(location);
-
 //? prevent service worker from working in localhost to prevent stale app
 if (location.hostname !== "localhost")
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
