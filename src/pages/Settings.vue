@@ -129,13 +129,17 @@ function signOut(): void {
 </template>
 
 <style lang="scss" scoped>
+div.wrap {
+  overflow-y: auto;
+  height: 100dvh;
+  width: 100dvw;
+}
 header {
   background: var(--bg);
-  padding: 0.625rem 0;
-  margin: 0.625rem 0;
+  padding: 1.25rem 0;
   position: sticky;
+  top: -1rem;
   z-index: 2;
-  top: 0;
 }
 section {
   margin-bottom: 1.25rem;
