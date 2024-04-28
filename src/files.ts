@@ -54,7 +54,7 @@ export async function requestFile(): Promise<File> {
       rej("Timeout");
     }, 300_000);
 
-    INP.onclick = () => {
+    INP.onchange = () => {
       clearTimeout(to);
       const file = INP.files?.item(0);
 

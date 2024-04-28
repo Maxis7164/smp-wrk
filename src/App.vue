@@ -31,10 +31,7 @@ setTimeout(() => (ready.value = true));
 <template>
   <suspense v-if="auth">
     <router-view v-slot="{ Component, route }">
-      <transition
-        v-if="ready"
-        :name="route.meta.transition as string ?? 'slide-left'"
-      >
+      <transition :name="route.meta.transition as string ?? 'slide-left'">
         <component :is="Component" />
       </transition>
     </router-view>

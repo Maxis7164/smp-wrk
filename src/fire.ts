@@ -4,11 +4,14 @@ import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
+  deleteDoc,
   getDoc,
+  setDoc,
   doc,
   DocumentReference,
 } from "firebase/firestore";
-import { saveFile } from "./files";
+import { requestFile, saveFile } from "./files";
+import { confirm } from "./components/modal";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
@@ -65,7 +68,7 @@ export async function expDb(): Promise<boolean> {
     return (
       false &&
       console.error(
-        "[!] <src/fire.ts> Cannot access user data while not being signed in!"
+        "[!] <fire.ts::expDb> Cannot access user data while not being signed in!"
       )
     );
 
@@ -86,7 +89,75 @@ export async function expDb(): Promise<boolean> {
     });
     return true;
   } catch (err) {
-    console.error(`[!] <fire.ts> Could not save file: ${err}`);
+    console.error(`[!] <fire.ts::expDb> Could not save file: ${err}`);
     return false;
   }
+}
+
+export async function impDb(): Promise<void> {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user) return;
+
+  const h = doc(db, "hours", user.uid);
+  const p = doc(db, "profiles", user.uid);
+
+  try {
+    const file = await requestFile();
+
+    const raw = await file.text();
+    const data: DatabaseExport = JSON.parse(raw);
+
+    if (import.meta.env.DB_VERSION < data.version)
+      return console.error(
+        "[!] <fire.ts::impDb> Database is newer than client!"
+      );
+
+    const doMerge = await confirm(
+      "Soll die aktuelle und die angegebene Datenbank vereint werden? (Empfohlen: Ja)",
+      "Datenbanken vereinen"
+    );
+
+    await setDoc(h, data.hours, { merge: doMerge });
+    await setDoc(p, data.profiles, { merge: doMerge });
+  } catch (err) {
+    console.error(`[!] <fire.ts::impDb> ${err}`);
+  }
+}
+
+export async function delDb(): Promise<boolean> {
+  const doDel = await confirm(
+    "Möchtest du wirklich alle Daten von dir löschen? Das beinhaltet alle deine Stunden und alle deine Arbeitsprofile",
+    "Daten löschen"
+  );
+
+  const actDel = !doDel
+    ? false
+    : await confirm(
+        "Bist du dir sicher? Wenn du alle Daten löschst, sind sie, ohne Backup, für immer verloren!",
+        "Daten löschen",
+        true
+      );
+
+  if (!actDel) return false;
+
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (!user)
+    return (
+      false &&
+      console.error(
+        "[!] <fire.ts::delDb> Cannot delete user data while not being signed in!"
+      )
+    );
+
+  const h = doc(db, "hours", user.uid);
+  const p = doc(db, "profiles", user.uid);
+
+  await deleteDoc(h);
+  await deleteDoc(p);
+
+  return true;
 }

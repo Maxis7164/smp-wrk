@@ -8,6 +8,7 @@ const inp = ref<string>("");
 
 const inpEl = ref<HTMLElement | null>(null);
 const display = ref<boolean>(false);
+const reverse = ref<boolean>(false);
 const showBox = ref<boolean>(false);
 const show = ref<boolean>(false);
 const msg = ref<string[]>([]);
@@ -29,7 +30,10 @@ function buildModal(modal: Modal<any>) {
   msg.value = modal.message.split("\n");
   inp.value = "";
   type.value = modal.type;
+  reverse.value = modal.switchControls;
+
   display.value = true;
+
   setTimeout(() => {
     show.value = showBox.value = true;
     inpEl.value?.focus();
@@ -107,16 +111,16 @@ function continueInQuene(): void {
           type="text"
         />
       </main>
-      <footer>
+      <footer :class="{ reverse }">
         <button v-if="type !== 'alert'" @click="resolve(-1)">
           <!-- {{ $t('cancel') }} -->
-          Cancel
+          {{ type === "confirm" ? "No" : "Cancel" }}
         </button>
         <button @click="resolve(i)" v-for="(b, i) in cur?.buttons ?? []">
           {{ b }}
         </button>
         <button v-if="type !== 'choose'" @click="resolve(-2)" class="high">
-          Ok
+          {{ type === "confirm" ? "Yes" : "Ok" }}
         </button>
       </footer>
     </section>
@@ -142,12 +146,12 @@ div.back {
 
   section.box {
     transform: translate(-50%, -40%);
+    width: clamp(190px, 35%, 500px);
     transition: opacity 400ms;
     flex-direction: column;
     text-align: center;
     position: absolute;
     display: flex;
-    width: 35%;
     opacity: 0;
     left: 50%;
     gap: 20px;
@@ -172,9 +176,13 @@ div.back {
     }
 
     footer {
-      justify-content: end;
+      justify-content: center;
       display: inline-flex;
       gap: 5px;
+
+      &.reverse {
+        flex-direction: row-reverse;
+      }
     }
   }
 }

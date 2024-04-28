@@ -8,6 +8,7 @@ export function listen(fn: (modal: Modal<any>) => void): () => void {
 export type ModalType = "alert" | "prompt" | "confirm" | "choose";
 export interface Modal<T> {
   fns: [(value: T) => void, (reason: any) => void];
+  switchControls: boolean;
   placeholder: string;
   buttons: string[];
   type: ModalType;
@@ -20,7 +21,8 @@ function call<T>(
   message: string,
   title: string = "",
   buttons: string[] = [],
-  placeholder: string = ""
+  placeholder: string = "",
+  switchControls: boolean = false
 ): Promise<T> {
   return new Promise<T>((res, rej) => {
     m.forEach((fn) =>
@@ -31,6 +33,7 @@ function call<T>(
         title,
         buttons,
         placeholder,
+        switchControls,
       })
     );
   });
@@ -46,8 +49,12 @@ export function prompt(
 ): Promise<string | null> {
   return call<string | null>("prompt", message, title, [], placeholder);
 }
-export function confirm(message: string, title: string = ""): Promise<boolean> {
-  return call<boolean>("confirm", message, title);
+export function confirm(
+  message: string,
+  title: string = "",
+  switchControls: boolean = false
+): Promise<boolean> {
+  return call<boolean>("confirm", message, title, [], "", switchControls);
 }
 export function choose(
   message: string,

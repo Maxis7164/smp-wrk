@@ -2,6 +2,7 @@
 
 interface ImportMetaEnv {
   readonly APP_VERSION: string;
+  readonly DB_VERSION: number;
   readonly APP_STATE: string;
 }
 

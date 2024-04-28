@@ -7,10 +7,10 @@ import {
 } from "vuefire";
 import { doc, updateDoc, deleteField } from "firebase/firestore";
 import { setTheme, getTheme, type Theme } from "../theme";
+import { db, expDb, impDb, delDb } from "../fire";
 import { confirm } from "../components/modal";
 import { call } from "../components/banner";
 import { useRouter } from "vue-router";
-import { db, expDb } from "../fire";
 
 import SlideButton from "../components/SlideButton.vue";
 
@@ -19,8 +19,6 @@ const user = useCurrentUser();
 const r = useRouter();
 
 await getCurrentUser();
-
-console.log(import.meta.env);
 
 const APP_V = import.meta.env.VITE_APP_VERSION;
 const APP_S = import.meta.env.VITE_APP_STATE;
@@ -54,6 +52,12 @@ function signOut(): void {
 
   auth!.signOut();
   r.push("/load");
+}
+
+async function deleteDatabase(): Promise<void> {
+  const isDel = await delDb();
+
+  if (isDel) r.push("/settings/editProfile?setup=1");
 }
 </script>
 
@@ -103,7 +107,11 @@ function signOut(): void {
       />
     </section>
     <section class="data">
-      <button @click="expDb">Daten exportieren</button>
+      <div>
+        <button @click="impDb">Daten importieren</button>
+        <button @click="expDb">Daten exportieren</button>
+      </div>
+      <button class="risk" @click="deleteDatabase">Daten löschen</button>
     </section>
     <section class="appversion">
       <p>Version{{ APP_S !== "FINAL" ? " " + APP_S : "" }} {{ APP_V }}</p>
@@ -184,6 +192,12 @@ section {
       }
     }
   }
+  &.data div {
+    margin-bottom: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
   &.appversion {
     font-size: 0.875rem;
     text-align: center;
