@@ -1,33 +1,45 @@
 <script lang="ts" setup>
-import {
-  doc,
-  setDoc,
-  addDoc,
-  limit,
-  query,
-  where,
-  collection,
-  getDocs,
-} from "firebase/firestore";
-import { useCollection, useFirebaseAuth } from "vuefire";
-import { call } from "../components/banner";
+import { doc, setDoc, getDoc, DocumentReference } from "firebase/firestore";
 import { useRoute, useRouter } from "vue-router";
+import { call } from "../components/banner";
+import { useFirebaseAuth } from "vuefire";
+import { type User } from "firebase/auth";
 import { db } from "../fire";
 import { ref } from "vue";
 
 import Loading from "../components/Loading.vue";
-import { getDoc } from "firebase/firestore/lite";
 
 const auth = useFirebaseAuth();
 const route = useRoute();
 const r = useRouter();
 
 const loading = ref<boolean>(false);
-const pay = ref<string>("12.41");
+const pay = ref<string | number>(12.41);
 const name = ref<string>("");
 
-async function load(): Promise<void> {
+auth!.onAuthStateChanged((user) => (user ? load(user) : null));
+
+async function load(user: User): Promise<any> {
   const profile = route.query["profile"];
+
+  if (!profile || typeof profile !== "string") return;
+
+  loading.value = true;
+
+  const snap = await getDoc(
+    doc(db, "profiles", user.uid) as DocumentReference<Typed<Profile>>
+  );
+  const data = snap.data();
+
+  if (!data || !(profile in data)) {
+    call("error", `Profil ${profile} nicht gefunden`);
+    return r.push("/settings");
+  }
+
+  name.value = data[profile].name;
+  pay.value = data[profile].pph;
+
+  loading.value = false;
 }
 
 async function save() {
@@ -43,8 +55,7 @@ async function save() {
       "Du bist nicht angemeldet - versuche, die Seite neu zu laden"
     );
 
-  if (name.value.length === 0 || pay.value.length === 0)
-    return call("error", "Gib bitte einen Namen und einen Stundenlohn an");
+  if (name.value.length === 0) return call("error", "Gib bitte einen Namen an");
 
   const uid = auth.currentUser.uid;
 
@@ -107,7 +118,7 @@ async function save() {
       <button @click="$router.back()">Zurück</button>
       <button @click="save" class="high">Speichern</button>
     </footer>
-    <Loading :load="loading" />
+    <Loading back :load="loading" />
   </div>
 </template>
 

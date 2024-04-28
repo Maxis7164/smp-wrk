@@ -69,7 +69,17 @@ function signOut(): void {
         <li v-if="user" v-for="prof in profiles" :key="prof.name">
           <h3>{{ prof.name }}</h3>
           <p>{{ prof.pph }}€/h</p>
-          <button class="text">Bearbeiten</button>
+          <button
+            @click="
+              $router.push({
+                path: '/settings/editProfile',
+                query: { profile: prof.name },
+              })
+            "
+            class="text"
+          >
+            Bearbeiten
+          </button>
           <button @click="deleteProfile(prof)" class="text risk">
             Löschen
           </button>
