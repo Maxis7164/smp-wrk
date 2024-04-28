@@ -1,5 +1,11 @@
 <script lang="ts" setup>
-import { doc, setDoc, getDoc, DocumentReference } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  setDoc,
+  getDoc,
+  DocumentReference,
+} from "firebase/firestore";
 import { useRoute, useRouter } from "vue-router";
 import { call } from "../components/banner";
 import { useFirebaseAuth } from "vuefire";
@@ -74,7 +80,11 @@ async function save() {
 
     const prof = doc(db, "profiles", uid);
 
-    setDoc(prof, { [profile.name]: profile });
+    try {
+      await updateDoc(prof, { [profile.name]: profile });
+    } catch (err) {
+      if ((err as any).code) setDoc(prof, { [profile.name]: profile });
+    }
   } catch (err) {
     console.error(err);
   }
