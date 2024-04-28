@@ -10,6 +10,7 @@ import Banner from "./components/Banner.vue";
 const auth = useFirebaseAuth();
 
 const err = ref<LoadFirebaseError>();
+const ready = ref<boolean>(false);
 
 loadTheme();
 
@@ -22,12 +23,17 @@ if (auth)
 else console.error((err.value = new LoadFirebaseError("auth/none")));
 
 const reload = () => location.reload();
+
+setTimeout(() => (ready.value = true));
 </script>
 
 <template>
   <suspense v-if="auth">
     <router-view v-slot="{ Component, route }">
-      <transition :name="route.meta.transition as string ?? 'slide-left'">
+      <transition
+        v-if="ready"
+        :name="route.meta.transition as string ?? 'slide-left'"
+      >
         <component :is="Component" />
       </transition>
     </router-view>
