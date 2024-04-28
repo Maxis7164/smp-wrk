@@ -27,8 +27,8 @@ if (location.hostname !== "localhost")
 const routes: RouteRecordRaw[] = [
   { path: "/", component: Home },
   { path: "/settings", component: Settings },
-  { path: "/load", component: Load },
-  { path: "/login", component: Login },
+  { path: "/load", component: Load, meta: { anonymous: true } },
+  { path: "/login", component: Login, meta: { anonymous: true } },
   { path: "/settings/editProfile", component: EditProfile },
   { path: "/editHours", component: EditHours },
   { path: "/hours", component: Hours },
@@ -47,7 +47,7 @@ router.afterEach((to, from) => {
 });
 
 router.beforeEach((to) => {
-  if (to.path === "/load" || localStorage.getItem("smp-wrk/isLoggedIn"))
+  if (to.meta.anonymous === true || localStorage.getItem("smp-wrk/isLoggedIn"))
     return true;
   else return { path: "/load", query: { redir: to.path } };
 });

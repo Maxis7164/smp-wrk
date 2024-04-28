@@ -1,5 +1,14 @@
 /// <reference types="vite/client" />
 
+interface ImportMetaEnv {
+  readonly APP_VERSION: string;
+  readonly APP_STATE: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 type Profile = {
   name: string;
   pph: number;

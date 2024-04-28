@@ -1,15 +1,16 @@
 <script lang="ts" setup>
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { useRoute, useRouter } from "vue-router";
 import { getDoc, doc } from "firebase/firestore";
 import { call } from "../components/banner";
 import { useFirebaseAuth } from "vuefire";
+import { db } from "../fire";
 import { ref } from "vue";
 
 import Loading from "../components/Loading.vue";
-import { useRouter } from "vue-router";
-import { db } from "../fire";
 
 const auth = useFirebaseAuth();
+const route = useRoute();
 const r = useRouter();
 
 const load = ref<boolean>(false);
@@ -32,7 +33,8 @@ async function loginGoogle(): Promise<void> {
 
     const a = await getDoc(doc(db, "profiles", cred.user.uid));
 
-    if (a.exists() && Object.keys(a.data()).length > 0) r.push("/");
+    if (a.exists() && Object.keys(a.data()).length > 0)
+      r.push(route.query["redir"] ? (route.query.redir as string) : "/");
     else r.push({ path: "/settings/editProfile", query: { setup: 1 } });
   } catch (err) {
     console.error(
@@ -55,7 +57,17 @@ setTimeout(() => (load.value = true), 3000);
     <Loading icon :load="!load" />
     <footer>
       <button @click="loginGoogle">Anmelden mit Google</button>
-      <button @click="$router.push('/login')">Anmelden per Email</button>
+      <button
+        @click="
+          $router.push({
+            path: '/login',
+            query:
+              'redir' in $route.query ? { redir: $route.query['redir'] } : {},
+          })
+        "
+      >
+        Anmelden per Email
+      </button>
     </footer>
   </div>
 </template>

@@ -21,6 +21,11 @@ const r = useRouter();
 
 await getCurrentUser();
 
+console.log(import.meta.env);
+
+const APP_V = import.meta.env.VITE_APP_VERSION;
+const APP_S = import.meta.env.VITE_APP_STATE;
+
 const { data: profiles, error } = useDocument<Typed<Profile>>(
   doc(db, `profiles/${user.value!.uid}`)
 );
@@ -102,7 +107,7 @@ function signOut(): void {
       <button>Daten exportieren</button>
     </section>
     <section class="appversion">
-      <p>Version ALPHA 0.0.4</p>
+      <p>Version{{ APP_S !== "FINAL" ? " " + APP_S : "" }} {{ APP_V }}</p>
     </section>
     <footer>
       <button @click="$router.back()" class="icon">
@@ -177,6 +182,7 @@ section {
     }
   }
   &.appversion {
+    font-size: 0.875rem;
     text-align: center;
   }
 
