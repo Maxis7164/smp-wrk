@@ -122,8 +122,8 @@ header {
 }
 main {
   transform: translate(-50%, -55%);
+  width: clamp(200px, 50%, 800px);
   position: absolute;
-  width: 50%;
   left: 50%;
   top: 55%;
 
