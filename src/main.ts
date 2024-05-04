@@ -16,6 +16,7 @@ import Login from "./pages/Login.vue";
 import EditProfile from "./pages/EditProfile.vue";
 import EditHours from "./pages/EditHours.vue";
 import Hours from "./pages/Hours.vue";
+import Checkin from "./pages/Checkin.vue";
 
 const app = createApp(App);
 
@@ -32,6 +33,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/settings/editProfile", component: EditProfile },
   { path: "/editHours", component: EditHours },
   { path: "/hours", component: Hours },
+  { path: "/check-in", component: Checkin },
 ];
 
 const router = createRouter({

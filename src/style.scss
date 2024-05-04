@@ -103,7 +103,12 @@ button {
       width: var(--size);
 
       *:not([keep]) {
-        fill: var(--txt);
+        &[fill] {
+          fill: var(--txt);
+        }
+        &[stroke] {
+          stroke: var(--txt);
+        }
       }
     }
   }
@@ -139,4 +144,9 @@ select {
   cursor: pointer;
   padding: 1rem;
   border: unset;
+
+  &:disabled {
+    background: var(--bg);
+    cursor: default;
+  }
 }

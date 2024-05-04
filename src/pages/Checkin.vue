@@ -1,79 +1,89 @@
 <script lang="ts" setup>
-import { doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
-import { useDocument, getCurrentUser } from "vuefire";
-import { call } from "../components/banner";
+import { doc, getDoc } from "firebase/firestore";
+import { useFirebaseAuth } from "vuefire";
+import { db, addHours } from "../fire";
 import { useRouter } from "vue-router";
-import { db } from "../fire";
 import { ref } from "vue";
 
 import Loading from "../components/Loading.vue";
-import { addHours } from "../fire";
+import { call } from "../components/banner";
 
+const auth = useFirebaseAuth();
 const r = useRouter();
 
-const D = new Date();
+const PATH = "smp-wrk/curCheckInStart";
 const NOPROF = "- auswählen -";
+const D = new Date();
 
-const date = ref<string>(D.toISOString().slice(0, 10));
+let cur: CheckIn | null = JSON.parse(localStorage.getItem(PATH) ?? "null");
+
+if (cur?.profile === NOPROF) {
+  localStorage.removeItem(PATH);
+  cur = null;
+}
+
+const start = ref<string>(cur?.begin ?? D.toTimeString().slice(0, 5));
 const end = ref<string>(D.toTimeString().slice(0, 5));
-const profile = ref<string>(NOPROF);
-const loading = ref<boolean>(false);
-const start = ref<string>("");
+const profile = ref<string>(cur?.profile ?? NOPROF);
+const loading = ref<boolean>(true);
+const profiles = ref<Profiles>({});
 
-const user = await getCurrentUser();
+auth?.onAuthStateChanged(async (user) => {
+  profiles.value = user
+    ? (await getDoc(doc(db, "profiles", user.uid))).data() ?? {}
+    : {};
 
-const { data: profiles, error } = useDocument<Typed<Profile>>(
-  doc(db, `profiles/${user!.uid}`)
-);
-
-setTimeout(async () => {
-  if (Object.keys(profiles.value ?? {}).length === 0)
-    await r.push("/settings/editProfile");
-}, 5000);
+  loading.value = false;
+});
 
 async function save(): Promise<void> {
-  if (
-    profile.value === NOPROF ||
-    date.value === "" ||
-    start.value === "" ||
-    end.value === ""
-  )
-    return call(
-      "error",
-      "Bitte wähle ein Profil aus und gib den Tag, sowie Anfangs- und Endzeit an"
-    );
+  if (profile.value === NOPROF) return call("error", "Bitte gib ein Profil an");
 
-  await addHours(profile.value, date.value.split("-"), start.value, end.value);
-  r.push("/");
+  if (cur) {
+    await addHours(profile.value, cur.date, start.value, end.value);
+    localStorage.removeItem(PATH);
+    r.push("/");
+  } else {
+    const check: CheckIn = {
+      date: D.toISOString().slice(0, 10).split("-"),
+      profile: profile.value,
+      begin: start.value,
+    };
+
+    localStorage.setItem(PATH, JSON.stringify(check));
+    r.push("/");
+  }
 }
 </script>
 
 <template>
   <div class="wrap">
     <header>
-      <h1>Arbeitszeit hinzufügen</h1>
+      <h1>Check In</h1>
     </header>
     <main>
       <label for="profile">
         <h3>Profil:</h3>
-        <select v-model="profile">
+        <select :disabled="!!cur" v-model="profile">
           <option>- auswählen -</option>
           <option v-for="prof in profiles" :key="prof.name">
             {{ prof.name }}
           </option>
         </select>
       </label>
-      <label for="date">
-        <h3>Tag:</h3>
-        <input v-model="date" type="date" name="date" id="date" />
-      </label>
       <div class="hours">
         <label for="start">
-          <h3>Von:</h3>
-          <input v-model="start" type="time" name="start" id="start" />
+          <h3>Start:</h3>
+          <input
+            :disabled="!!cur"
+            v-model="start"
+            type="time"
+            name="start"
+            id="start"
+          />
         </label>
-        <label for="end">
-          <h3>Bis:</h3>
+        <label v-if="cur" for="end">
+          <h3>Ende:</h3>
           <input v-model="end" type="time" name="end" id="end" />
         </label>
       </div>
@@ -82,7 +92,7 @@ async function save(): Promise<void> {
       <button @click="$router.back()">Zurück</button>
       <button @click="save" class="high">Speichern</button>
     </footer>
-    <Loading :load="loading" />
+    <Loading back :load="loading" />
   </div>
 </template>
 

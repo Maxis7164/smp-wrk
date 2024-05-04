@@ -20,13 +20,13 @@ type Profile = {
   pph: number;
 };
 
-type Hour = {
+type CheckIn = {
   profile: string;
-  total: number;
   begin: string;
   date: string[];
-  end: string;
 };
+
+type Hour = CheckIn & { end: string; total: number };
 
 type Typed<T = any> = { [key: string]: T };
 

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { User, getAuth } from "firebase/auth";
 import {
   initializeFirestore,
   persistentLocalCache,
@@ -9,9 +9,12 @@ import {
   setDoc,
   doc,
   DocumentReference,
+  arrayUnion,
 } from "firebase/firestore";
 import { requestFile, saveFile } from "./files";
 import { confirm } from "./components/modal";
+import { updateDoc } from "firebase/firestore";
+import { call } from "./components/banner";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
@@ -60,10 +63,15 @@ export class LoadFirebaseError extends Error {
   }
 }
 
-export async function expDb(): Promise<boolean> {
+export function getUser(): User | null {
   const auth = getAuth();
   const user = auth.currentUser;
 
+  return user;
+}
+
+export async function expDb(): Promise<boolean> {
+  const user = getUser();
   if (!user)
     return (
       false &&
@@ -95,9 +103,7 @@ export async function expDb(): Promise<boolean> {
 }
 
 export async function impDb(): Promise<void> {
-  const auth = getAuth();
-  const user = auth.currentUser;
-
+  const user = getUser();
   if (!user) return;
 
   const h = doc(db, "hours", user.uid);
@@ -161,4 +167,54 @@ export async function delDb(): Promise<boolean> {
   await deleteDoc(p);
 
   return true;
+}
+
+function calcTotal(start: string, end: string): number {
+  const s = new Date(`2004-04-22T${start}:00Z`).getTime();
+  const e = new Date(`2004-04-22T${end}:00Z`).getTime();
+
+  const total = (e - s) / 1000 / 60 / 60;
+
+  return Math.floor(total * 100) / 100;
+}
+
+const NOPROF = "- auswählen -";
+export async function addHours(
+  profile: string,
+  date: string[],
+  start: string,
+  end: string
+): Promise<void> {
+  const user = getUser();
+  if (!user)
+    return console.error(
+      "[!] <fire.ts::addHours> Cannot add hours while not being logged in!"
+    );
+
+  if (profile === NOPROF || date.length === 0 || start === "" || end === "")
+    return call(
+      "error",
+      "Bitte wähle ein Profil aus und gib den Tag, sowie Anfangs- und Endzeit an"
+    );
+
+  const hours = doc(db, "hours", user.uid) as DocumentReference<Hours>;
+
+  const hour: Hour = {
+    total: calcTotal(start, end),
+    profile: profile,
+    begin: start,
+    end: end,
+    date,
+  };
+
+  console.log(profile, hour);
+
+  try {
+    await updateDoc(hours, { [hour.profile]: arrayUnion(hour) });
+  } catch (err) {
+    if ((err as any).code === "not-found")
+      await setDoc(hours, { [profile]: [hour] });
+
+    console.log(err);
+  }
 }
