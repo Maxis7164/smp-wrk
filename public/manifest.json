@@ -47,5 +47,13 @@
       "form_factor": "narrow",
       "label": "Settings Page (Dark)"
     }
+  ],
+  "shortcuts": [
+    {
+      "icons": [{ "src": "/Sign In.svg", "sizes": "96x96" }],
+      "description": "A quick way to track your working hours",
+      "name": "Check-In / Check-Out",
+      "url": "/#/check-in"
+    }
   ]
 }
