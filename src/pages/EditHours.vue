@@ -25,6 +25,9 @@ const { data: profiles, error } = useDocument<Typed<Profile>>(
   doc(db, `profiles/${user!.uid}`)
 );
 
+if (Object.keys(profiles.value ?? {}).length === 0)
+  await r.push("/settings/editProfile");
+
 function calcTotal(start: string, end: string): number {
   const s = new Date(`2004-04-22T${start}:00Z`).getTime();
   const e = new Date(`2004-04-22T${end}:00Z`).getTime();
