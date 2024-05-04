@@ -1,65 +1,129 @@
-const m: ((modal: Modal<any>) => void)[] = [];
+type Listener = (modal: Modal<keyof ModalResults>) => void;
+type Unsubscribe = () => void;
 
-export function listen(fn: (modal: Modal<any>) => void): () => void {
-  m.push(fn);
-  return () => m.splice(m.indexOf(fn), 1);
-}
+export type ModalResults = {
+  confirm: boolean;
+  prompt: string;
+  alert: void;
+};
 
-export type ModalType = "alert" | "prompt" | "confirm" | "choose";
-export interface Modal<T> {
-  fns: [(value: T) => void, (reason: any) => void];
-  switchControls: boolean;
-  placeholder: string;
+type ModalOptions = {
   buttons: string[];
-  type: ModalType;
   message: string;
   title: string;
+};
+
+export type Modal<K extends keyof ModalResults> = {
+  type: K;
+} & ModalOptions;
+
+type OpenModal<K extends keyof ModalResults> = Modal<K> & {
+  res: (value: ModalResults[K]) => void;
+  rej: (reason?: any) => void;
+};
+
+const listeners: Listener[] = [];
+
+const quene: OpenModal<any>[] = [];
+
+export function listen(listener: Listener): Unsubscribe {
+  listeners.push(listener);
+  return () => listeners.splice(listeners.indexOf(listener), 1);
 }
 
-function call<T>(
-  type: ModalType,
-  message: string,
-  title: string = "",
-  buttons: string[] = [],
-  placeholder: string = "",
-  switchControls: boolean = false
-): Promise<T> {
-  return new Promise<T>((res, rej) => {
-    m.forEach((fn) =>
-      fn({
-        fns: [res, rej],
-        type,
-        message,
-        title,
-        buttons,
-        placeholder,
-        switchControls,
-      })
+export function __awnserModal__<K extends keyof ModalResults>(
+  result: any,
+  rejects?: true
+): boolean;
+export function __awnserModal__<K extends keyof ModalResults>(
+  result: ModalResults[K],
+  rejects?: false
+): boolean;
+export function __awnserModal__<K extends keyof ModalResults>(
+  result: any,
+  rejects: boolean = false
+): boolean {
+  const modal = quene.at(0);
+
+  if (!modal) {
+    console.error(
+      "[!] <modal.ts::__awnserModal__> Tried to awnser a modal while no modal is currently open!"
     );
+    return !!quene.length;
+  }
+
+  if (rejects) modal.rej(result);
+  else modal.res(result);
+
+  quene.shift();
+  setTimeout(() => continueInQuene());
+  return !!quene.length;
+}
+
+function continueInQuene(): void {
+  const modal = quene.at(0);
+
+  if (!modal) return;
+
+  const stripped: Modal<keyof ModalResults> = {
+    buttons: modal.buttons,
+    message: modal.message,
+    title: modal.title,
+    type: modal.type,
+  };
+
+  listeners.forEach((fn) => fn(stripped));
+}
+
+function callModal<K extends keyof ModalResults>(
+  type: K,
+  modal: Partial<ModalOptions>
+): Promise<ModalResults[K]> {
+  return new Promise<ModalResults[K]>((res, rej) => {
+    const m: OpenModal<K> = {
+      buttons: ["Ok", "Cancel"],
+      message: "",
+      title: "",
+      type,
+
+      ...modal,
+      res,
+      rej,
+    };
+
+    quene.push(m);
+    if (quene.length === 1) continueInQuene();
   });
 }
 
-export function alert(message: string, title: string = ""): Promise<void> {
-  return call<void>("alert", message, title);
+export function alert(
+  message: string,
+  title: string = "",
+  okButton: string = "Ok"
+): Promise<void> {
+  return callModal("alert", { message, title, buttons: [okButton] });
 }
 export function prompt(
   message: string,
   title: string = "",
-  placeholder: string = ""
-): Promise<string | null> {
-  return call<string | null>("prompt", message, title, [], placeholder);
+  buttons?: string[]
+): Promise<string> {
+  return callModal("prompt", {
+    message,
+    title,
+    buttons: buttons ?? ["Ok", "Cancel"],
+  });
 }
 export function confirm(
   message: string,
   title: string = "",
-  switchControls: boolean = false
+  buttons?: string[]
 ): Promise<boolean> {
-  return call<boolean>("confirm", message, title, [], "", switchControls);
-}
-export function choose(
-  message: string,
-  buttons: string[],
-  title: string = ""
-): Promise<number | null> {
-  return call<number | null>("choose", message, title, buttons);
+  console.log(buttons);
+
+  return callModal("confirm", {
+    message,
+    title,
+    buttons: buttons ?? ["Ok", "Cancel"],
+  });
 }

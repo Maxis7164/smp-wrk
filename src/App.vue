@@ -5,8 +5,8 @@ import { loadTheme } from "./theme";
 import { saveFile } from "./files";
 import { ref } from "vue";
 
-import Modal from "./components/Modal.vue";
 import Banner from "./components/Banner.vue";
+import Modal from "./components/Modal.vue";
 
 const auth = useFirebaseAuth();
 
@@ -47,8 +47,8 @@ setTimeout(() => (ready.value = true));
     </p>
     <button @click="reload">Reload page</button>
   </div>
-  <Modal />
   <Banner />
+  <Modal />
 </template>
 
 <style lang="scss" scoped>
@@ -142,3 +142,4 @@ div.wrap.slide-right-leave-active {
   left: 100%;
 }
 </style>
+./components/modal

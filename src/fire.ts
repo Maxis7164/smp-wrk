@@ -129,7 +129,8 @@ export async function impDb(): Promise<void> {
 export async function delDb(): Promise<boolean> {
   const doDel = await confirm(
     "Möchtest du wirklich alle Daten von dir löschen? Das beinhaltet alle deine Stunden und alle deine Arbeitsprofile",
-    "Daten löschen"
+    "Daten löschen",
+    ["Ja", "Nein"]
   );
 
   const actDel = !doDel
@@ -137,7 +138,7 @@ export async function delDb(): Promise<boolean> {
     : await confirm(
         "Bist du dir sicher? Wenn du alle Daten löschst, sind sie, ohne Backup, für immer verloren!",
         "Daten löschen",
-        true
+        ["Ja", "Nein"]
       );
 
   if (!actDel) return false;

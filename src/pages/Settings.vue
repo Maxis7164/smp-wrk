@@ -30,7 +30,8 @@ const { data: profiles, error } = useDocument<Typed<Profile>>(
 async function deleteProfile(profile: Profile): Promise<void> {
   const doDel = await confirm(
     "Möchtest du wirklich dieses Arbeitsprofil löschen? Alle Arbeitszeiten, die zu diesem Profil gehören, werden ebenfalls gelöscht. Diese Aktion lässt sich nicht rückgängig machen!",
-    "Arbeitsprofil löschen"
+    "Arbeitsprofil löschen",
+    ["Ja", "Nein"]
   );
 
   if (doDel) {

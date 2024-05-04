@@ -1,189 +1,129 @@
 <script lang="ts" setup>
-import { onUnmounted, ref } from "vue";
-import { listen, Modal, ModalType } from "./modal";
+import {
+  __awnserModal__,
+  listen,
+  type Modal,
+  type ModalResults,
+} from "./modal";
+import { ref, shallowRef, onUnmounted } from "vue";
 
-const type = ref<ModalType>("alert");
+const mod = shallowRef<Modal<keyof ModalResults>>({
+  buttons: ["Ok", "Cancel"],
+  type: "alert",
+  message: "",
+  title: "",
+});
 
+const trans = ref<boolean>(false);
+const show = ref<boolean>(false);
 const inp = ref<string>("");
 
-const inpEl = ref<HTMLElement | null>(null);
-const display = ref<boolean>(false);
-const reverse = ref<boolean>(false);
-const showBox = ref<boolean>(false);
-const show = ref<boolean>(false);
-const msg = ref<string[]>([]);
+const unsub = listen((modal) =>
+  setTimeout(
+    () => {
+      mod.value = modal;
+      console.log(mod.value);
 
-let exit: number = -1;
-let cur = ref<Modal<any> | null>(null);
-const quene: Modal<any>[] = [];
+      show.value = trans.value = true;
+    },
+    show.value ? 400 : 0
+  )
+);
 
-function buildModal(modal: Modal<any>) {
-  if (exit > -1) {
-    clearTimeout(exit);
-    exit = -1;
-    setTimeout(() => continueInQuene());
-  }
-
-  if (cur.value) return quene.push(modal);
-  cur.value = modal;
-
-  msg.value = modal.message.split("\n");
-  inp.value = "";
-  type.value = modal.type;
-  reverse.value = modal.switchControls;
-
-  display.value = true;
-
-  setTimeout(() => {
-    show.value = showBox.value = true;
-    inpEl.value?.focus();
-  }, 1);
-}
-
-onUnmounted(listen(buildModal));
-
-function resolve(val: number): void {
-  if (!cur.value) return;
-
-  switch (type.value) {
+function close(exit: number): void {
+  switch (mod.value.type) {
     case "alert":
-      cur.value.fns[0](undefined);
+      show.value = __awnserModal__(undefined);
       break;
     case "prompt":
-      if (val === -2) cur.value.fns[0](inp.value);
-      else if (val === -1) cur.value.fns[0](null);
-      else
-        cur.value.fns[1](`Invalid response value "${val}" for prompt modal!`);
+      show.value = __awnserModal__(exit ? inp.value : "");
       break;
     case "confirm":
-      if (val < 0) cur.value.fns[0](!!(val + 1));
-      else
-        cur.value.fns[1](`Invalid response value "${val}" for confirm modal!`);
-      break;
-    case "choose":
-      if (val === -1) cur.value.fns[0](null);
-      else if (val >= 0) cur.value.fns[0](val ?? null);
-      else
-        cur.value.fns[1](`Invalid response value "${val}" for choose modal!`);
+      show.value = __awnserModal__(!!exit);
       break;
   }
 
-  continueInQuene();
+  trans.value = false;
 }
 
-function continueInQuene(): void {
-  showBox.value = false;
-
-  if (quene.length > 0) {
-    setTimeout(() => {
-      cur.value = null;
-      const nxt = quene.shift();
-
-      if (nxt) buildModal(nxt);
-    }, 400);
-  } else {
-    show.value = false;
-
-    exit = setTimeout(() => {
-      display.value = !!(cur.value = null);
-      exit = -1;
-    }, 800) as unknown as number;
-  }
-}
+onUnmounted(() => unsub());
 </script>
 
 <template>
-  <div v-if="display" :class="{ show }" class="back">
-    <section :class="{ show: showBox }" class="box">
-      <header>
-        <h2>{{ cur?.title ?? "" }}</h2>
-        <p :class="{ space: txt.startsWith('\\') }" v-for="txt in msg">
-          {{ txt.split("\\").join("") }}
-        </p>
-      </header>
-      <main>
-        <input
-          ref="inpEl"
-          v-if="type === 'prompt'"
-          @keydown.enter="resolve(-2)"
-          v-model="inp"
-          :placeholder="cur?.placeholder ?? ''"
-          type="text"
-        />
-      </main>
-      <footer :class="{ reverse }">
-        <button v-if="type !== 'alert'" @click="resolve(-1)">
-          <!-- {{ $t('cancel') }} -->
-          {{ type === "confirm" ? "No" : "Cancel" }}
-        </button>
-        <button @click="resolve(i)" v-for="(b, i) in cur?.buttons ?? []">
-          {{ b }}
-        </button>
-        <button v-if="type !== 'choose'" @click="resolve(-2)" class="high">
-          {{ type === "confirm" ? "Yes" : "Ok" }}
-        </button>
-      </footer>
-    </section>
-  </div>
+  <Transition>
+    <div v-if="show" class="back">
+      <Transition>
+        <section v-if="trans" class="modal">
+          <h2>{{ mod.title }}</h2>
+          <main>
+            <p>{{ mod.message }}</p>
+            <input v-if="mod.type === 'prompt'" v-model="inp" type="text" />
+          </main>
+          <footer>
+            <button @click="close(0)" v-if="mod.type !== 'alert'">
+              {{ mod.buttons[1] }}
+            </button>
+            <button @click="close(1)">{{ mod.buttons[0] }}</button>
+          </footer>
+        </section>
+      </Transition>
+    </div>
+  </Transition>
 </template>
 
 <style lang="scss" scoped>
 div.back {
-  transition: opacity 800ms, backdrop-filter 800ms;
-  backdrop-filter: blur(6px);
-  background: #0002;
+  backdrop-filter: blur(4px) brightness(50%);
   position: fixed;
-  height: 100vh;
-  width: 100vw;
-  opacity: 0;
-  z-index: 9;
+  height: 100dvh;
+  width: 100dvw;
+  z-index: 10;
   left: 0;
   top: 0;
 
-  &.show {
-    opacity: 1;
+  &.v-enter-active,
+  &.v-leave-active {
+    transition: opacity 800ms ease;
   }
 
-  section.box {
+  &.v-enter-from,
+  &.v-leave-to {
+    opacity: 0;
+  }
+
+  section {
     transform: translate(-50%, -40%);
-    width: clamp(190px, 35%, 500px);
-    transition: opacity 400ms;
+    width: clamp(275px, 50%, 800px);
     flex-direction: column;
-    text-align: center;
+    border-radius: 1.25rem;
+    background: var(--bg);
     position: absolute;
     display: flex;
-    opacity: 0;
+    padding: 1rem;
+    gap: 1rem;
     left: 50%;
-    gap: 20px;
     top: 40%;
 
-    &.show {
-      opacity: 1;
+    &.v-enter-active,
+    &.v-leave-active {
+      transition: opacity 400ms ease;
     }
 
-    header {
-      h2 {
-        margin-bottom: 10px;
-      }
-
-      p.space {
-        margin-top: 5px;
-      }
+    &.v-enter-from,
+    &.v-leave-to {
+      opacity: 0;
     }
 
     main input {
-      width: 80%;
+      margin-top: 0.5rem;
+      width: 100%;
     }
-
     footer {
-      justify-content: center;
       display: inline-flex;
-      gap: 5px;
-
-      &.reverse {
-        flex-direction: row-reverse;
-      }
+      align-self: end;
+      gap: 0.25rem;
     }
   }
 }
 </style>
+./modal
