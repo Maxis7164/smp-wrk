@@ -58,8 +58,8 @@ div.wrap {
   transition: background-color 250ms;
   background: var(--bg);
   position: absolute;
-  min-height: 100dvh;
-  min-width: 100dvw;
+  height: 100dvh;
+  width: 100dvw;
   padding: 1rem;
   top: 0;
 }

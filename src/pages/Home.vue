@@ -196,8 +196,17 @@ function round(val: number): number {
 </template>
 
 <style lang="scss" scoped>
+div.wrap {
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
 header {
-  margin: 1rem 0 1.25rem 0;
+  background: var(--bg);
+  padding: 1.25rem 0;
+  position: sticky;
+  z-index: 2;
+  top: -1rem;
 }
 section {
   margin-bottom: 1.25rem;

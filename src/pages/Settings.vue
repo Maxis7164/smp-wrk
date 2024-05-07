@@ -146,8 +146,8 @@ header {
   background: var(--bg);
   padding: 1.25rem 0;
   position: sticky;
-  top: -1rem;
   z-index: 2;
+  top: -1rem;
 }
 section {
   margin-bottom: 1.25rem;
