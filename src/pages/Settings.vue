@@ -14,6 +14,7 @@ import { useRouter } from "vue-router";
 
 import SlideButton from "../components/SlideButton.vue";
 
+const theme = parseInt(localStorage.getItem("theme") ?? "2");
 const auth = useFirebaseAuth();
 const user = useCurrentUser();
 const r = useRouter();
@@ -102,10 +103,7 @@ async function deleteDatabase(): Promise<void> {
     </section>
     <section class="theme">
       <h2>Appthema</h2>
-      <SlideButton
-        :default="getTheme()"
-        @update="(v) => setTheme(v as Theme)"
-      />
+      <SlideButton :default="theme" @update="(v) => setTheme(v as Theme)" />
     </section>
     <section class="data">
       <div>
