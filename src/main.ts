@@ -17,6 +17,7 @@ import EditProfile from "./pages/EditProfile.vue";
 import EditHours from "./pages/EditHours.vue";
 import Hours from "./pages/Hours.vue";
 import Checkin from "./pages/Checkin.vue";
+import Account from "./pages/Account.vue";
 
 const app = createApp(App);
 
@@ -28,9 +29,10 @@ if (location.hostname !== "localhost")
 const routes: RouteRecordRaw[] = [
   { path: "/", component: Home },
   { path: "/settings", component: Settings },
+  { path: "/settings/editProfile", component: EditProfile },
+  { path: "/settings/account", component: Account },
   { path: "/load", component: Load, meta: { anonymous: true } },
   { path: "/login", component: Login, meta: { anonymous: true } },
-  { path: "/settings/editProfile", component: EditProfile },
   { path: "/editHours", component: EditHours },
   { path: "/hours", component: Hours },
   { path: "/check-in", component: Checkin },
