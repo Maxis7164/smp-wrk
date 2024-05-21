@@ -5,6 +5,7 @@ import { computed } from "vue";
 import { db } from "../fire";
 
 import BackButton from "../components/BackButton.vue";
+import { confirm } from "../components/modal";
 
 const user = await getCurrentUser();
 const hRef = doc(db, "hours", user!.uid);
@@ -21,8 +22,13 @@ const hours = computed<Hour[]>(() =>
     : []
 );
 
-function del(h: Hour): void {
-  updateDoc(hRef, { [h.profile]: arrayRemove(h) });
+async function del(h: Hour): Promise<void> {
+  const doDel = await confirm(
+    "Möchtest du diese Stunden wirklich löschen?",
+    "Arbeitszeit löschen"
+  );
+
+  if (doDel) updateDoc(hRef, { [h.profile]: arrayRemove(h) });
 }
 
 function getEuroDate(date: string[]): string[] {
