@@ -2,7 +2,6 @@
 import { LoadFirebaseError } from "./fire";
 import { useFirebaseAuth } from "vuefire";
 import { loadTheme } from "./theme";
-import { saveFile } from "./files";
 import { ref } from "vue";
 
 import Banner from "./components/Banner.vue";
@@ -11,7 +10,6 @@ import Modal from "./components/Modal.vue";
 const auth = useFirebaseAuth();
 
 const err = ref<LoadFirebaseError>();
-const ready = ref<boolean>(false);
 
 loadTheme();
 
@@ -24,8 +22,6 @@ if (auth)
 else console.error((err.value = new LoadFirebaseError("auth/none")));
 
 const reload = () => location.reload();
-
-setTimeout(() => (ready.value = true));
 </script>
 
 <template>
@@ -53,14 +49,14 @@ setTimeout(() => (ready.value = true));
 
 <style lang="scss" scoped>
 div.wrap {
-  --anim-speed: 0.3s;
+  --anim-speed: 0.4s;
 
   transition: background-color 250ms;
   background: var(--bg);
   position: absolute;
   height: 100dvh;
-  width: 100dvw;
   padding: 1rem;
+  width: 100dvw;
   top: 0;
 }
 
@@ -142,4 +138,3 @@ div.wrap.slide-right-leave-active {
   left: 100%;
 }
 </style>
-./components/modal

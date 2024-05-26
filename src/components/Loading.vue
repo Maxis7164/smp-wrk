@@ -55,8 +55,8 @@ div.back {
   transition: opacity 600ms;
   background: #0004;
   position: absolute;
-  height: 100dvh;
-  width: 100dvw;
+  height: 100%;
+  width: 100%;
   z-index: 3;
   opacity: 0;
   left: 0;
