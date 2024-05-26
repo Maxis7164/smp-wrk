@@ -271,13 +271,27 @@ footer {
   height: 3rem;
 
   button {
-    --size: 2.5rem;
+    --size: 2.25rem;
 
-    box-shadow: 0 0 0.25rem 0.25rem #0004;
+    transition: left var(--anim-speed) ease-out, background-color 250ms;
+    box-shadow: 0 0 4px 4px #0004;
     padding: 1rem 0.25rem 1rem 1rem;
     position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
+    bottom: 1rem;
+    right: 1rem;
   }
+}
+
+.wrap.slide-left-enter-from button.add {
+  right: calc(100% + 1rem);
+}
+.wrap.slide-left-enter-to button.add {
+  right: 1rem;
+}
+.wrap.slide-right-leave-from button.add {
+  right: 1rem;
+}
+.wrap.slide-right-leave-to button.add {
+  right: calc(100% + 1rem);
 }
 </style>

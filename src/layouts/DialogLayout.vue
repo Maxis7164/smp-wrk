@@ -35,7 +35,7 @@ header {
 }
 main {
   transform: translate(-50%, -55%);
-  width: clamp(230px, 50%, 800px);
+  width: clamp(230px, 50%, 330px);
   position: absolute;
   left: 50%;
   top: 55%;

@@ -20,23 +20,19 @@
 </template>
 
 <style lang="scss" scoped>
-footer {
-  height: 50px;
+footer button {
+  --size: 2.25rem;
 
-  button {
-    --size: 2.25rem;
+  transition: left var(--anim-speed) ease-out, background-color 250ms;
+  height: calc(var(--size) + 24px);
+  box-shadow: 0 0 4px 4px #0004;
+  width: calc(var(--size) + 24px);
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
 
-    transition: left var(--anim-speed) ease-out, background-color 250ms;
-    height: calc(var(--size) + 24px);
-    box-shadow: 0 0 4px 4px #0004;
-    width: calc(var(--size) + 24px);
-    position: fixed;
-    bottom: 1rem;
-    left: 1rem;
-
-    svg {
-      margin-right: 0;
-    }
+  svg {
+    margin-right: 0;
   }
 }
 </style>

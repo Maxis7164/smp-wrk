@@ -9,15 +9,17 @@ defineProps<{ name: string; isHome?: boolean }>();
     <header>
       <h1>{{ name }}</h1>
     </header>
-    <slot />
+    <main class="content">
+      <slot />
+    </main>
     <BackButton v-if="!isHome" />
   </div>
 </template>
 
 <style lang="scss" scoped>
 div.wrap {
-  overflow-y: auto;
   padding-bottom: 2rem;
+  overflow-y: auto;
 }
 
 header {
@@ -28,36 +30,16 @@ header {
   top: -1rem;
 }
 
-// footer {
-//   height: 50px;
-
-//   button {
-//     --size: 2.25rem;
-
-//     transition: right var(--anim-speed) ease-out, background-color 250ms;
-//     height: calc(var(--size) + 24px);
-//     width: calc(var(--size) + 24px);
-//     box-shadow: 0 0 4px 4px #0004;
-//     position: fixed;
-//     bottom: 1rem;
-//     right: 1rem;
-
-//     svg {
-//       margin-right: 0;
-//     }
-//   }
-// }
-
-.wrap.slide-left-enter-from button.add {
-  right: calc(100% + 1rem);
+main.content {
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
 }
-.wrap.slide-left-enter-to button.add {
-  right: 1rem;
-}
-.wrap.slide-right-leave-from button.add {
-  right: 1rem;
-}
-.wrap.slide-right-leave-to button.add {
-  right: calc(100% + 1rem);
+
+//? min-width: 680px -> footer buttons don't sit in front of ui - no extra scroll space needed
+@media screen and (min-width: 680px) {
+  div.wrap {
+    padding-bottom: 0;
+  }
 }
 </style>
