@@ -6,8 +6,8 @@ import {
   getCurrentUser,
 } from "vuefire";
 import { doc, updateDoc, deleteField } from "firebase/firestore";
-import { setTheme, getTheme, type Theme } from "../theme";
 import { db, expDb, impDb, delDb } from "../fire";
+import { setTheme, type Theme } from "../theme";
 import { confirm } from "../components/modal";
 import { call } from "../components/banner";
 import { useRouter } from "vue-router";
@@ -177,6 +177,10 @@ section {
     margin-bottom: 0.5rem;
     display: flex;
     gap: 0.5rem;
+
+    button {
+      width: 100%;
+    }
   }
 
   &.appversion {
