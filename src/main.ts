@@ -3,10 +3,10 @@ import {
   createWebHashHistory,
   type RouteRecordRaw,
 } from "vue-router";
-import { createApp } from "vue";
-import "./style.scss";
 import { VueFire, VueFireAuth } from "vuefire";
 import { firebaseApp } from "./fire";
+import { createApp } from "vue";
+import "./style.scss";
 
 import App from "./App.vue";
 import Home from "./pages/Home.vue";
@@ -21,8 +21,9 @@ import Account from "./pages/Account.vue";
 const app = createApp(App);
 
 //? prevent service worker from working in localhost to prevent stale app
-if (location.hostname !== "localhost")
+if (location.hostname !== "localhost" || import.meta.env.VITE_SW_DEV === "1") {
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
+}
 
 //#region VueRouter
 const routes: RouteRecordRaw[] = [

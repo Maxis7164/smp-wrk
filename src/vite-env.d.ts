@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly APP_VERSION: string;
-  readonly DB_VERSION: number;
-  readonly APP_STATE: string;
+  readonly VITE_APP_VERSION: string;
+  readonly VITE_DB_VERSION: string;
+  readonly VITE_APP_STATE: string;
+  readonly VITE_SW_DEV: string;
 }
 
 interface ImportMeta {
