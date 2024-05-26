@@ -6,6 +6,7 @@ import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
 
 import Loading from "../components/Loading.vue";
+import PageLayout from "../layouts/PageLayout.vue";
 
 const cur = localStorage.getItem("smp-wrk/curCheckInStart");
 const curUser = useCurrentUser();
@@ -77,10 +78,10 @@ function round(val: number): number {
 </script>
 
 <template>
-  <div class="wrap">
-    <header>
-      <h1>Hallo {{ curUser?.displayName ?? "ERR" }}!</h1>
-    </header>
+  <PageLayout
+    isHome
+    :name="curUser ? `Hallo ${curUser.displayName!}` : 'loading...'"
+  >
     <section class="current">
       <ul>
         <li>
@@ -192,22 +193,10 @@ function round(val: number): number {
       </button>
     </footer>
     <Loading back :load="!ready" />
-  </div>
+  </PageLayout>
 </template>
 
 <style lang="scss" scoped>
-div.wrap {
-  overflow-y: auto;
-  padding-bottom: 2rem;
-}
-
-header {
-  background: var(--bg);
-  padding: 1.25rem 0;
-  position: sticky;
-  z-index: 2;
-  top: -1rem;
-}
 section {
   margin-bottom: 1.25rem;
 
@@ -279,34 +268,16 @@ section {
   }
 }
 footer {
-  height: 50px;
+  height: 3rem;
 
   button {
-    --size: 2.25rem;
+    --size: 2.5rem;
 
-    transition: right var(--anim-speed) ease-out, background-color 250ms;
-    height: calc(var(--size) + 24px);
-    width: calc(var(--size) + 24px);
-    box-shadow: 0 0 4px 4px #0004;
+    box-shadow: 0 0 0.25rem 0.25rem #0004;
+    padding: 1rem 0.25rem 1rem 1rem;
     position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-
-    svg {
-      margin-right: 0;
-    }
+    bottom: 1.5rem;
+    right: 1.5rem;
   }
-}
-.wrap.slide-left-enter-from button.add {
-  right: calc(100% + 1rem);
-}
-.wrap.slide-left-enter-to button.add {
-  right: 1rem;
-}
-.wrap.slide-right-leave-from button.add {
-  right: 1rem;
-}
-.wrap.slide-right-leave-to button.add {
-  right: calc(100% + 1rem);
 }
 </style>

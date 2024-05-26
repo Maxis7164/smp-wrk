@@ -13,7 +13,7 @@ import { call } from "../components/banner";
 import { useRouter } from "vue-router";
 
 import SlideButton from "../components/SlideButton.vue";
-import BackButton from "../components/BackButton.vue";
+import PageLayout from "../layouts/PageLayout.vue";
 
 const theme = parseInt(localStorage.getItem("theme") ?? "2");
 const auth = useFirebaseAuth();
@@ -65,10 +65,7 @@ async function deleteDatabase(): Promise<void> {
 </script>
 
 <template>
-  <div class="wrap">
-    <header>
-      <h1>Einstellungen</h1>
-    </header>
+  <PageLayout name="Einstellungen">
     <section class="account">
       <p>Angemeldet als:</p>
       <h2>{{ user?.displayName ?? "loading..." }}</h2>
@@ -121,23 +118,10 @@ async function deleteDatabase(): Promise<void> {
     <section class="appversion">
       <p>Version{{ APP_S !== "FINAL" ? " " + APP_S : "" }} {{ APP_V }}</p>
     </section>
-    <BackButton />
-  </div>
+  </PageLayout>
 </template>
 
 <style lang="scss" scoped>
-div.wrap {
-  overflow-y: auto;
-  height: 100dvh;
-  width: 100dvw;
-}
-header {
-  background: var(--bg);
-  padding: 1.25rem 0;
-  position: sticky;
-  z-index: 2;
-  top: -1rem;
-}
 section {
   margin-bottom: 1.25rem;
 
@@ -229,18 +213,5 @@ section {
       }
     }
   }
-}
-
-.wrap.slide-left-enter-from footer button {
-  left: calc(100% + 1rem);
-}
-.wrap.slide-left-enter-to footer button {
-  left: 1rem;
-}
-.wrap.slide-right-leave-from footer button {
-  left: 1rem;
-}
-.wrap.slide-right-leave-to footer button {
-  left: calc(100% + 1rem);
 }
 </style>

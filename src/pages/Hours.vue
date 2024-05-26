@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { doc, updateDoc, arrayRemove } from "firebase/firestore";
 import { useDocument, getCurrentUser } from "vuefire";
+import { confirm } from "../components/modal";
 import { computed, ref, watch } from "vue";
 import { db } from "../fire";
 
-import BackButton from "../components/BackButton.vue";
-import { confirm } from "../components/modal";
+import PageLayout from "../layouts/PageLayout.vue";
 
 const user = await getCurrentUser();
 const hRef = doc(db, "hours", user!.uid);
@@ -66,10 +66,7 @@ function round(val: number): number {
 </script>
 
 <template>
-  <div class="wrap">
-    <header>
-      <h1>Deine Stunden</h1>
-    </header>
+  <PageLayout name="Deine Stunden">
     <section class="overview">
       <ul>
         <li>
@@ -96,18 +93,10 @@ function round(val: number): number {
         </li>
       </ul>
     </section>
-    <BackButton />
-  </div>
+  </PageLayout>
 </template>
 
 <style lang="scss" scoped>
-div.wrap {
-  overflow-y: auto;
-}
-
-header {
-  margin: 1rem 0 1.25rem 0;
-}
 section {
   margin-bottom: 1.25rem;
 
@@ -172,18 +161,5 @@ section {
       }
     }
   }
-}
-
-.wrap.slide-left-enter-from footer button {
-  left: calc(100% + 1rem);
-}
-.wrap.slide-left-enter-to footer button {
-  left: 1rem;
-}
-.wrap.slide-right-leave-from footer button {
-  left: 1rem;
-}
-.wrap.slide-right-leave-to footer button {
-  left: calc(100% + 1rem);
 }
 </style>

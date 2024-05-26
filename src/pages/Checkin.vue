@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { doc, getDoc } from "firebase/firestore";
+import { call } from "../components/banner";
 import { useFirebaseAuth } from "vuefire";
 import { db, addHours } from "../fire";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 
-import Loading from "../components/Loading.vue";
-import { call } from "../components/banner";
+import DialogLayout from "../layouts/DialogLayout.vue";
 
 const auth = useFirebaseAuth();
 const r = useRouter();
@@ -57,103 +57,58 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <div class="wrap">
-    <header>
-      <h1>Check In</h1>
-    </header>
-    <main>
-      <label for="profile">
-        <h3>Profil:</h3>
-        <select :disabled="!!cur" v-model="profile">
-          <option>- auswählen -</option>
-          <option v-for="prof in profiles" :key="prof.name">
-            {{ prof.name }}
-          </option>
-        </select>
+  <DialogLayout @commit="save" :name="cur ? 'Check In' : 'Check Out'" :loading>
+    <label for="profile">
+      <h3>Profil:</h3>
+      <select :disabled="!!cur" v-model="profile">
+        <option>- auswählen -</option>
+        <option v-for="prof in profiles" :key="prof.name">
+          {{ prof.name }}
+        </option>
+      </select>
+    </label>
+    <div class="hours">
+      <label for="start">
+        <h3>Start:</h3>
+        <input
+          :disabled="!!cur"
+          v-model="start"
+          type="time"
+          name="start"
+          id="start"
+        />
       </label>
-      <div class="hours">
-        <label for="start">
-          <h3>Start:</h3>
-          <input
-            :disabled="!!cur"
-            v-model="start"
-            type="time"
-            name="start"
-            id="start"
-          />
-        </label>
-        <label v-if="cur" for="end">
-          <h3>Ende:</h3>
-          <input v-model="end" type="time" name="end" id="end" />
-        </label>
-      </div>
-    </main>
-    <footer>
-      <button @click="$router.back()">Zurück</button>
-      <button @click="save" class="high">Speichern</button>
-    </footer>
-    <Loading back :load="loading" />
-  </div>
+      <label v-if="cur" for="end">
+        <h3>Ende:</h3>
+        <input v-model="end" type="time" name="end" id="end" />
+      </label>
+    </div>
+  </DialogLayout>
 </template>
 
 <style lang="scss" scoped>
-header {
-  transform: translate(-50%, -20%);
-  text-align: center;
-  position: absolute;
-  left: 50%;
-  top: 20%;
+label {
+  margin-bottom: 1rem;
+  display: block;
+  width: 100%;
+
+  &[for="date"] {
+    margin-bottom: 0.325rem;
+  }
 
   h3 {
-    transition: opacity 500ms;
+    margin: 0.125rem 0.125rem;
   }
-}
-main {
-  transform: translate(-50%, -55%);
-  width: clamp(200px, 50%, 800px);
-  position: absolute;
-  left: 50%;
-  top: 55%;
-
-  label {
-    margin-bottom: 1rem;
-    display: block;
+  input,
+  select {
+    text-align: center;
+    max-width: 100%;
     width: 100%;
-
-    &[for="date"] {
-      margin-bottom: 0.325rem;
-    }
-
-    h3 {
-      margin: 0.125rem 0.125rem;
-    }
-    input,
-    select {
-      text-align: center;
-      max-width: 100%;
-      width: 100%;
-    }
-  }
-
-  div.hours {
-    display: flex;
-    gap: 0.5rem;
   }
 }
-footer {
-  transform: translate(-50%, 20%);
-  justify-content: space-between;
-  transition: opacity 500ms;
-  position: absolute;
+
+div.hours {
   display: flex;
-  gap: 0.75rem;
-  bottom: 15%;
-  left: 50%;
-
-  button {
-    white-space: nowrap;
-    margin-bottom: 10px;
-    width: 100%;
-  }
+  gap: 0.5rem;
 }
 </style>

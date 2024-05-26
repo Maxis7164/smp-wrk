@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { useDocument, getCurrentUser } from "vuefire";
 import { call } from "../components/banner";
+import { doc } from "firebase/firestore";
 import { useRouter } from "vue-router";
+import { addHours } from "../fire";
 import { db } from "../fire";
 import { ref } from "vue";
 
-import Loading from "../components/Loading.vue";
-import { addHours } from "../fire";
+import DialogLayout from "../layouts/DialogLayout.vue";
 
 const r = useRouter();
 
@@ -49,101 +49,74 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <div class="wrap">
-    <header>
-      <h1>Arbeitszeit hinzufügen</h1>
-    </header>
-    <main>
-      <label for="profile">
-        <h3>Profil:</h3>
-        <select v-model="profile">
-          <option>- auswählen -</option>
-          <option v-for="prof in profiles" :key="prof.name">
-            {{ prof.name }}
-          </option>
-        </select>
+  <DialogLayout @commit="save" name="Arbeitszeit hinzufügen" :loading>
+    <label for="profile">
+      <h3>Profil:</h3>
+      <select v-model="profile">
+        <option>- auswählen -</option>
+        <option v-for="prof in profiles" :key="prof.name">
+          {{ prof.name }}
+        </option>
+      </select>
+    </label>
+    <label for="date">
+      <h3>Tag:</h3>
+      <input
+        v-model="date"
+        type="date"
+        name="date"
+        id="date"
+        placeholder="TT.MM.YYYY"
+      />
+    </label>
+    <div class="hours">
+      <label for="start">
+        <h3>Von:</h3>
+        <input
+          v-model="start"
+          type="time"
+          name="start"
+          id="start"
+          placeholder="--:--"
+        />
       </label>
-      <label for="date">
-        <h3>Tag:</h3>
-        <input v-model="date" type="date" name="date" id="date" />
+      <label for="end">
+        <h3>Bis:</h3>
+        <input
+          v-model="end"
+          type="time"
+          name="end"
+          id="end"
+          placeholder="--:--"
+        />
       </label>
-      <div class="hours">
-        <label for="start">
-          <h3>Von:</h3>
-          <input v-model="start" type="time" name="start" id="start" />
-        </label>
-        <label for="end">
-          <h3>Bis:</h3>
-          <input v-model="end" type="time" name="end" id="end" />
-        </label>
-      </div>
-    </main>
-    <footer>
-      <button @click="$router.back()">Zurück</button>
-      <button @click="save" class="high">Speichern</button>
-    </footer>
-    <Loading :load="loading" />
-  </div>
+    </div>
+  </DialogLayout>
 </template>
 
 <style lang="scss" scoped>
-header {
-  transform: translate(-50%, -20%);
-  text-align: center;
-  position: absolute;
-  left: 50%;
-  top: 20%;
+label {
+  margin-bottom: 1rem;
+  display: block;
+  width: 100%;
+
+  &[for="date"] {
+    margin-bottom: 0.325rem;
+  }
 
   h3 {
-    transition: opacity 500ms;
+    margin: 0.125rem 0.125rem;
   }
-}
-main {
-  transform: translate(-50%, -55%);
-  width: clamp(200px, 50%, 800px);
-  position: absolute;
-  left: 50%;
-  top: 55%;
-
-  label {
-    margin-bottom: 1rem;
-    display: block;
+  input,
+  select {
+    text-align: center;
+    max-width: 100%;
     width: 100%;
-
-    &[for="date"] {
-      margin-bottom: 0.325rem;
-    }
-
-    h3 {
-      margin: 0.125rem 0.125rem;
-    }
-    input,
-    select {
-      text-align: center;
-      max-width: 100%;
-      width: 100%;
-    }
-  }
-
-  div.hours {
-    display: flex;
-    gap: 0.5rem;
   }
 }
-footer {
-  transform: translate(-50%, 20%);
-  justify-content: space-between;
-  transition: opacity 500ms;
-  position: absolute;
+
+div.hours {
   display: flex;
-  gap: 0.75rem;
-  bottom: 15%;
-  left: 50%;
-
-  button {
-    white-space: nowrap;
-    margin-bottom: 10px;
-    width: 100%;
-  }
+  gap: 0.5rem;
 }
 </style>

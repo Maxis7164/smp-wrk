@@ -1,11 +1,11 @@
 <script lang="ts" setup>
+import { confirm } from "../components/modal";
 import { call } from "../components/banner";
 import { deleteUser } from "firebase/auth";
 import { useFirebaseAuth } from "vuefire";
 import { useRouter } from "vue-router";
 
-import BackButton from "../components/BackButton.vue";
-import { confirm } from "../components/modal";
+import PageLayout from "../layouts/PageLayout.vue";
 
 const auth = useFirebaseAuth();
 const r = useRouter();
@@ -49,10 +49,7 @@ async function delAcc(): Promise<void> {
 </script>
 
 <template>
-  <div class="wrap">
-    <header>
-      <h1>Dein Account</h1>
-    </header>
+  <PageLayout name="Dein Account">
     <section class="user">
       <p>Angemeldet als</p>
       <h2>Max</h2>
@@ -75,18 +72,10 @@ async function delAcc(): Promise<void> {
         </li>
       </ul>
     </section>
-    <BackButton />
-  </div>
+  </PageLayout>
 </template>
 
 <style lang="scss" scoped>
-header {
-  background: var(--bg);
-  padding: 1.25rem 0;
-  position: sticky;
-  z-index: 2;
-  top: -1rem;
-}
 section {
   margin-bottom: 1.25rem;
 
