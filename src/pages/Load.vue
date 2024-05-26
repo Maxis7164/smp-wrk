@@ -57,17 +57,6 @@ setTimeout(() => (load.value = true), 3000);
     <Loading icon :load="!load" />
     <footer>
       <button @click="loginGoogle">Anmelden mit Google</button>
-      <button
-        @click="
-          $router.push({
-            path: '/login',
-            query:
-              'redir' in $route.query ? { redir: $route.query['redir'] } : {},
-          })
-        "
-      >
-        Anmelden per Email
-      </button>
     </footer>
   </div>
 </template>

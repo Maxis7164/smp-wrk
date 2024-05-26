@@ -12,7 +12,6 @@ import App from "./App.vue";
 import Home from "./pages/Home.vue";
 import Settings from "./pages/Settings.vue";
 import Load from "./pages/Load.vue";
-import Login from "./pages/Login.vue";
 import EditProfile from "./pages/EditProfile.vue";
 import EditHours from "./pages/EditHours.vue";
 import Hours from "./pages/Hours.vue";
@@ -32,7 +31,6 @@ const routes: RouteRecordRaw[] = [
   { path: "/settings/editProfile", component: EditProfile },
   { path: "/settings/account", component: Account },
   { path: "/load", component: Load, meta: { anonymous: true } },
-  { path: "/login", component: Login, meta: { anonymous: true } },
   { path: "/editHours", component: EditHours },
   { path: "/hours", component: Hours },
   { path: "/check-in", component: Checkin },
