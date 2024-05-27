@@ -3,7 +3,7 @@ import {
   createWebHashHistory,
   type RouteRecordRaw,
 } from "vue-router";
-import { VueFire, VueFireAuth } from "vuefire";
+import { VueFire, VueFireAuth, getCurrentUser } from "vuefire";
 import { firebaseApp } from "./fire";
 import { createApp } from "vue";
 import "./style.scss";
@@ -49,9 +49,8 @@ router.afterEach((to, from) => {
     toDepth < fromDepth || to.path === "/" ? "slide-right" : "slide-left";
 });
 
-router.beforeEach((to) => {
-  if (to.meta.anonymous === true || localStorage.getItem("smp-wrk/isLoggedIn"))
-    return true;
+router.beforeEach(async (to) => {
+  if (to.meta.anonymous === true || (await getCurrentUser())) return true;
   else return { path: "/load", query: { redir: to.path } };
 });
 
