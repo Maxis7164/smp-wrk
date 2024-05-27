@@ -1,22 +1,25 @@
 <script lang="ts" setup>
-import { doc, updateDoc, arrayRemove } from "firebase/firestore";
-import { useDocument, useCurrentUser } from "vuefire";
+import { arrayRemove, doc, updateDoc } from "firebase/firestore";
+import { useCurrentUser, useDocument } from "vuefire";
+import { useRoute, useRouter } from "vue-router";
 import { getEuroDate, round } from "../utils";
 import { confirm } from "../components/modal";
+import { call } from "../components/banner";
 import { computed, ref, watch } from "vue";
 import { db } from "../fire";
 
 import PageLayout from "../layouts/PageLayout.vue";
 
+const router = useRouter();
+const route = useRoute();
+
 const user = useCurrentUser();
-
-// if (!user.value)
-
 const hRef = doc(db, "hours", user.value!.uid);
 
 const profiles = useDocument<Profiles>(doc(db, "profiles", user.value!.uid));
 const hoursMap = useDocument<Hours>(hRef);
 
+const profile = computed(() => route.params.profile as string);
 const totalHours = ref<number>(0);
 const totalPay = ref<number>(0);
 const hours = ref<Hour[]>([]);
@@ -26,20 +29,23 @@ watch(hoursMap, (nxt) => {
   totalPay.value = 0;
   hours.value = [];
 
+  if (!profiles.value) return;
+
+  if (!(profile.value in (profiles.value ?? {}))) {
+    call("error", `Profil "${profile}" existiert nicht!`);
+    return router.push("/");
+  }
+
   if (nxt) {
-    Object.keys(nxt).forEach((profile) => {
-      if (!profiles.value) return;
+    let tot: number = 0;
 
-      let tot: number = 0;
-
-      nxt[profile].forEach((hour) => {
-        hours.value.push(hour);
-        tot += hour.total;
-      });
-
-      totalPay.value += tot * profiles.value[profile].pph;
-      totalHours.value += tot;
+    nxt[profile.value].forEach((hour) => {
+      hours.value.push(hour);
+      tot += hour.total;
     });
+
+    totalPay.value += tot * profiles.value[profile.value].pph;
+    totalHours.value += tot;
   }
 });
 
@@ -54,7 +60,7 @@ async function del(h: Hour): Promise<void> {
 </script>
 
 <template>
-  <PageLayout name="Deine Stunden">
+  <PageLayout :name="`Deine Stunden - ${profile}`">
     <section v-if="hours.length > 0" class="overview">
       <ul>
         <li>

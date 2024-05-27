@@ -4,6 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db, LoadFirebaseError } from "../fire";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
+import { round } from "../utils";
 
 import Loading from "../components/Loading.vue";
 import PageLayout from "../layouts/PageLayout.vue";
@@ -71,10 +72,6 @@ function getTotal(hours: Hour[]) {
 
   return nxt.length === 0 ? 0 : nxt.reduce((acc, cur) => acc + cur);
 }
-
-function round(val: number): number {
-  return Math.round(val * 100) / 100;
-}
 </script>
 
 <template>
@@ -104,7 +101,7 @@ function round(val: number): number {
           </button>
         </li>
         <li v-for="(h, prof) in hour">
-          <button>
+          <button @click="$router.push(`/hours/${prof}`)">
             <h3>{{ prof }}</h3>
             <p>{{ round(getTotal(h)) }} Stunden</p>
           </button>
