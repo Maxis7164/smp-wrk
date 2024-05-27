@@ -1,49 +1,43 @@
 <script lang="ts" setup>
 import { doc, updateDoc, arrayRemove } from "firebase/firestore";
-import { useDocument, getCurrentUser } from "vuefire";
+import { useDocument, useCurrentUser } from "vuefire";
 import { confirm } from "../components/modal";
 import { computed, ref, watch } from "vue";
 import { db } from "../fire";
 
 import PageLayout from "../layouts/PageLayout.vue";
 
-const user = await getCurrentUser();
-const hRef = doc(db, "hours", user!.uid);
+const user = useCurrentUser();
 
-const hoursMap = useDocument<Typed<Hour[]>>(hRef);
-const profiles = useDocument<Typed<Profile>>(doc(db, "profiles", user!.uid));
-const hours = computed<Hour[]>(() =>
-  hoursMap.value
-    ? ([] as Hour[])
-        .concat(
-          ...Object.keys(hoursMap.value).map((key) => hoursMap.value![key])
-        )
-        .reverse()
-    : []
-);
+// if (!user.value)
+
+const hRef = doc(db, "hours", user.value!.uid);
+
+const profiles = useDocument<Profiles>(doc(db, "profiles", user.value!.uid));
+const hoursMap = useDocument<Hours>(hRef);
 
 const totalHours = ref<number>(0);
 const totalPay = ref<number>(0);
+const hours = ref<Hour[]>([]);
 
-watch(hoursMap, (hours) => {
+watch(hoursMap, (nxt) => {
   totalHours.value = 0;
   totalPay.value = 0;
+  hours.value = [];
 
-  if (profiles?.value && hours) {
-    Object.keys(hours).forEach((p: string) => {
-      if (p === "id") return;
+  if (nxt) {
+    Object.keys(nxt).forEach((profile) => {
+      if (!profiles.value) return;
 
-      const tot = hours[p].map((h) => h.total);
-      if (tot.length === 0) return;
+      let tot: number = 0;
 
-      const cur = hours[p].map((h) => h.total);
+      nxt[profile].forEach((hour) => {
+        hours.value.push(hour);
+        tot += hour.total;
+      });
 
-      if (cur.length === 0) return;
-
-      const h = cur.reduce((acc, cur) => acc + cur);
-
-      totalHours.value += h;
-      totalPay.value += h * profiles.value![p].pph;
+      totalPay.value += tot * profiles.value[profile].pph;
+      totalHours.value += tot;
     });
   }
 });
@@ -67,7 +61,7 @@ function round(val: number): number {
 
 <template>
   <PageLayout name="Deine Stunden">
-    <section class="overview">
+    <section v-if="hours.length > 0" class="overview">
       <ul>
         <li>
           <h2>{{ round(totalHours) }} Stunden</h2>
@@ -79,8 +73,8 @@ function round(val: number): number {
         </li>
       </ul>
     </section>
-    <section class="impressive">
-      <p>Erstaunlich, nicht wahr?</p>
+    <section v-if="hours.length > 0" class="impressive">
+      <h3>Erstaunlich, nicht wahr?</h3>
     </section>
     <section class="hours">
       <ul class="hours">
@@ -90,6 +84,9 @@ function round(val: number): number {
           <p>{{ getEuroDate(h.date).join(".") }}</p>
           <p>{{ h.total }} Stunden</p>
           <button @click="del(h)" class="text risk">Löschen</button>
+        </li>
+        <li v-if="hours.length === 0" class="noHours">
+          <p>Du hast keine Stunden eingetragen.</p>
         </li>
       </ul>
     </section>
@@ -135,13 +132,13 @@ section {
   }
   &.impressive {
     text-align: center;
-    margin: 2rem 0;
+    margin: 3rem 0;
   }
   &.hours {
     ul {
       overflow-y: auto;
 
-      li {
+      li:not(.noHours) {
         grid-template-rows: auto auto auto;
         grid-template-columns: 1fr 1fr;
         margin-bottom: 0.75rem;
@@ -158,6 +155,14 @@ section {
         button {
           grid-column: 1 / 3;
         }
+      }
+
+      li.noHours {
+        transform: translate(-50%, -50%);
+        position: absolute;
+        display: inline;
+        left: 50%;
+        top: 50%;
       }
     }
   }
