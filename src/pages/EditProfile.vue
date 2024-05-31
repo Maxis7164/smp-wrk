@@ -99,7 +99,7 @@ async function save() {
 <template>
   <DialogLayout @commit="save" name="Profil hinzufügen" :loading>
     <label for="name">
-      <h3>Name:</h3>
+      <h4>Name:</h4>
       <input
         v-model="name"
         placeholder="z. B. Freelance"
@@ -109,7 +109,7 @@ async function save() {
       />
     </label>
     <label for="pay">
-      <h3>Stundenlohn:</h3>
+      <h4>Stundenlohn:</h4>
       <input
         v-model="pay"
         step="0.25"
@@ -127,7 +127,7 @@ label {
   margin-bottom: 1rem;
   display: block;
 
-  h3 {
+  h4 {
     margin: 0.125rem 0.125rem;
   }
   input {

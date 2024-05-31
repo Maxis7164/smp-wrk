@@ -91,7 +91,7 @@ function toDebug() {
       <h2>Arbeitsprofile</h2>
       <ul>
         <li v-if="user" v-for="prof in profiles" :key="prof.name">
-          <h3>{{ prof.name }}</h3>
+          <h4>{{ prof.name }}</h4>
           <p>{{ prof.pph }}€/h</p>
           <button
             @click="

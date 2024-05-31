@@ -74,13 +74,13 @@ async function del(h: Hour): Promise<void> {
       </ul>
     </section>
     <section v-if="hours.length > 0" class="impressive">
-      <h3>Erstaunlich, nicht wahr?</h3>
+      <h4>Erstaunlich, nicht wahr?</h4>
     </section>
     <section class="hours">
       <ul class="hours">
         <li v-for="h in hours" :key="h.begin + '@' + h.date.join('.')">
-          <h3>{{ h.profile }}</h3>
-          <h3>{{ round(h.total * (profiles?.[h.profile]?.pph ?? -1)) }}€</h3>
+          <h4>{{ h.profile }}</h4>
+          <h4>{{ round(h.total * (profiles?.[h.profile]?.pph ?? -1)) }}€</h4>
           <p>{{ getEuroDate(h.date).join(".") }}</p>
           <p>{{ h.total }} Stunden</p>
           <button @click="del(h)" class="text risk">Löschen</button>

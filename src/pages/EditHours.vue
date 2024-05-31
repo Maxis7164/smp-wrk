@@ -60,7 +60,7 @@ async function save(): Promise<void> {
       </select>
     </label>
     <label for="date">
-      <h3>Tag:</h3>
+      <h4>Tag:</h4>
       <input
         v-model="date"
         type="date"
@@ -81,7 +81,7 @@ async function save(): Promise<void> {
         />
       </label>
       <label for="end">
-        <h3>Bis:</h3>
+        <h4>Bis:</h4>
         <input
           v-model="end"
           type="time"
@@ -104,7 +104,7 @@ label {
     margin-bottom: 0.325rem;
   }
 
-  h3 {
+  h4 {
     margin: 0.125rem 0.125rem;
   }
   input,

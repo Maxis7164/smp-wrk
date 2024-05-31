@@ -59,7 +59,7 @@ async function save(): Promise<void> {
 <template>
   <DialogLayout @commit="save" :name="cur ? 'Check In' : 'Check Out'" :loading>
     <label for="profile">
-      <h3>Profil:</h3>
+      <h4>Profil:</h4>
       <select :disabled="!!cur" v-model="profile">
         <option>- auswählen -</option>
         <option v-for="prof in profiles" :key="prof.name">
@@ -69,7 +69,7 @@ async function save(): Promise<void> {
     </label>
     <div class="hours">
       <label for="start">
-        <h3>Start:</h3>
+        <h4>Start:</h4>
         <input
           :disabled="!!cur"
           v-model="start"
@@ -79,7 +79,7 @@ async function save(): Promise<void> {
         />
       </label>
       <label v-if="cur" for="end">
-        <h3>Ende:</h3>
+        <h4>Ende:</h4>
         <input v-model="end" type="time" name="end" id="end" />
       </label>
     </div>
@@ -96,7 +96,7 @@ label {
     margin-bottom: 0.325rem;
   }
 
-  h3 {
+  h4 {
     margin: 0.125rem 0.125rem;
   }
   input,
