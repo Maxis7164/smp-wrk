@@ -7,80 +7,74 @@ import { computed, ref, watch } from "vue";
 import { db } from "../fire";
 
 import PageLayout from "../layouts/PageLayout.vue";
+import Calendar from "../components/Calendar.vue";
 
 const user = useCurrentUser();
-
-// if (!user.value)
 
 const hRef = doc(db, "hours", user.value!.uid);
 
 const profiles = useDocument<Profiles>(doc(db, "profiles", user.value!.uid));
 const hoursMap = useDocument<Hours>(hRef);
 
-const totalHours = ref<number>(0);
-const totalPay = ref<number>(0);
-const hours = ref<Hour[]>([]);
+const total = ref<{ [key: string]: number }>({});
+const cur = ref<Hours>({});
 
-watch(hoursMap, (nxt) => {
-  totalHours.value = 0;
-  totalPay.value = 0;
-  hours.value = [];
+watch(
+  hoursMap,
+  () => {
+    const D = new Date();
+    onSelect([D.getFullYear(), D.getMonth(), D.getDate()]);
+  },
+  { once: true }
+);
 
-  if (nxt) {
-    Object.keys(nxt).forEach((profile) => {
-      if (!profiles.value) return;
+function onSelect(date: ISODate): void {
+  if (!hoursMap.value) return;
 
-      let tot: number = 0;
+  const ISO = new Date(...date, 2, 0, 0, 0).toISOString();
 
-      nxt[profile].forEach((hour) => {
-        hours.value.push(hour);
-        tot += hour.total;
-      });
+  Object.keys(hoursMap.value ?? {}).forEach((profile) => {
+    total.value[profile] = 0;
 
-      totalPay.value += tot * profiles.value[profile].pph;
-      totalHours.value += tot;
+    cur.value[profile] = (hoursMap.value![profile] ?? []).filter((h) => {
+      if (
+        new Date(
+          `${h.date[0]}-${h.date[1]}-${h.date[2]}T00:00:00.000Z`
+        ).toISOString() === ISO
+      ) {
+        total.value[profile] += h.total;
+        return true;
+      }
+
+      return false;
     });
-  }
-});
-
-async function del(h: Hour): Promise<void> {
-  const doDel = await confirm(
-    "Möchtest du diese Stunden wirklich löschen?",
-    "Arbeitszeit löschen"
-  );
-
-  if (doDel) updateDoc(hRef, { [h.profile]: arrayRemove(h) });
+  });
 }
 </script>
 
 <template>
   <PageLayout name="Deine Stunden">
-    <section v-if="hours.length > 0" class="overview">
+    <section class="calendar">
+      <Calendar @select="onSelect" />
+    </section>
+    <section class="day">
+      <h2>So hast du gearbeitet:</h2>
       <ul>
-        <li>
-          <h2>{{ round(totalHours) }} Stunden</h2>
-          <p>hast du bisher gearbeitet</p>
-        </li>
-        <li>
-          <p>damit hast du so viel verdient:</p>
-          <h2>{{ round(totalPay) }}€</h2>
-        </li>
-      </ul>
-    </section>
-    <section v-if="hours.length > 0" class="impressive">
-      <h3>Erstaunlich, nicht wahr?</h3>
-    </section>
-    <section class="hours">
-      <ul class="hours">
-        <li v-for="h in hours" :key="h.begin + '@' + h.date.join('.')">
-          <h3>{{ h.profile }}</h3>
-          <h3>{{ round(h.total * (profiles?.[h.profile]?.pph ?? -1)) }}€</h3>
-          <p>{{ getEuroDate(h.date).join(".") }}</p>
-          <p>{{ h.total }} Stunden</p>
-          <button @click="del(h)" class="text risk">Löschen</button>
-        </li>
-        <li v-if="hours.length === 0" class="noHours">
-          <p>Du hast keine Stunden eingetragen.</p>
+        <li v-for="(prof, name) in profiles" :key="name">
+          <h3>{{ name }}</h3>
+          <ul>
+            <li v-for="(h, i) in cur[name]">
+              <p>{{ h.begin }} - {{ h.end }}</p>
+              <p>{{ i > 0 ? "+" : "" }}{{ round(h.total * prof.pph) }}€</p>
+            </li>
+            <li v-if="total[name] > 0" class="total">
+              <p>{{ total[name] }} Stunden</p>
+              <p>{{ round(total[name] * prof.pph) }}€</p>
+            </li>
+            <li v-else class="noHours">
+              <p>Hier hast du nicht gearbeitet</p>
+            </li>
+          </ul>
         </li>
       </ul>
     </section>
@@ -91,72 +85,49 @@ async function del(h: Hour): Promise<void> {
 section {
   margin-bottom: 1.25rem;
 
-  &.overview {
-    text-align: center;
+  > h2 {
+    margin: 0 0.125rem 0.625rem 0;
+  }
 
-    ul {
+  > ul {
+    > li {
+      margin-bottom: 0.75rem;
       background: var(--srf);
       border-radius: 1rem;
-
-      li {
-        padding: 1.5rem 1.25rem;
-        position: relative;
-        display: block;
-
-        &:not(:last-child)::after {
-          content: "";
-
-          background: var(--brd);
-          position: absolute;
-          display: block;
-          height: 1px;
-          width: 95%;
-          left: 2.5%;
-          bottom: 0;
-        }
-
-        :first-child {
-          margin-bottom: 0.25rem;
-        }
-        p {
-          font-size: 0.875rem;
-        }
-      }
     }
-  }
-  &.impressive {
-    text-align: center;
-    margin: 3rem 0;
-  }
-  &.hours {
-    ul {
-      overflow-y: auto;
 
-      li:not(.noHours) {
-        grid-template-rows: auto auto auto;
-        grid-template-columns: 1fr 1fr;
-        margin-bottom: 0.75rem;
-        background: var(--srf);
-        border-radius: 1rem;
-        align-items: center;
-        row-gap: 0.75rem;
-        display: grid;
-        padding: 1rem;
+    li {
+      position: relative;
+      display: block;
+      padding: 1rem;
 
-        :nth-child(even) {
-          text-align: end;
-        }
-        button {
-          grid-column: 1 / 3;
-        }
+      h3 {
+        text-align: center;
       }
 
-      li.noHours {
-        transform: translate(-50%, -50%);
-        position: absolute;
-        display: inline;
-        left: 50%;
-        top: 50%;
+      ul li {
+        justify-content: space-between;
+        display: flex;
+
+        &.total {
+          font-weight: 600;
+
+          &::before {
+            content: "";
+
+            background: var(--brd);
+            position: absolute;
+            display: block;
+            height: 1px;
+            width: 95%;
+            left: 2.5%;
+            top: 0;
+          }
+        }
+
+        &.noHours p {
+          margin: 0 auto;
+        }
       }
     }
   }

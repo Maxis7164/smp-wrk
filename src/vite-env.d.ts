@@ -35,3 +35,5 @@ type ErrorMap<T = any> = {
   message: Typed<T>;
   name: Typed<T>;
 };
+
+type ISODate = [number, number, number];

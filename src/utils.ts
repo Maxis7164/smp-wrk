@@ -5,3 +5,7 @@ export function getEuroDate(date: string[]): string[] {
 export function round(val: number): number {
   return Math.floor(val * 100) / 100;
 }
+
+export function range(iterationCount: number): null[] {
+  return new Array(iterationCount).fill(null);
+}
