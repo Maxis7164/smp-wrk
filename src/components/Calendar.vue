@@ -105,7 +105,7 @@ if (props.initial) emit("select", [sel.value[2], sel.value[1], sel.value[0]]);
     </header>
     <button @click="goToMonth(1)">&gt;</button>
     <div class="head" v-for="d in DAYS">
-      <h3>{{ d }}</h3>
+      <h4>{{ d }}</h4>
     </div>
     <button
       @click="select(i)"
