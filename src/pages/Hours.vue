@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { doc, updateDoc, arrayRemove } from "firebase/firestore";
 import { useDocument, useCurrentUser } from "vuefire";
-import { getEuroDate, round } from "../utils";
-import { confirm } from "../components/modal";
-import { computed, ref, watch } from "vue";
+import { doc } from "firebase/firestore";
+import { ref, watch } from "vue";
+import { round } from "../utils";
 import { db } from "../fire";
 
 import PageLayout from "../layouts/PageLayout.vue";
