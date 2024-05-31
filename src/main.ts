@@ -1,4 +1,5 @@
 import {
+  NavigationGuardWithThis,
   createRouter,
   createWebHashHistory,
   type RouteRecordRaw,
@@ -18,6 +19,7 @@ import Hours from "./pages/Hours.vue";
 import Checkin from "./pages/Checkin.vue";
 import Account from "./pages/Account.vue";
 import Profile from "./pages/Profile.vue";
+import Test from "./pages/Test.vue";
 
 const app = createApp(App);
 
@@ -25,6 +27,9 @@ const app = createApp(App);
 if (location.hostname !== "localhost" || import.meta.env.VITE_SW_DEV === "1") {
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
 }
+
+const testGuard: NavigationGuardWithThis<undefined> = (to) =>
+  import.meta.env.DEV ? true : "/";
 
 //#region VueRouter
 const routes: RouteRecordRaw[] = [
@@ -37,6 +42,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/hours", component: Hours },
   { path: "/hours/:profile", component: Profile },
   { path: "/check-in", component: Checkin },
+  { path: "/test", component: Test, beforeEnter: [testGuard] },
 ];
 
 const router = createRouter({

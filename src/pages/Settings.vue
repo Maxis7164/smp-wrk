@@ -20,6 +20,9 @@ const auth = useFirebaseAuth();
 const user = useCurrentUser();
 const r = useRouter();
 
+let debug: number = 0;
+let to: number = 0;
+
 await getCurrentUser();
 
 const APP_V = import.meta.env.VITE_APP_VERSION;
@@ -61,6 +64,14 @@ async function deleteDatabase(): Promise<void> {
   const isDel = await delDb();
 
   if (isDel) r.push("/settings/editProfile?setup=1");
+}
+
+function toDebug() {
+  clearTimeout(to);
+  debug++;
+
+  if (debug === 6) r.push("/test");
+  else to = setTimeout(() => (debug = 0), 5000) as any;
 }
 </script>
 
@@ -116,7 +127,9 @@ async function deleteDatabase(): Promise<void> {
       <button class="risk" @click="deleteDatabase">Daten löschen</button>
     </section>
     <section class="appversion">
-      <p>Version{{ APP_S !== "FINAL" ? " " + APP_S : "" }} {{ APP_V }}</p>
+      <p @click="toDebug">
+        Version{{ APP_S !== "FINAL" ? " " + APP_S : "" }} {{ APP_V }}
+      </p>
     </section>
   </PageLayout>
 </template>
@@ -186,6 +199,7 @@ section {
   &.appversion {
     font-size: 0.875rem;
     text-align: center;
+    user-select: none;
   }
 
   > button {

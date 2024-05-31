@@ -96,13 +96,13 @@ function getTotal(hours: Hour[]) {
       <ul>
         <li>
           <button @click="$router.push('/hours')">
-            <h3>Gesamt:</h3>
+            <h4>Gesamt:</h4>
             <p>{{ round(allHours) }} Stunden</p>
           </button>
         </li>
         <li v-for="(h, prof) in hour">
           <button @click="$router.push(`/hours/${prof}`)">
-            <h3>{{ prof }}</h3>
+            <h4>{{ prof }}</h4>
             <p>{{ round(getTotal(h)) }} Stunden</p>
           </button>
         </li>
