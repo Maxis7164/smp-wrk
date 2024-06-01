@@ -25,7 +25,9 @@ div.wrap {
 header {
   background: var(--bg);
   padding: 1.25rem 0;
+  max-width: 500px;
   position: sticky;
+  margin: 0 auto;
   z-index: 2;
   top: -1rem;
 }
