@@ -6,6 +6,7 @@ import { useFirebaseAuth } from "vuefire";
 import { useRouter } from "vue-router";
 
 import PageLayout from "../layouts/PageLayout.vue";
+import { delCurrentUser } from "../fire";
 
 const auth = useFirebaseAuth();
 const r = useRouter();
@@ -44,7 +45,7 @@ async function delAcc(): Promise<void> {
         "Account löschen"
       );
 
-  if (isSure) await deleteUser(auth.currentUser);
+  if (isSure) await delCurrentUser();
 }
 </script>
 

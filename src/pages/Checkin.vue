@@ -1,19 +1,22 @@
 <script lang="ts" setup>
-import { doc, getDoc } from "firebase/firestore";
+import { useCollection, useCurrentUser } from "vuefire";
+import { addHours, getProfilesOf } from "../fire";
 import { call } from "../components/banner";
-import { useFirebaseAuth } from "vuefire";
-import { db, addHours } from "../fire";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 
 import DialogLayout from "../layouts/DialogLayout.vue";
 
-const auth = useFirebaseAuth();
+const user = useCurrentUser();
 const r = useRouter();
 
 const PATH = "smp-wrk/curCheckInStart";
 const NOPROF = "- auswählen -";
 const D = new Date();
+
+const profiles = useCollection(getProfilesOf(user.value!), {
+  ssrKey: "profiles",
+});
 
 let cur: CheckIn | null = JSON.parse(localStorage.getItem(PATH) ?? "null");
 
@@ -25,16 +28,7 @@ if (cur?.profile === NOPROF) {
 const start = ref<string>(cur?.begin ?? D.toTimeString().slice(0, 5));
 const end = ref<string>(D.toTimeString().slice(0, 5));
 const profile = ref<string>(cur?.profile ?? NOPROF);
-const loading = ref<boolean>(true);
-const profiles = ref<Profiles>({});
-
-auth?.onAuthStateChanged(async (user) => {
-  profiles.value = user
-    ? (await getDoc(doc(db, "profiles", user.uid))).data() ?? {}
-    : {};
-
-  loading.value = false;
-});
+const loading = ref<boolean>(false);
 
 async function save(): Promise<void> {
   if (profile.value === NOPROF) return call("error", "Bitte gib ein Profil an");
@@ -57,7 +51,7 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <DialogLayout @commit="save" :name="cur ? 'Check In' : 'Check Out'" :loading>
+  <DialogLayout @commit="save" :name="cur ? 'Check Out' : 'Check In'" :loading>
     <label for="profile">
       <h4>Profil:</h4>
       <select :disabled="!!cur" v-model="profile">

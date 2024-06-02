@@ -30,6 +30,8 @@ async function loginGoogle(): Promise<void> {
   load.value = false;
   try {
     const cred = await signInWithPopup(auth, google);
+    //TODO: implement profiles check
+    return;
 
     const a = await getDoc(doc(db, "profiles", cred.user.uid));
 

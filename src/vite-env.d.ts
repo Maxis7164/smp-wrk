@@ -14,7 +14,11 @@ interface ImportMeta {
 type Profiles = { [key: string]: Profile };
 type Hours = { [key: string]: Hour[] };
 
-type DatabaseExport = { profiles: Profiles; hours: Hours; version: number };
+type DatabaseExport = {
+  profiles: NewProfile[];
+  hours: NewHour[];
+  version: number;
+};
 
 type Profile = {
   name: string;
@@ -37,3 +41,18 @@ type ErrorMap<T = any> = {
 };
 
 type ISODate = [number, number, number];
+
+type NewHour = {
+  profile: string;
+  date: string[];
+  total: number;
+  owner: string;
+  start: string;
+  end: string;
+};
+
+type NewProfile = {
+  owner: string;
+  name: string;
+  pph: number;
+};

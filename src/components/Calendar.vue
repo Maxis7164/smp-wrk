@@ -52,7 +52,6 @@ function select(i: number): void {
   if (relMonth !== 0) goToMonth(relMonth);
 
   sel.value = [nxt, month.value, year.value];
-  console.log(nxt, sel.value);
   emit("select", [sel.value[2], sel.value[1], sel.value[0]]);
 }
 

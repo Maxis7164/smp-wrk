@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useCurrentUser, useFirebaseAuth } from "vuefire";
-import { doc, getDoc } from "firebase/firestore";
-import { db, LoadFirebaseError } from "../fire";
+import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
+import { collection, doc, getDoc, query, where } from "firebase/firestore";
+import { db, fromCurrentUser, LoadFirebaseError } from "../fire";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
 import { round } from "../utils";
@@ -16,9 +16,16 @@ const r = useRouter();
 
 if (!auth) throw new LoadFirebaseError("auth/none");
 
-const profi = ref<Typed<Profile>>({});
-const hour = ref<Typed<Hour[]>>({});
-const ready = ref<boolean>(false);
+const profiles = useCollection<NewProfile>(
+  query(collection(db, "profiles"), fromCurrentUser(curUser.value!)),
+  { ssrKey: "profiles" }
+);
+const hours = useCollection<NewHour>(
+  query(collection(db, "hours"), fromCurrentUser(curUser.value!)),
+  { ssrKey: "hours" }
+);
+
+const ready = ref<boolean>(true);
 
 const currentHours = ref<number>(0);
 const currentPay = ref<number>(0);
@@ -26,49 +33,30 @@ const allHours = ref<number>(0);
 
 const D = new Date();
 
-auth.onAuthStateChanged(async (user) => {
-  if (!user) return r.push("/load");
+watch(hours, (nxt) => {
+  if (!nxt) return;
 
-  const [p, h] = await Promise.all([
-    getDoc(doc(db, "profiles", user.uid)),
-    getDoc(doc(db, "hours", user.uid)),
-  ]);
+  nxt.forEach((h) => {
+    const prof = profiles.value.find((p) => p.name === h.profile);
 
-  hour.value = h.data() as Typed<Hour[]>;
-  profi.value = p.data() as Typed<Profile>;
+    if (!prof) return;
 
-  ready.value = true;
+    allHours.value += h.total;
+
+    if (
+      parseInt(h.date[1]) === D.getMonth() + 1 &&
+      parseInt(h.date[0]) === D.getFullYear()
+    ) {
+      currentHours.value += h.total;
+      currentPay.value += h.total * prof.pph;
+    }
+  });
 });
 
-watch(hour, (hours) => {
-  allHours.value = 0;
-  currentHours.value = 0;
-  currentPay.value = 0;
-
-  if (profi.value && hours) {
-    Object.keys(hours).forEach((p: string) => {
-      if (p === "id") return;
-
-      const tot = hours[p].map((h) => h.total);
-      if (tot.length === 0) return;
-      allHours.value += tot.reduce((acc, cur) => acc + cur);
-
-      const cur = hours[p]
-        .filter((h) => parseInt(h.date[1]) === D.getMonth() + 1)
-        .map((h) => h.total);
-
-      if (cur.length === 0) return;
-
-      const h = cur.reduce((acc, cur) => acc + cur);
-
-      currentHours.value += h;
-      currentPay.value += h * profi.value![p].pph;
-    });
-  }
-});
-
-function getTotal(hours: Hour[]) {
-  const nxt = hours.map((h) => h.total);
+function getTotal(profile: NewProfile) {
+  const nxt = hours.value
+    .filter((h) => h.profile === profile.name)
+    .map((h) => h.total);
 
   return nxt.length === 0 ? 0 : nxt.reduce((acc, cur) => acc + cur);
 }
@@ -100,10 +88,10 @@ function getTotal(hours: Hour[]) {
             <p>{{ round(allHours) }} Stunden</p>
           </button>
         </li>
-        <li v-for="(h, prof) in hour">
-          <button @click="$router.push(`/hours/${prof}`)">
-            <h4>{{ prof }}</h4>
-            <p>{{ round(getTotal(h)) }} Stunden</p>
+        <li v-for="prof in profiles">
+          <button @click="$router.push(`/hours/${prof.name}`)">
+            <h4>{{ prof.name }}:</h4>
+            <p>{{ round(getTotal(prof)) }} Stunden</p>
           </button>
         </li>
       </ul>

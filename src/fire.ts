@@ -1,20 +1,24 @@
 import { initializeApp } from "firebase/app";
-import { User, getAuth } from "firebase/auth";
+import { User, deleteUser } from "firebase/auth";
 import {
-  initializeFirestore,
-  persistentLocalCache,
   persistentMultipleTabManager,
+  QueryFieldFilterConstraint,
+  persistentLocalCache,
+  initializeFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  where,
+  query,
+  Query,
   deleteDoc,
-  getDoc,
-  setDoc,
-  doc,
-  DocumentReference,
-  arrayUnion,
+  QueryCompositeFilterConstraint,
+  QueryConstraint,
 } from "firebase/firestore";
-import { requestFile, saveFile } from "./files";
 import { confirm } from "./components/modal";
-import { updateDoc } from "firebase/firestore";
 import { call } from "./components/banner";
+import { getCurrentUser } from "vuefire";
+import { saveFile } from "./files";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
@@ -63,15 +67,8 @@ export class LoadFirebaseError extends Error {
   }
 }
 
-export function getUser(): User | null {
-  const auth = getAuth();
-  const user = auth.currentUser;
-
-  return user;
-}
-
 export async function expDb(): Promise<boolean> {
-  const user = getUser();
+  const user = await getCurrentUser();
   if (!user)
     return (
       false &&
@@ -80,15 +77,18 @@ export async function expDb(): Promise<boolean> {
       )
     );
 
-  const pd = doc(db, "profiles", user.uid) as DocumentReference<Profiles>;
-  const hd = doc(db, "hours", user.uid) as DocumentReference<Hours>;
+  const pd = getProfilesOf(user);
+  const hd = getHoursOf(user);
 
-  const [profiles, hours] = await Promise.all([getDoc(pd), getDoc(hd)]);
+  const [profSnap, hoursSnap] = await Promise.all([getDocs(pd), getDocs(hd)]);
+
+  const profiles = profSnap.docs.map((doc) => doc.data());
+  const hours = hoursSnap.docs.map((doc) => doc.data());
 
   const data: DatabaseExport = {
-    profiles: profiles.data() ?? {},
-    hours: hours.data() ?? {},
     version: 0,
+    profiles,
+    hours,
   };
 
   try {
@@ -99,36 +99,6 @@ export async function expDb(): Promise<boolean> {
   } catch (err) {
     console.error(`[!] <fire.ts::expDb> Could not save file: ${err}`);
     return false;
-  }
-}
-
-export async function impDb(): Promise<void> {
-  const user = getUser();
-  if (!user) return;
-
-  const h = doc(db, "hours", user.uid);
-  const p = doc(db, "profiles", user.uid);
-
-  try {
-    const file = await requestFile();
-
-    const raw = await file.text();
-    const data: DatabaseExport = JSON.parse(raw);
-
-    if (import.meta.env.DB_VERSION < data.version)
-      return console.error(
-        "[!] <fire.ts::impDb> Database is newer than client!"
-      );
-
-    const doMerge = await confirm(
-      "Soll die aktuelle und die angegebene Datenbank vereint werden? (Empfohlen: Ja)",
-      "Datenbanken vereinen"
-    );
-
-    await setDoc(h, data.hours, { merge: doMerge });
-    await setDoc(p, data.profiles, { merge: doMerge });
-  } catch (err) {
-    console.error(`[!] <fire.ts::impDb> ${err}`);
   }
 }
 
@@ -149,24 +119,38 @@ export async function delDb(): Promise<boolean> {
 
   if (!actDel) return false;
 
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const user = await getCurrentUser();
 
   if (!user)
     return (
       false &&
       console.error(
-        "[!] <fire.ts::delDb> Cannot delete user data while not being signed in!"
+        "[!] <fire.ts::delDb> Cannot delete user data while no user is being signed in!"
       )
     );
 
-  const h = doc(db, "hours", user.uid);
-  const p = doc(db, "profiles", user.uid);
+  const [profs, hours] = await Promise.all([
+    getDocs(getProfilesOf(user)),
+    getDocs(getHoursOf(user)),
+  ]);
 
-  await deleteDoc(h);
-  await deleteDoc(p);
+  let prom: Promise<void>[] = [];
+
+  profs.docs.forEach((doc) => prom.push(deleteDoc(doc.ref)));
+  hours.docs.forEach((doc) => prom.push(deleteDoc(doc.ref)));
+
+  await Promise.all(prom);
 
   return true;
+}
+
+export async function delCurrentUser(): Promise<void> {
+  const user = await getCurrentUser();
+
+  if (!user) return;
+
+  await delDb();
+  deleteUser(user);
 }
 
 function calcTotal(start: string, end: string): number {
@@ -185,7 +169,8 @@ export async function addHours(
   start: string,
   end: string
 ): Promise<void> {
-  const user = getUser();
+  const user = await getCurrentUser();
+
   if (!user)
     return console.error(
       "[!] <fire.ts::addHours> Cannot add hours while not being logged in!"
@@ -197,24 +182,39 @@ export async function addHours(
       "Bitte wähle ein Profil aus und gib den Tag, sowie Anfangs- und Endzeit an"
     );
 
-  const hours = doc(db, "hours", user.uid) as DocumentReference<Hours>;
-
-  const hour: Hour = {
+  const hour: NewHour = {
     total: calcTotal(start, end),
-    profile: profile,
-    begin: start,
-    end: end,
+    owner: user.uid,
+    profile,
+    start,
     date,
+    end,
   };
 
-  console.log(profile, hour);
+  addDoc(collection(db, "hours"), hour);
+}
 
-  try {
-    await updateDoc(hours, { [hour.profile]: arrayUnion(hour) });
-  } catch (err) {
-    if ((err as any).code === "not-found")
-      await setDoc(hours, { [profile]: [hour] });
+export function fromCurrentUser(user: User): QueryFieldFilterConstraint {
+  return where("owner", "==", user.uid);
+}
 
-    console.log(err);
-  }
+export function getProfilesOf(
+  user: User,
+  ...constrains: QueryConstraint[]
+): Query<NewProfile, NewProfile> {
+  return query(
+    collection(db, "profiles"),
+    fromCurrentUser(user),
+    ...constrains
+  ) as any;
+}
+export function getHoursOf(
+  user: User,
+  ...constrains: QueryConstraint[]
+): Query<NewHour, NewHour> {
+  return query(
+    collection(db, "hours"),
+    fromCurrentUser(user),
+    ...constrains
+  ) as any;
 }

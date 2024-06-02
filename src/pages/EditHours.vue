@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useDocument, getCurrentUser } from "vuefire";
+import { useDocument, getCurrentUser, useCollection } from "vuefire";
 import { call } from "../components/banner";
-import { doc } from "firebase/firestore";
+import { collection, doc, query, where } from "firebase/firestore";
 import { useRouter } from "vue-router";
 import { addHours } from "../fire";
 import { db } from "../fire";
@@ -22,8 +22,9 @@ const start = ref<string>("");
 
 const user = await getCurrentUser();
 
-const { data: profiles, error } = useDocument<Typed<Profile>>(
-  doc(db, `profiles/${user!.uid}`)
+const profiles = useCollection(
+  query(collection(db, "profiles"), where("owner", "==", user!.uid)),
+  { ssrKey: "prof" }
 );
 
 setTimeout(async () => {

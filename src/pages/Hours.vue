@@ -1,25 +1,26 @@
 <script lang="ts" setup>
-import { useDocument, useCurrentUser } from "vuefire";
-import { doc } from "firebase/firestore";
+import { useCurrentUser, useCollection } from "vuefire";
+import { getHoursOf, getProfilesOf } from "../fire";
 import { ref, watch } from "vue";
 import { round } from "../utils";
-import { db } from "../fire";
 
 import PageLayout from "../layouts/PageLayout.vue";
 import Calendar from "../components/Calendar.vue";
 
 const user = useCurrentUser();
 
-const hRef = doc(db, "hours", user.value!.uid);
-
-const profiles = useDocument<Profiles>(doc(db, "profiles", user.value!.uid));
-const hoursMap = useDocument<Hours>(hRef);
+const profiles = useCollection<NewProfile>(getProfilesOf(user.value!), {
+  ssrKey: "profiles",
+});
+const hours = useCollection<NewHour>(getHoursOf(user.value!), {
+  ssrKey: "hours",
+});
 
 const total = ref<{ [key: string]: number }>({});
-const cur = ref<Hours>({});
+const cur = ref<{ [key: string]: NewHour[] }>({});
 
 watch(
-  hoursMap,
+  hours,
   () => {
     const D = new Date();
     onSelect([D.getFullYear(), D.getMonth(), D.getDate()]);
@@ -28,25 +29,35 @@ watch(
 );
 
 function onSelect(date: ISODate): void {
-  if (!hoursMap.value) return;
+  if (!hours.value) return;
 
   const ISO = new Date(...date, 2, 0, 0, 0).toISOString();
 
-  Object.keys(hoursMap.value ?? {}).forEach((profile) => {
-    total.value[profile] = 0;
+  hours.value.forEach((h) => {
+    if (
+      new Date(
+        `${h.date[0]}-${h.date[1]}-${h.date[2]}T00:00:00.000Z`
+      ).toISOString() === ISO
+    ) {
+      total.value[h.profile] += h.total;
+      return true;
+    }
 
-    cur.value[profile] = (hoursMap.value![profile] ?? []).filter((h) => {
-      if (
-        new Date(
-          `${h.date[0]}-${h.date[1]}-${h.date[2]}T00:00:00.000Z`
-        ).toISOString() === ISO
-      ) {
-        total.value[profile] += h.total;
-        return true;
-      }
+    return false;
+  });
 
-      return false;
-    });
+  profiles.value.forEach((prof) => {
+    total.value[prof.name] = 0;
+    cur.value[prof.name] = [];
+  });
+
+  hours.value.forEach((hour) => {
+    if (!(hour.profile in cur.value)) return;
+
+    if (new Date(hour.date.join("-")).toISOString() !== ISO) return;
+
+    total.value[hour.profile] += hour.total;
+    cur.value[hour.profile].push(hour);
   });
 }
 </script>
@@ -59,16 +70,16 @@ function onSelect(date: ISODate): void {
     <section class="day">
       <h2>So hast du gearbeitet:</h2>
       <ul>
-        <li v-for="(prof, name) in profiles" :key="name">
-          <h3>{{ name }}</h3>
+        <li v-for="prof in profiles" :key="prof.name">
+          <h3>{{ prof.name }}</h3>
           <ul>
-            <li v-for="(h, i) in cur[name]">
-              <p>{{ h.begin }} - {{ h.end }}</p>
+            <li v-for="(h, i) in cur[prof.name]">
+              <p>{{ h.start }} - {{ h.end }}</p>
               <p>{{ i > 0 ? "+" : "" }}{{ round(h.total * prof.pph) }}€</p>
             </li>
-            <li v-if="total[name] > 0" class="total">
-              <p>{{ total[name] }} Stunden</p>
-              <p>{{ round(total[name] * prof.pph) }}€</p>
+            <li v-if="total[prof.name] > 0" class="total">
+              <p>{{ total[prof.name] }} Stunden</p>
+              <p>{{ round(total[prof.name] * prof.pph) }}€</p>
             </li>
             <li v-else class="noHours">
               <p>Hier hast du nicht gearbeitet</p>

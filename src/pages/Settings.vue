@@ -2,11 +2,11 @@
 import {
   useFirebaseAuth,
   useCurrentUser,
-  useDocument,
   getCurrentUser,
+  useCollection,
 } from "vuefire";
-import { doc, updateDoc, deleteField } from "firebase/firestore";
-import { db, expDb, impDb, delDb } from "../fire";
+import { db, expDb, delDb, getProfilesOf, getHoursOf } from "../fire";
+import { doc, where, deleteDoc, getDocs } from "firebase/firestore";
 import { setTheme, type Theme } from "../theme";
 import { confirm } from "../components/modal";
 import { call } from "../components/banner";
@@ -28,11 +28,13 @@ await getCurrentUser();
 const APP_V = import.meta.env.VITE_APP_VERSION;
 const APP_S = import.meta.env.VITE_APP_STATE;
 
-const { data: profiles, error } = useDocument<Typed<Profile>>(
-  doc(db, `profiles/${user.value!.uid}`)
-);
+const profiles = useCollection<NewProfile>(getProfilesOf(user.value!), {
+  ssrKey: "profiles",
+});
 
-async function deleteProfile(profile: Profile): Promise<void> {
+async function deleteProfile(
+  profile: NewProfile & { id: string }
+): Promise<void> {
   const doDel = await confirm(
     "Möchtest du wirklich dieses Arbeitsprofil löschen? Alle Arbeitszeiten, die zu diesem Profil gehören, werden ebenfalls gelöscht. Diese Aktion lässt sich nicht rückgängig machen!",
     "Arbeitsprofil löschen",
@@ -40,15 +42,10 @@ async function deleteProfile(profile: Profile): Promise<void> {
   );
 
   if (doDel) {
-    const profs = doc(db, `profiles/${user.value!.uid}`);
-    const hours = doc(db, `hours/${user.value!.uid}`);
+    const del = getHoursOf(user.value!, where("profile", "==", profile.name));
 
-    try {
-      updateDoc(profs, { [profile.name]: deleteField() });
-      updateDoc(hours, { [profile.name]: deleteField() });
-    } catch (err) {
-      call("error", "Ein Fehler ist passiert - versuche es erneut");
-    }
+    getDocs(del).then((docs) => docs.forEach((doc) => deleteDoc(doc.ref)));
+    deleteDoc(doc(db, "profiles", profile.id));
   }
 }
 
@@ -120,15 +117,12 @@ function toDebug() {
       <SlideButton :default="theme" @update="(v) => setTheme(v as Theme)" />
     </section>
     <section class="data">
-      <div>
-        <button @click="impDb">Daten importieren</button>
-        <button @click="expDb">Daten exportieren</button>
-      </div>
+      <button @click="expDb">Daten exportieren</button>
       <button class="risk" @click="deleteDatabase">Daten löschen</button>
     </section>
     <section class="appversion">
       <p @click="toDebug">
-        Version{{ APP_S !== "FINAL" ? " " + APP_S : "" }} {{ APP_V }}
+        Version{{ APP_S !== "FINAL" ? ` ${APP_S}` : "" }} {{ APP_V }}
       </p>
     </section>
   </PageLayout>
@@ -186,8 +180,7 @@ section {
       }
     }
   }
-  &.data div {
-    margin-bottom: 0.5rem;
+  &.data {
     display: flex;
     gap: 0.5rem;
 

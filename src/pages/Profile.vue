@@ -1,61 +1,58 @@
 <script lang="ts" setup>
-import { arrayRemove, doc, updateDoc } from "firebase/firestore";
-import { useCurrentUser, useDocument } from "vuefire";
-import { useRoute, useRouter } from "vue-router";
+import { deleteDoc, doc, where } from "firebase/firestore";
+import { db, getHoursOf, getProfilesOf } from "../fire";
+import { useCollection, useCurrentUser } from "vuefire";
 import { getEuroDate, round } from "../utils";
 import { confirm } from "../components/modal";
-import { call } from "../components/banner";
 import { computed, ref, watch } from "vue";
-import { db } from "../fire";
+import { useRoute } from "vue-router";
 
 import PageLayout from "../layouts/PageLayout.vue";
 
-const router = useRouter();
 const route = useRoute();
+const profile = computed(() => route.params.profile as string);
 
 const user = useCurrentUser();
-const hRef = doc(db, "hours", user.value!.uid);
 
-const profiles = useDocument<Profiles>(doc(db, "profiles", user.value!.uid));
-const hoursMap = useDocument<Hours>(hRef);
+const profiles = useCollection<NewProfile>(
+  getProfilesOf(user.value!, where("name", "==", profile.value)),
+  { ssrKey: "profiles" }
+);
+const hours = useCollection<NewHour>(
+  getHoursOf(user.value!, where("profile", "==", profile.value)),
+  {
+    ssrKey: "hours",
+  }
+);
 
-const profile = computed(() => route.params.profile as string);
 const totalHours = ref<number>(0);
 const totalPay = ref<number>(0);
-const hours = ref<Hour[]>([]);
 
-watch(hoursMap, (nxt) => {
+watch(hours, (nxt) => {
   totalHours.value = 0;
   totalPay.value = 0;
-  hours.value = [];
 
   if (!profiles.value) return;
-
-  if (!(profile.value in (profiles.value ?? {}))) {
-    call("error", `Profil "${profile}" existiert nicht!`);
-    return router.push("/");
-  }
 
   if (nxt) {
     let tot: number = 0;
 
-    nxt[profile.value].forEach((hour) => {
-      hours.value.push(hour);
+    nxt.forEach((hour) => {
       tot += hour.total;
     });
 
-    totalPay.value += tot * profiles.value[profile.value].pph;
+    totalPay.value += tot * profiles.value[0].pph;
     totalHours.value += tot;
   }
 });
 
-async function del(h: Hour): Promise<void> {
+async function del(h: NewHour & { id: string }): Promise<void> {
   const doDel = await confirm(
     "Möchtest du diese Stunden wirklich löschen?",
     "Arbeitszeit löschen"
   );
 
-  if (doDel) updateDoc(hRef, { [h.profile]: arrayRemove(h) });
+  if (doDel) deleteDoc(doc(db, h.id));
 }
 </script>
 
@@ -78,9 +75,9 @@ async function del(h: Hour): Promise<void> {
     </section>
     <section class="hours">
       <ul class="hours">
-        <li v-for="h in hours" :key="h.begin + '@' + h.date.join('.')">
+        <li v-for="h in hours" :key="h.start + '@' + h.date.join('.')">
           <h4>{{ h.profile }}</h4>
-          <h4>{{ round(h.total * (profiles?.[h.profile]?.pph ?? -1)) }}€</h4>
+          <h4>{{ round(h.total * (profiles?.[0]?.pph ?? -1)) }}€</h4>
           <p>{{ getEuroDate(h.date).join(".") }}</p>
           <p>{{ h.total }} Stunden</p>
           <button @click="del(h)" class="text risk">Löschen</button>
