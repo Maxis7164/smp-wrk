@@ -22,8 +22,6 @@ const unsub = listen((modal) =>
   setTimeout(
     () => {
       mod.value = modal;
-      console.log(mod.value);
-
       show.value = trans.value = true;
     },
     show.value ? 400 : 0

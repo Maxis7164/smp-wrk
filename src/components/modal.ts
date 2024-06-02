@@ -119,8 +119,6 @@ export function confirm(
   title: string = "",
   buttons?: string[]
 ): Promise<boolean> {
-  console.log(buttons);
-
   return callModal("confirm", {
     message,
     title,
