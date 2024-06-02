@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useRoute, useRouter } from "vue-router";
-import { getDoc, doc, getDocs } from "firebase/firestore";
+import { getDocs } from "firebase/firestore";
 import { call } from "../components/banner";
 import { useFirebaseAuth } from "vuefire";
-import { db, getProfilesOf } from "../fire";
+import { getProfilesOf } from "../fire";
 import { ref } from "vue";
 
 import Loading from "../components/Loading.vue";
@@ -13,11 +13,11 @@ const auth = useFirebaseAuth();
 const route = useRoute();
 const r = useRouter();
 
-const load = ref<boolean>(false);
+auth!.authStateReady().then(() => {
+  auth!.currentUser ? r.push("/") : (load.value = true);
+});
 
-auth!.onAuthStateChanged((user) =>
-  user ? setTimeout(() => r.push("/"), 1_200) : null
-);
+const load = ref<boolean>(false);
 
 async function loginGoogle(): Promise<void> {
   if (!auth)
@@ -44,8 +44,6 @@ async function loginGoogle(): Promise<void> {
   }
   load.value = true;
 }
-
-setTimeout(() => (load.value = true), 3000);
 </script>
 
 <template>

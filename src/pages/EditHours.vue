@@ -28,8 +28,7 @@ const profiles = useCollection(
 );
 
 setTimeout(async () => {
-  if (Object.keys(profiles.value ?? {}).length === 0)
-    await r.push("/settings/editProfile");
+  if (profiles.value.length === 0) await r.push("/settings/editProfile");
 }, 5000);
 
 async function save(): Promise<void> {

@@ -14,6 +14,8 @@ const user = useCurrentUser();
 const route = useRoute();
 const r = useRouter();
 
+const setup: boolean = "setup" in route.query;
+
 const loading = ref<boolean>(false);
 const pay = ref<string | number>(12.41);
 const name = ref<string>("");
@@ -40,14 +42,14 @@ async function save() {
     console.error(err);
   }
 
-  if ("setup" in route.query) return r.push("/");
+  if (setup) return r.push("/");
 
   r.back();
 }
 </script>
 
 <template>
-  <DialogLayout @commit="save" name="Profil hinzufügen" :loading>
+  <DialogLayout @commit="save" name="Profil hinzufügen" :setup :loading>
     <label for="name">
       <h4>Name:</h4>
       <input

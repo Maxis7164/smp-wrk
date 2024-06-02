@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Loading from "../components/Loading.vue";
 
-defineProps<{ name: string; loading: boolean }>();
+defineProps<{ name: string; loading: boolean; unskippable?: boolean }>();
 defineEmits<{ (e: "commit"): void }>();
 </script>
 
@@ -14,7 +14,7 @@ defineEmits<{ (e: "commit"): void }>();
       <slot />
     </main>
     <footer>
-      <button @click="$router.back()">Zurück</button>
+      <button v-if="!unskippable" @click="$router.back()">Zurück</button>
       <button @click="$emit('commit')" class="high">Speichern</button>
     </footer>
     <Loading back :load="loading" />
