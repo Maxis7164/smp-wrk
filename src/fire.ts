@@ -19,6 +19,7 @@ import { confirm } from "./components/modal";
 import { call } from "./components/banner";
 import { getCurrentUser } from "vuefire";
 import { saveFile } from "./files";
+import { getHours, getMinutes, getTime } from "./utils";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
@@ -154,10 +155,10 @@ export async function delCurrentUser(): Promise<void> {
 }
 
 function calcTotal(start: string, end: string): number {
-  const s = new Date(`2004-04-22T${start}:00Z`).getTime();
-  const e = new Date(`2004-04-22T${end}:00Z`).getTime();
+  const s = getTime(start);
+  const e = getTime(end);
 
-  const total = (e - s) / 1000 / 60 / 60;
+  const total = (e < s ? s - e : e - s) / 60;
 
   return Math.floor(total * 100) / 100;
 }

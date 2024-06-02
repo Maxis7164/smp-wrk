@@ -9,3 +9,32 @@ export function round(val: number): number {
 export function range(iterationCount: number): null[] {
   return new Array(iterationCount).fill(null);
 }
+
+export function getHours(time: string): number {
+  const hours = time.split(":")[0];
+
+  if (hours.length > 0) {
+    const num = parseInt(hours);
+
+    return num > 24 || num < 0 ? 0 : num;
+  }
+
+  return NaN;
+}
+export function getMinutes(time: string): number {
+  const minutes = time.split(":")[1];
+
+  if (minutes.length > 0) {
+    const num = parseInt(minutes);
+
+    return num > 60 || num < 0 ? 0 : num;
+  }
+
+  return NaN;
+}
+export function getTime(time: string): number {
+  const h = getHours(time);
+  const m = getMinutes(time);
+
+  return h * 60 + m;
+}
