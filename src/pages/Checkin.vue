@@ -34,7 +34,19 @@ async function save(): Promise<void> {
   if (profile.value === NOPROF) return call("error", "Bitte gib ein Profil an");
 
   if (cur) {
-    await addHours(profile.value, cur.date, start.value, end.value);
+    const done = await addHours(
+      profile.value,
+      cur.date,
+      start.value,
+      end.value
+    );
+
+    if (!done)
+      return call(
+        "error",
+        "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!"
+      );
+
     localStorage.removeItem(PATH);
     r.push("/");
   } else {

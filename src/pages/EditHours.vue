@@ -44,7 +44,15 @@ async function save(): Promise<void> {
       "Bitte wähle ein Profil aus und gib den Tag, sowie Anfangs- und Endzeit an"
     );
 
-  await addHours(profile.value, date.value.split("-"), start.value, end.value);
+  const done = await addHours(
+    profile.value,
+    date.value.split("-"),
+    start.value,
+    end.value
+  );
+
+  if (!done)
+    return call("error", "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!");
   r.push("/");
 }
 </script>

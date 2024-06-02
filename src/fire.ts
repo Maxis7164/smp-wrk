@@ -169,30 +169,44 @@ export async function addHours(
   date: string[],
   start: string,
   end: string
-): Promise<void> {
+): Promise<boolean> {
   const user = await getCurrentUser();
 
-  if (!user)
-    return console.error(
+  if (!user) {
+    console.error(
       "[!] <fire.ts::addHours> Cannot add hours while not being logged in!"
     );
+    return false;
+  }
 
-  if (profile === NOPROF || date.length === 0 || start === "" || end === "")
-    return call(
+  if (profile === NOPROF || date.length === 0 || start === "" || end === "") {
+    call(
       "error",
       "Bitte wähle ein Profil aus und gib den Tag, sowie Anfangs- und Endzeit an"
     );
+    return false;
+  }
+
+  const total = calcTotal(start, end);
+
+  if (total <= 0) return false;
 
   const hour: NewHour = {
-    total: calcTotal(start, end),
     owner: user.uid,
     profile,
+    total,
     start,
     date,
     end,
   };
 
-  addDoc(collection(db, "hours"), hour);
+  try {
+    await addDoc(collection(db, "hours"), hour);
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
 }
 
 export function fromCurrentUser(user: User): QueryFieldFilterConstraint {
