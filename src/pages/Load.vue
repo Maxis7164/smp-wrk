@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useRoute, useRouter } from "vue-router";
-import { getDoc, doc } from "firebase/firestore";
+import { getDoc, doc, getDocs } from "firebase/firestore";
 import { call } from "../components/banner";
 import { useFirebaseAuth } from "vuefire";
-import { db } from "../fire";
+import { db, getProfilesOf } from "../fire";
 import { ref } from "vue";
 
 import Loading from "../components/Loading.vue";
@@ -30,14 +30,12 @@ async function loginGoogle(): Promise<void> {
   load.value = false;
   try {
     const cred = await signInWithPopup(auth, google);
-    //TODO: implement profiles check
-    return;
 
-    const a = await getDoc(doc(db, "profiles", cred.user.uid));
+    const profiles = await getDocs(getProfilesOf(cred.user));
 
-    if (a.exists() && Object.keys(a.data()).length > 0)
-      r.push(route.query["redir"] ? (route.query.redir as string) : "/");
-    else r.push({ path: "/settings/editProfile", query: { setup: 1 } });
+    if (profiles.empty)
+      r.push({ path: "/settings/editProfile", query: { setup: 1 } });
+    else r.push(route.query["redir"] ? (route.query.redir as string) : "/");
   } catch (err) {
     console.error(
       `[!] <Load.vue::loginGoogle()> Login failed: ${(err as any).message}`
