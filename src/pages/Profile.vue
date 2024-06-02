@@ -52,7 +52,7 @@ async function del(h: NewHour & { id: string }): Promise<void> {
     "Arbeitszeit löschen"
   );
 
-  if (doDel) deleteDoc(doc(db, h.id));
+  if (doDel) deleteDoc(doc(db, "hours", h.id));
 }
 </script>
 
