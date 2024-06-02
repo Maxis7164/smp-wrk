@@ -1,11 +1,11 @@
 {
   "name": "Simpler Work",
   "short_name": "Simpler Work",
-  "start_url": "/load",
+  "start_url": "/#load",
   "display": "standalone",
   "theme_color": "#006611",
   "orientation": "portrait",
-  "id": "/load",
+  "id": "/#load",
   "icons": [
     {
       "src": "/Simpler-Work-128.svg",
@@ -50,7 +50,12 @@
   ],
   "shortcuts": [
     {
-      "icons": [{ "src": "/Sign In.svg", "sizes": "96x96" }],
+      "icons": [
+        {
+          "src": "/Sign In.svg",
+          "sizes": "96x96"
+        }
+      ],
       "description": "A quick way to track your working hours",
       "name": "Check-In / Check-Out",
       "url": "/#/check-in"
