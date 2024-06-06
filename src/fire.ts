@@ -1,5 +1,3 @@
-import { initializeApp } from "firebase/app";
-import { User, deleteUser } from "firebase/auth";
 import {
   persistentMultipleTabManager,
   QueryFieldFilterConstraint,
@@ -12,14 +10,15 @@ import {
   query,
   Query,
   deleteDoc,
-  QueryCompositeFilterConstraint,
   QueryConstraint,
 } from "firebase/firestore";
+import { initializeApp } from "firebase/app";
 import { confirm } from "./components/modal";
 import { call } from "./components/banner";
 import { getCurrentUser } from "vuefire";
+import { User } from "firebase/auth";
 import { saveFile } from "./files";
-import { getHours, getMinutes, getTime } from "./utils";
+import { getTime } from "./utils";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
@@ -151,7 +150,7 @@ export async function delCurrentUser(): Promise<void> {
   if (!user) return;
 
   await delDb();
-  deleteUser(user);
+  user.delete();
 }
 
 function calcTotal(start: string, end: string): number {

@@ -1,22 +1,50 @@
 <script lang="ts" setup>
-import { confirm } from "../components/modal";
+import { useCurrentUser, useFirebaseAuth } from "vuefire";
+import { confirm, prompt } from "../components/modal";
 import { call } from "../components/banner";
-import { deleteUser } from "firebase/auth";
-import { useFirebaseAuth } from "vuefire";
+import { delCurrentUser } from "../fire";
 import { useRouter } from "vue-router";
 
 import PageLayout from "../layouts/PageLayout.vue";
-import { delCurrentUser } from "../fire";
+import { updateProfile } from "firebase/auth";
+import { ref } from "vue";
 
 const auth = useFirebaseAuth();
+const user = useCurrentUser();
 const r = useRouter();
 
 function signOut(): void {
   if (!auth)
-    call("error", "Ein unerwarteter Fehler kam auf - bitte versuche es erneut");
+    return call(
+      "error",
+      "Ein unerwarteter Fehler kam auf - bitte versuche es erneut"
+    );
 
   auth!.signOut();
   r.push("/load");
+}
+
+async function changeUsername(): Promise<void> {
+  if (!auth)
+    return call(
+      "error",
+      "Ein unerwarteter Fehler kam auf - bitte versuche es erneut"
+    );
+
+  const nxt = await prompt(
+    "Wie möchtest du genannt werden?",
+    "Nutzernamen ändern",
+    {
+      checkup: (usr) =>
+        usr.length > 0
+          ? usr.split("").includes(" ")
+            ? "Dein Nutzername darf keine Leerzeichen beinhalten!"
+            : ""
+          : "Bitte gib einen Nutzernamen an",
+    }
+  );
+
+  await updateProfile(user.value!, { displayName: nxt });
 }
 
 async function delAcc(): Promise<void> {
@@ -53,13 +81,13 @@ async function delAcc(): Promise<void> {
   <PageLayout name="Dein Account">
     <section class="user">
       <p>Angemeldet als</p>
-      <h2>Max</h2>
-      <p>maxdopp.md@gmail.com</p>
+      <h2 v-if="user?.displayName">{{ user?.displayName ?? "" }}</h2>
+      <p>{{ user?.email ?? "NO-MAIL" }}</p>
     </section>
     <section class="edit">
       <ul>
         <li>
-          <button>Nutzernamen Bearbeiten</button>
+          <button @click="changeUsername">Nutzernamen Bearbeiten</button>
         </li>
       </ul>
     </section>
