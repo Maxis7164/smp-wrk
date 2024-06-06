@@ -18,9 +18,8 @@ const assets = [
   "/Inter.ttf"
 ];
 
-async function a(req) {
+async function respond(req) {
   try {
-
     const f = await fetch(req);
     
     if (f.ok) {
@@ -35,20 +34,6 @@ async function a(req) {
   } catch (err) {
     return caches.match(req);
   }
-  
-
-  // e.respondWith(
-  //   caches.match(e.request).then(async (res) => {
-  //     if (res) return res;
-
-  //     const f = await fetch(e.request);
-
-  //     if (e.request.method === "GET")
-        // (await caches.open(CACHE)).add(e.request, f);
-
-  //     return f;
-  //   })
-  // );
 }
 
 
@@ -63,5 +48,5 @@ self.addEventListener('active', async (e) => {
 })
 
 self.addEventListener("fetch", (e) => {
-  e.respondWith(a(e.request))
+  e.respondWith(respond(e.request))
 });
