@@ -28,7 +28,7 @@ if (location.hostname !== "localhost" || import.meta.env.VITE_SW_DEV === "1") {
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
 }
 
-const testGuard: NavigationGuardWithThis<undefined> = (to) =>
+const testGuard: NavigationGuardWithThis<undefined> = () =>
   import.meta.env.DEV ? true : "/";
 
 //#region VueRouter
@@ -36,6 +36,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/", component: Home },
   { path: "/settings", component: Settings },
   { path: "/settings/editProfile", component: EditProfile },
+  { path: "/settings/editProfile/:profile", component: EditProfile },
   { path: "/settings/account", component: Account },
   { path: "/load", component: Load, meta: { anonymous: true } },
   { path: "/editHours", component: EditHours },

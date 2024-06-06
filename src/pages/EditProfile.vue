@@ -1,10 +1,17 @@
 <script lang="ts" setup>
-import { addDoc, collection } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { useRoute, useRouter } from "vue-router";
 import { call } from "../components/banner";
 import { useCurrentUser } from "vuefire";
-import { db } from "../fire";
-import { ref } from "vue";
+import { db, getProfilesOf } from "../fire";
+import { ref, watch } from "vue";
 
 import DialogLayout from "../layouts/DialogLayout.vue";
 
@@ -16,9 +23,32 @@ const r = useRouter();
 
 const setup: boolean = "setup" in route.query;
 
-const loading = ref<boolean>(false);
 const pay = ref<string | number>(12.41);
+const loading = ref<boolean>(false);
 const name = ref<string>("");
+const id = ref<string>("");
+
+watch(
+  () => route.params.profile,
+  (nxt) => load(nxt)
+);
+
+async function load(prof: string | string[]) {
+  if (typeof prof !== "string") return;
+
+  const doc = (
+    await getDocs(getProfilesOf(user.value!, where("name", "==", prof)))
+  ).docs.at(0);
+
+  if (!doc) return;
+
+  const profile = doc.data();
+
+  id.value = doc.id ?? "";
+
+  name.value = prof;
+  pay.value = profile.pph;
+}
 
 async function save() {
   if (name.value.length === 0) return call("error", "Gib bitte einen Namen an");
@@ -37,7 +67,8 @@ async function save() {
       pph,
     };
 
-    addDoc(profiles, profile);
+    if (id.value.length > 0) updateDoc(doc(db, "profiles", id.value), profile);
+    else addDoc(profiles, profile);
   } catch (err) {
     console.error(err);
   }
@@ -46,6 +77,8 @@ async function save() {
 
   r.back();
 }
+
+if ("profile" in route.params) load(route.params.profile);
 </script>
 
 <template>
