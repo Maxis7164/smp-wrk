@@ -40,7 +40,7 @@ function getDate(i: number): number {
 }
 
 function loadMonth(month: number, year: number) {
-  const first = new Date(year, month, 1);
+  const first = new Date(year, month, 0);
 
   day.value = first.getDay();
 }
