@@ -1,11 +1,15 @@
 <script lang="ts" setup>
+import { call } from "./banner";
 import {
+  CheckupFunction,
   __awnserModal__,
   listen,
   type Modal,
   type ModalResults,
 } from "./modal";
 import { ref, shallowRef, onUnmounted } from "vue";
+
+const DUMMY: CheckupFunction = (_: string) => "";
 
 const mod = shallowRef<Modal<keyof ModalResults>>({
   buttons: ["Ok", "Cancel"],
@@ -22,7 +26,10 @@ const unsub = listen((modal) =>
   setTimeout(
     () => {
       mod.value = modal;
+      inp.value = "";
       show.value = trans.value = true;
+
+      console.log(modal);
     },
     show.value ? 400 : 0
   )
@@ -34,7 +41,10 @@ function close(exit: number): void {
       show.value = __awnserModal__(undefined);
       break;
     case "prompt":
-      show.value = __awnserModal__(exit ? inp.value : "");
+      const invalid = (mod.value.checkup ?? DUMMY)(inp.value);
+
+      if (invalid.length > 0) return call("info", invalid);
+      else show.value = __awnserModal__(exit ? inp.value : "");
       break;
     case "confirm":
       show.value = __awnserModal__(!!exit);
