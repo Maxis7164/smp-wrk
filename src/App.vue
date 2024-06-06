@@ -43,8 +43,8 @@ const reload = () => location.reload();
     </p>
     <button @click="reload">Reload page</button>
   </div>
-  <Banner />
   <Modal />
+  <Banner />
 </template>
 
 <style lang="scss" scoped>
