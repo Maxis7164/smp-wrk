@@ -18,11 +18,15 @@ const hours = useCollection<NewHour>(getHoursOf(user.value!), {
 
 const total = ref<{ [key: string]: number }>({});
 const cur = ref<{ [key: string]: NewHour[] }>({});
+const dates = ref<string[]>([]);
 
 watch(
   hours,
   () => {
     const D = new Date();
+
+    dates.value = hours.value.map((hour) => hour.date.join("-"));
+
     onSelect([D.getFullYear(), D.getMonth(), D.getDate()]);
   },
   { once: true }
@@ -65,7 +69,7 @@ function onSelect(date: ISODate): void {
 <template>
   <PageLayout name="Deine Stunden">
     <section class="calendar">
-      <Calendar @select="onSelect" />
+      <Calendar :dates @select="onSelect" />
     </section>
     <section class="day">
       <h2>So hast du gearbeitet:</h2>

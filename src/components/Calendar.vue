@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { range } from "../utils";
 
-const props = defineProps<{ initial?: boolean }>();
+const props = defineProps<{ initial?: boolean; dates: string[] }>();
 const emit = defineEmits<{ (e: "select", i: ISODate): void }>();
 
 const DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"] as const;
@@ -28,6 +28,7 @@ const month = ref<number>(cur.getMonth());
 const day = ref<number>(0);
 
 const sel = ref<number[]>([cur.getDate(), cur.getMonth(), cur.getFullYear()]);
+const dates = computed<string[]>(() => props.dates);
 
 function getDate(i: number): number {
   const d = i + 1 - day.value;
@@ -75,7 +76,8 @@ function goToMonth(to: number): void {
 
 function toCurrent(): void {
   year.value = cur.getFullYear();
-  month.value = cur.getMonth();
+  month.value = cur.getMonth() - 1;
+  goToMonth(1);
 }
 
 const isActive = (i: number) =>
@@ -88,6 +90,16 @@ const isCurrent = (i: number) =>
 
 const isFiller = (i: number): number =>
   i < day.value ? -1 : i + 1 > c[month.value] + day.value ? 1 : 0;
+
+const hasEvent = (i: number): boolean => {
+  const date = new Date(`${year.value}-${month.value + 1}-${getDate(i + 1)}`)
+    .toISOString()
+    .slice(0, 10);
+
+  console.log(date, dates.value.includes(date));
+
+  return dates.value.includes(date);
+};
 
 loadMonth(month.value, year.value);
 
@@ -112,6 +124,7 @@ if (props.initial) emit("select", [sel.value[2], sel.value[1], sel.value[0]]);
         active: isActive(i),
         current: isCurrent(i),
         filler: isFiller(i),
+        event: hasEvent(i),
       }"
       v-for="(_, i) in range(c[month] + day > 35 ? 42 : 35)"
       :key="i"
@@ -153,6 +166,23 @@ div.calendar {
     }
     &.current {
       color: var(--p);
+    }
+    &.event {
+      position: relative;
+
+      &::after {
+        content: "";
+
+        transform: translateX(-50%);
+        border-radius: 999px;
+        background: var(--p);
+        position: absolute;
+        z-index: 310;
+        bottom: 5px;
+        height: 5px;
+        width: 5px;
+        left: 50%;
+      }
     }
   }
 }
