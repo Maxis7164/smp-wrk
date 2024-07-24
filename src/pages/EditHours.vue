@@ -32,6 +32,8 @@ setTimeout(async () => {
 }, 5000);
 
 async function save(): Promise<void> {
+  loading.value = true;
+
   if (
     profile.value === NOPROF ||
     date.value === "" ||
@@ -53,6 +55,7 @@ async function save(): Promise<void> {
   if (!done)
     return call("error", "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!");
   r.push("/");
+  loading.value = false;
 }
 </script>
 
