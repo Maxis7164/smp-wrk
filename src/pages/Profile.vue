@@ -25,8 +25,19 @@ const hours = useCollection<NewHour>(
   }
 );
 
+const display = computed<NewHour[]>(() => sort(hours.value));
 const totalHours = ref<number>(0);
 const totalPay = ref<number>(0);
+
+type A = typeof hours.value;
+
+function sort(arr: A): A {
+  return arr.sort((a, b) =>
+    new Date(a.date.join("-")).getTime() > new Date(b.date.join("-")).getTime()
+      ? -1
+      : 1
+  );
+}
 
 watch(hours, (nxt) => {
   totalHours.value = 0;
@@ -75,12 +86,12 @@ async function del(h: NewHour & { id: string }): Promise<void> {
     </section>
     <section class="hours">
       <ul class="hours">
-        <li v-for="h in hours" :key="h.start + '@' + h.date.join('.')">
+        <li v-for="h in display" :key="h.start + '@' + h.date.join('.')">
           <h4>{{ h.profile }}</h4>
           <h4>{{ round(h.total * (profiles?.[0]?.pph ?? -1)) }}€</h4>
           <p>{{ getEuroDate(h.date).join(".") }}</p>
           <p>{{ h.total }} Stunden</p>
-          <button @click="del(h)" class="text risk">Löschen</button>
+          <button @click="del(h as any)" class="text risk">Löschen</button>
         </li>
         <li v-if="hours.length === 0" class="noHours">
           <p>Du hast keine Stunden eingetragen.</p>
