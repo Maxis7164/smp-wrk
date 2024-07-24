@@ -14,8 +14,12 @@ defineEmits<{ (e: "commit"): void }>();
       <slot />
     </main>
     <footer>
-      <button v-if="!unskippable" @click="$router.back()">Zurück</button>
-      <button @click="$emit('commit')" class="high">Speichern</button>
+      <button :disabled="loading" v-if="!unskippable" @click="$router.back()">
+        Zurück
+      </button>
+      <button :disabled="loading" @click="$emit('commit')" class="high">
+        Speichern
+      </button>
     </footer>
     <Loading back :load="loading" />
   </div>

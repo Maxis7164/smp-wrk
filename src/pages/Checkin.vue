@@ -33,6 +33,8 @@ const loading = ref<boolean>(false);
 async function save(): Promise<void> {
   if (profile.value === NOPROF) return call("error", "Bitte gib ein Profil an");
 
+  loading.value = true;
+
   if (cur) {
     const done = await addHours(
       profile.value,
@@ -59,6 +61,7 @@ async function save(): Promise<void> {
     localStorage.setItem(PATH, JSON.stringify(check));
     r.push("/");
   }
+  loading.value = false;
 }
 </script>
 
