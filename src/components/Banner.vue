@@ -38,6 +38,8 @@ function close(): void {
     if (quene.length > 0) buildBanner(quene.shift()!);
   }, 800);
 }
+
+const $t: (...args: any[]) => void = () => null; //? placeholder for vue-i18n
 </script>
 
 <template>
