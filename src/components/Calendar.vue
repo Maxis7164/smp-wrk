@@ -96,8 +96,6 @@ const hasEvent = (i: number): boolean => {
     .toISOString()
     .slice(0, 10);
 
-  console.log(date, dates.value.includes(date));
-
   return dates.value.includes(date);
 };
 
