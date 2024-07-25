@@ -78,6 +78,7 @@ button {
 
   &.text {
     background: transparent;
+    font-weight: 400;
     padding: 5px;
 
     &:not(:disabled):hover {

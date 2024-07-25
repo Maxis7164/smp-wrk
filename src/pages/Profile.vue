@@ -8,6 +8,7 @@ import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import PageLayout from "../layouts/PageLayout.vue";
+import HourPanel from "../components/HourPanel.vue";
 
 const route = useRoute();
 const profile = computed(() => route.params.profile as string);
@@ -86,13 +87,7 @@ async function del(h: NewHour & { id: string }): Promise<void> {
     </section>
     <section class="hours">
       <ul class="hours">
-        <li v-for="h in display" :key="h.start + '@' + h.date.join('.')">
-          <h4>{{ h.profile }}</h4>
-          <h4>{{ round(h.total * (profiles?.[0]?.pph ?? -1)) }}€</h4>
-          <p>{{ getEuroDate(h.date).join(".") }}</p>
-          <p>{{ h.total }} Stunden</p>
-          <button @click="del(h as any)" class="text risk">Löschen</button>
-        </li>
+        <HourPanel :hours :profiles :user />
         <li v-if="hours.length === 0" class="noHours">
           <p>Du hast keine Stunden eingetragen.</p>
         </li>
@@ -145,25 +140,6 @@ section {
   &.hours {
     ul {
       overflow-y: auto;
-
-      li:not(.noHours) {
-        grid-template-rows: auto auto auto;
-        grid-template-columns: 1fr 1fr;
-        margin-bottom: 0.75rem;
-        background: var(--srf);
-        border-radius: 1rem;
-        align-items: center;
-        row-gap: 0.75rem;
-        display: grid;
-        padding: 1rem;
-
-        :nth-child(even) {
-          text-align: end;
-        }
-        button {
-          grid-column: 1 / 3;
-        }
-      }
 
       li.noHours {
         transform: translate(-50%, -50%);
