@@ -26,8 +26,9 @@ li::after {
 
 body {
   --bg: #e6e6e6;
-  --srf: hsl(130, 100%, 100%);
-  --srf1: hsl(130, 100%, 95%);
+  --srf: hsl(130, 0%, 100%);
+  --srf1: hsl(130, 0%, 95%);
+  --srf2: hsl(130, 0%, 80%);
   --brd: hsl(130, 15%, 90%);
   --p: hsl(130, 100%, 40%);
   --p1: hsl(130, 100%, 35%);
@@ -152,11 +153,10 @@ select {
   border: unset;
 
   &:disabled {
-    background: var(--bg);
+    background: var(--srf2);
     cursor: default;
   }
 }
-
 
 // ::-webkit-scrollbar {
 //   background-color: transparent;
@@ -169,7 +169,7 @@ select {
 //       background-color: #AAAAAA;
 // }
 // ::-webkit-scrollbar-track {
-  
+
 //   margin: 8px;
 // }
 // ::-webkit-scrollbar-button {
