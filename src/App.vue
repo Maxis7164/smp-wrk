@@ -7,6 +7,8 @@ import { ref } from "vue";
 import Banner from "./components/Banner.vue";
 import Modal from "./components/Modal.vue";
 
+if (import.meta.env.DEV) document.title = "Simpler Work (DEV)";
+
 const auth = useFirebaseAuth();
 
 const err = ref<LoadFirebaseError>();

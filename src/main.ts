@@ -21,8 +21,6 @@ import Account from "./pages/Account.vue";
 import Profile from "./pages/Profile.vue";
 import Test from "./pages/Test.vue";
 
-if (import.meta.env.DEV) document.title = "Simpler Work (DEV)";
-
 const app = createApp(App);
 
 //? prevent service worker from working in localhost to prevent stale app
