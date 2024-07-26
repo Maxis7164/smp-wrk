@@ -84,13 +84,13 @@ function getTotal(profile: NewProfile) {
       <ul>
         <li>
           <button @click="$router.push('/hours')">
-            <h4>Gesamt:</h4>
+            <h3>Gesamt:</h3>
             <p>{{ round(allHours) }} Stunden</p>
           </button>
         </li>
         <li v-for="prof in profiles">
           <button @click="$router.push(`/hours/${prof.name}`)">
-            <h4>{{ prof.name }}:</h4>
+            <h3>{{ prof.name }}:</h3>
             <p>{{ round(getTotal(prof)) }} Stunden</p>
           </button>
         </li>

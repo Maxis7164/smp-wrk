@@ -83,7 +83,7 @@ async function del(h: NewHour & { id: string }): Promise<void> {
       </ul>
     </section>
     <section v-if="hours.length > 0" class="impressive">
-      <h4>Erstaunlich, nicht wahr?</h4>
+      <h3>Erstaunlich, nicht wahr?</h3>
     </section>
     <section class="hours">
       <ul class="hours">
