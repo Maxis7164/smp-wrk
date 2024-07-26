@@ -15,14 +15,9 @@ type Profiles = { [key: string]: Profile };
 type Hours = { [key: string]: Hour[] };
 
 type DatabaseExport = {
-  profiles: NewProfile[];
-  hours: NewHour[];
+  profiles: Profile[];
+  hours: Hour[];
   version: number;
-};
-
-type Profile = {
-  name: string;
-  pph: number;
 };
 
 type CheckIn = {
@@ -30,8 +25,6 @@ type CheckIn = {
   begin: string;
   date: string[];
 };
-
-type Hour = CheckIn & { end: string; total: number };
 
 type Typed<T = any> = { [key: string]: T };
 
@@ -42,7 +35,7 @@ type ErrorMap<T = any> = {
 
 type ISODate = [number, number, number];
 
-type NewHour = {
+type Hour = {
   profile: string;
   date: string[];
   total: number;
@@ -51,7 +44,7 @@ type NewHour = {
   end: string;
 };
 
-type NewProfile = {
+type Profile = {
   owner: string;
   name: string;
   pph: number;

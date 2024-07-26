@@ -61,7 +61,7 @@ async function save() {
         ? parseFloat(pay.value.split(",").join("."))
         : pay.value;
 
-    const profile: NewProfile = {
+    const profile: Profile = {
       owner: user.value!.uid,
       name: name.value,
       pph,

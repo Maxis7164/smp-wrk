@@ -9,10 +9,10 @@ type _Nullable<T> = T | null | undefined;
 
 const props = defineProps<{
   user: _Nullable<User>;
-  hours: NewHour[];
-  profiles: VueFirestoreQueryData<NewProfile>;
+  hours: Hour[];
+  profiles: VueFirestoreQueryData<Profile>;
 }>();
-defineEmits<{ (e: "delete", h: NewHour): void }>();
+defineEmits<{ (e: "delete", h: Hour): void }>();
 </script>
 
 <template>

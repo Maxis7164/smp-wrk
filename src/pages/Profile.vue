@@ -15,18 +15,18 @@ const profile = computed(() => route.params.profile as string);
 
 const user = useCurrentUser();
 
-const profiles = useCollection<NewProfile>(
+const profiles = useCollection<Profile>(
   getProfilesOf(user.value!, where("name", "==", profile.value)),
   { ssrKey: "profiles" }
 );
-const hours = useCollection<NewHour>(
+const hours = useCollection<Hour>(
   getHoursOf(user.value!, where("profile", "==", profile.value)),
   {
     ssrKey: "hours",
   }
 );
 
-const display = computed<NewHour[]>(() => sort(hours.value));
+const display = computed<Hour[]>(() => sort(hours.value));
 const totalHours = ref<number>(0);
 const totalPay = ref<number>(0);
 
@@ -58,7 +58,7 @@ watch(hours, (nxt) => {
   }
 });
 
-async function del(h: NewHour & { id: string }): Promise<void> {
+async function del(h: Hour & { id: string }): Promise<void> {
   const doDel = await confirm(
     "Möchtest du diese Stunden wirklich löschen?",
     "Arbeitszeit löschen"

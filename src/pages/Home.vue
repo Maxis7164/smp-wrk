@@ -16,11 +16,11 @@ const r = useRouter();
 
 if (!auth) throw new LoadFirebaseError("auth/none");
 
-const profiles = useCollection<NewProfile>(
+const profiles = useCollection<Profile>(
   query(collection(db, "profiles"), fromCurrentUser(curUser.value!)),
   { ssrKey: "profiles" }
 );
-const hours = useCollection<NewHour>(
+const hours = useCollection<Hour>(
   query(collection(db, "hours"), fromCurrentUser(curUser.value!)),
   { ssrKey: "hours" }
 );
@@ -53,7 +53,7 @@ watch(hours, (nxt) => {
   });
 });
 
-function getTotal(profile: NewProfile) {
+function getTotal(profile: Profile) {
   const nxt = hours.value
     .filter((h) => h.profile === profile.name)
     .map((h) => h.total);

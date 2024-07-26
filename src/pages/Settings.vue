@@ -28,13 +28,11 @@ await getCurrentUser();
 const APP_V = import.meta.env.VITE_APP_VERSION;
 const APP_S = import.meta.env.VITE_APP_STATE;
 
-const profiles = useCollection<NewProfile>(getProfilesOf(user.value!), {
+const profiles = useCollection<Profile>(getProfilesOf(user.value!), {
   ssrKey: "profiles",
 });
 
-async function deleteProfile(
-  profile: NewProfile & { id: string }
-): Promise<void> {
+async function deleteProfile(profile: Profile & { id: string }): Promise<void> {
   const doDel = await confirm(
     "Möchtest du wirklich dieses Arbeitsprofil löschen? Alle Arbeitszeiten, die zu diesem Profil gehören, werden ebenfalls gelöscht. Diese Aktion lässt sich nicht rückgängig machen!",
     "Arbeitsprofil löschen",

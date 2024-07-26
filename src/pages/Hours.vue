@@ -9,15 +9,15 @@ import Calendar from "../components/Calendar.vue";
 
 const user = useCurrentUser();
 
-const profiles = useCollection<NewProfile>(getProfilesOf(user.value!), {
+const profiles = useCollection<Profile>(getProfilesOf(user.value!), {
   ssrKey: "profiles",
 });
-const hours = useCollection<NewHour>(getHoursOf(user.value!), {
+const hours = useCollection<Hour>(getHoursOf(user.value!), {
   ssrKey: "hours",
 });
 
 const total = ref<{ [key: string]: number }>({});
-const cur = ref<{ [key: string]: NewHour[] }>({});
+const cur = ref<{ [key: string]: Hour[] }>({});
 const dates = ref<string[]>([]);
 
 watch(
