@@ -84,7 +84,7 @@ if ("profile" in route.params) load(route.params.profile);
 <template>
   <DialogLayout @commit="save" name="Profil hinzufügen" :setup :loading>
     <label for="name">
-      <h4>Wo arbeitest du?</h4>
+      <h3>Wo arbeitest du?</h3>
       <input
         v-model="name"
         placeholder="z. B. Freelance"
@@ -94,7 +94,7 @@ if ("profile" in route.params) load(route.params.profile);
       />
     </label>
     <label for="pay">
-      <h4>Wie viel verdienst du da?</h4>
+      <h3>Wie viel verdienst du da?</h3>
       <input
         v-model="pay"
         step="0.25"
@@ -112,8 +112,8 @@ label {
   margin-bottom: 1rem;
   display: block;
 
-  h4 {
-    margin: 0.125rem 0.125rem;
+  h3 {
+    margin: 0.25rem 0.125rem;
   }
   input {
     text-align: center;

@@ -39,11 +39,13 @@ async function save(): Promise<void> {
     date.value === "" ||
     start.value === "" ||
     end.value === ""
-  )
+  ) {
+    loading.value = false;
     return call(
       "error",
       "Bitte wähle ein Profil aus und gib den Tag, sowie Anfangs- und Endzeit an"
     );
+  }
 
   const done = await addHours(
     profile.value,
@@ -52,10 +54,10 @@ async function save(): Promise<void> {
     end.value
   );
 
+  loading.value = false;
   if (!done)
     return call("error", "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!");
   r.push("/");
-  loading.value = false;
 }
 </script>
 
@@ -71,7 +73,7 @@ async function save(): Promise<void> {
       </select>
     </label>
     <label for="date">
-      <h4>Tag:</h4>
+      <h3>Tag:</h3>
       <input
         v-model="date"
         type="date"
@@ -92,7 +94,7 @@ async function save(): Promise<void> {
         />
       </label>
       <label for="end">
-        <h4>Bis:</h4>
+        <h3>Bis:</h3>
         <input
           v-model="end"
           type="time"
@@ -115,8 +117,8 @@ label {
     margin-bottom: 0.325rem;
   }
 
-  h4 {
-    margin: 0.125rem 0.125rem;
+  h3 {
+    margin: 0.25rem 0.125rem;
   }
   input,
   select {

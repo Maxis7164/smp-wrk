@@ -33,7 +33,7 @@ header {
   left: 50%;
   top: 20%;
 
-  h3 {
+  h1 {
     transition: opacity 500ms;
   }
 }
