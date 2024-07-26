@@ -1,55 +1,64 @@
 <script lang="ts" setup>
-import { useCollection, useCurrentUser } from "vuefire";
-import { addHours, getProfilesOf } from "../fire";
+import { useCollection, useCurrentUser, useDocument } from "vuefire";
+import { addHours, db, getCheckInOf, getProfilesOf } from "../fire";
 import { call } from "../components/banner";
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 import DialogLayout from "../layouts/DialogLayout.vue";
+import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
 
 const user = useCurrentUser();
 const r = useRouter();
 
-const PATH = "smp-wrk/curCheckInStart";
 const NOPROF = "- auswählen -";
 const D = new Date();
 
+const check = useDocument(getCheckInOf(user.value!));
 const profiles = useCollection(getProfilesOf(user.value!), {
   ssrKey: "profiles",
 });
 
-let cur: CheckIn | null = JSON.parse(localStorage.getItem(PATH) ?? "null");
-
-if (cur?.profile === NOPROF) {
-  localStorage.removeItem(PATH);
-  cur = null;
-}
-
-const start = ref<string>(cur?.begin ?? D.toTimeString().slice(0, 5));
+const start = ref<string>(D.toTimeString().slice(0, 5));
 const end = ref<string>(D.toTimeString().slice(0, 5));
-const profile = ref<string>(cur?.profile ?? NOPROF);
+const profile = ref<string>(NOPROF);
 const loading = ref<boolean>(false);
+
+watch(
+  check,
+  (nxt) => {
+    console.log(check);
+
+    if (nxt) {
+      profile.value = nxt.profile;
+      start.value = nxt.begin;
+    }
+
+    loading.value = false;
+  },
+  { once: true }
+);
 
 async function save(): Promise<void> {
   if (profile.value === NOPROF) return call("error", "Bitte gib ein Profil an");
 
   loading.value = true;
 
-  if (cur) {
+  if (check.value) {
     const done = await addHours(
       profile.value,
-      cur.date,
+      check.value.date,
       start.value,
       end.value
     );
+
+    await deleteDoc(getCheckInOf(user.value!));
 
     if (!done)
       return call(
         "error",
         "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!"
       );
-
-    localStorage.removeItem(PATH);
     r.push("/");
   } else {
     const check: CheckIn = {
@@ -58,7 +67,8 @@ async function save(): Promise<void> {
       begin: start.value,
     };
 
-    localStorage.setItem(PATH, JSON.stringify(check));
+    await setDoc(getCheckInOf(user.value!), check);
+
     r.push("/");
   }
   loading.value = false;
@@ -66,10 +76,14 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <DialogLayout @commit="save" :name="cur ? 'Check Out' : 'Check In'" :loading>
+  <DialogLayout
+    @commit="save"
+    :name="check ? 'Check Out' : 'Check In'"
+    :loading
+  >
     <label for="profile">
       <h3>Profil:</h3>
-      <select :disabled="!!cur" v-model="profile">
+      <select :disabled="!!check" v-model="profile">
         <option>- auswählen -</option>
         <option v-for="prof in profiles" :key="prof.name">
           {{ prof.name }}
@@ -80,14 +94,14 @@ async function save(): Promise<void> {
       <label for="start">
         <h3>Start:</h3>
         <input
-          :disabled="!!cur"
+          :disabled="!!check"
           v-model="start"
           type="time"
           name="start"
           id="start"
         />
       </label>
-      <label v-if="cur" for="end">
+      <label v-if="check" for="end">
         <h3>Ende:</h3>
         <input v-model="end" type="time" name="end" id="end" />
       </label>

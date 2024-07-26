@@ -11,6 +11,8 @@ import {
   Query,
   deleteDoc,
   QueryConstraint,
+  doc,
+  DocumentReference,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { confirm } from "./components/modal";
@@ -190,7 +192,7 @@ export async function addHours(
 
   if (total <= 0) return false;
 
-  const hour: NewHour = {
+  const hour: Hour = {
     owner: user.uid,
     profile,
     total,
@@ -212,10 +214,13 @@ export function fromCurrentUser(user: User): QueryFieldFilterConstraint {
   return where("owner", "==", user.uid);
 }
 
+export function getCheckInOf(user: User): DocumentReference<CheckIn, CheckIn> {
+  return doc(db, `checkin/${user.uid}`) as any;
+}
 export function getProfilesOf(
   user: User,
   ...constrains: QueryConstraint[]
-): Query<NewProfile, NewProfile> {
+): Query<Profile, Profile> {
   return query(
     collection(db, "profiles"),
     fromCurrentUser(user),
@@ -225,7 +230,7 @@ export function getProfilesOf(
 export function getHoursOf(
   user: User,
   ...constrains: QueryConstraint[]
-): Query<NewHour, NewHour> {
+): Query<Hour, Hour> {
   return query(
     collection(db, "hours"),
     fromCurrentUser(user),
