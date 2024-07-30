@@ -13,6 +13,10 @@ import {
   QueryConstraint,
   doc,
   DocumentReference,
+  DocumentData,
+  CollectionReference,
+  getCountFromServer,
+  documentId,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { confirm } from "./components/modal";
@@ -208,6 +212,17 @@ export async function addHours(
     console.error(err);
     return false;
   }
+}
+
+export async function exists(
+  collection: CollectionReference<DocumentData, DocumentData>,
+  id: string
+): Promise<boolean> {
+  const snap = await getCountFromServer(
+    query(collection, where(documentId(), "==", id))
+  );
+
+  return !!snap.data().count;
 }
 
 export function fromCurrentUser(user: User): QueryFieldFilterConstraint {
