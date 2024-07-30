@@ -14,7 +14,7 @@ function setup(t: Theme): void {
   if (t === 2) media.addEventListener("change", update);
   else media.removeEventListener("change", update);
 
-  applyTheme(!!t);
+  applyTheme(t > 1 ? media.matches : !!t);
 
   localStorage.setItem("theme", `${t}`);
 }
