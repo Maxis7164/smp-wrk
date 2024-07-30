@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { useCollection, useCurrentUser, useDocument } from "vuefire";
-import { addHours, db, getCheckInOf, getProfilesOf } from "../fire";
+import { addHours, getCheckInOf, getProfilesOf } from "../fire";
+import { deleteDoc, setDoc } from "firebase/firestore";
 import { call } from "../components/banner";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
 
 import DialogLayout from "../layouts/DialogLayout.vue";
-import { addDoc, collection, deleteDoc, doc, setDoc } from "firebase/firestore";
 
 const user = useCurrentUser();
 const r = useRouter();
