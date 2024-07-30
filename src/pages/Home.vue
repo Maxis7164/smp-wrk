@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
-import { collection, doc, getDoc, query, where } from "firebase/firestore";
 import { db, exists, fromCurrentUser, LoadFirebaseError } from "../fire";
+import { collection, query } from "firebase/firestore";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
 import { round } from "../utils";
 
 import Loading from "../components/Loading.vue";
 import PageLayout from "../layouts/PageLayout.vue";
-import { RefSymbol } from "@vue/reactivity";
 
 const user = useCurrentUser();
 const auth = useFirebaseAuth();
