@@ -1,31 +1,33 @@
 <script lang="ts" setup>
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
 import { collection, doc, getDoc, query, where } from "firebase/firestore";
-import { db, fromCurrentUser, LoadFirebaseError } from "../fire";
+import { db, exists, fromCurrentUser, LoadFirebaseError } from "../fire";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
 import { round } from "../utils";
 
 import Loading from "../components/Loading.vue";
 import PageLayout from "../layouts/PageLayout.vue";
+import { RefSymbol } from "@vue/reactivity";
 
-const cur = localStorage.getItem("smp-wrk/curCheckInStart");
-const curUser = useCurrentUser();
+const user = useCurrentUser();
 const auth = useFirebaseAuth();
 const r = useRouter();
 
 if (!auth) throw new LoadFirebaseError("auth/none");
 
 const profiles = useCollection<Profile>(
-  query(collection(db, "profiles"), fromCurrentUser(curUser.value!)),
+  query(collection(db, "profiles"), fromCurrentUser(user.value!)),
   { ssrKey: "profiles" }
 );
 const hours = useCollection<Hour>(
-  query(collection(db, "hours"), fromCurrentUser(curUser.value!)),
+  query(collection(db, "hours"), fromCurrentUser(user.value!)),
   { ssrKey: "hours" }
 );
 
 const ready = ref<boolean>(true);
+
+const hasCheckedIn = ref<boolean>(false);
 
 const currentHours = ref<number>(0);
 const currentPay = ref<number>(0);
@@ -60,13 +62,14 @@ function getTotal(profile: Profile) {
 
   return nxt.length === 0 ? 0 : nxt.reduce((acc, cur) => acc + cur);
 }
+
+exists(collection(db, "checkin"), user.value!.uid).then(
+  (isCheckedIn) => (hasCheckedIn.value = isCheckedIn)
+);
 </script>
 
 <template>
-  <PageLayout
-    isHome
-    :name="curUser ? `Hallo ${curUser.displayName!}` : 'loading...'"
-  >
+  <PageLayout isHome :name="user ? `Hallo ${user.displayName!}` : 'loading...'">
     <section class="current">
       <ul>
         <li>
@@ -102,7 +105,7 @@ function getTotal(profile: Profile) {
         <li>
           <button @click="$router.push('/check-in')" class="icon">
             <svg
-              v-if="cur"
+              v-if="hasCheckedIn"
               width="128"
               height="128"
               viewBox="0 0 128 128"
@@ -123,7 +126,7 @@ function getTotal(profile: Profile) {
               />
             </svg>
             <svg
-              v-if="!cur"
+              v-else
               width="128"
               height="128"
               viewBox="0 0 128 128"
@@ -137,7 +140,7 @@ function getTotal(profile: Profile) {
                 stroke-linecap="round"
               />
             </svg>
-            Check {{ cur ? "Out" : "In" }}
+            Check {{ hasCheckedIn ? "Out" : "In" }}
           </button>
         </li>
         <li>
