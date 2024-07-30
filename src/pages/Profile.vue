@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { deleteDoc, doc, where } from "firebase/firestore";
-import { db, getHoursOf, getProfilesOf } from "../fire";
+import { where } from "firebase/firestore";
+import { getHoursOf, getProfilesOf } from "../fire";
 import { useCollection, useCurrentUser } from "vuefire";
-import { getEuroDate, round } from "../utils";
-import { confirm } from "../components/modal";
+import { round } from "../utils";
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
@@ -57,19 +56,10 @@ watch(hours, (nxt) => {
     totalHours.value += tot;
   }
 });
-
-async function del(h: Hour & { id: string }): Promise<void> {
-  const doDel = await confirm(
-    "Möchtest du diese Stunden wirklich löschen?",
-    "Arbeitszeit löschen"
-  );
-
-  if (doDel) deleteDoc(doc(db, "hours", h.id));
-}
 </script>
 
 <template>
-  <PageLayout :name="`Deine Stunden - ${profile}`">
+  <PageLayout :name="`${profile}`">
     <section v-if="hours.length > 0" class="overview">
       <ul>
         <li>
@@ -87,7 +77,7 @@ async function del(h: Hour & { id: string }): Promise<void> {
     </section>
     <section class="hours">
       <ul class="hours">
-        <HourPanel :hours :profiles :user />
+        <HourPanel :hours="display" :profiles :user />
         <li v-if="hours.length === 0" class="noHours">
           <p>Du hast keine Stunden eingetragen.</p>
         </li>
