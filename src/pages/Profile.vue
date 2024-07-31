@@ -19,7 +19,10 @@ const profiles = useCollection<Profile>(
   { ssrKey: "profiles" }
 );
 const hours = useCollection<Hour>(
-  getHoursOf(user.value!, where("profile", "==", profile.value)),
+  getHoursOf(
+    user.value!,
+    where("profile", "==", profiles.value.at(0)?.id ?? "")
+  ),
   {
     ssrKey: "hours",
   }

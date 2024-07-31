@@ -3,7 +3,7 @@ import { useDocument, getCurrentUser, useCollection } from "vuefire";
 import { call } from "../components/banner";
 import { collection, doc, query, where } from "firebase/firestore";
 import { useRouter } from "vue-router";
-import { addHours } from "../fire";
+import { addHours, getProfilesOf } from "../fire";
 import { db } from "../fire";
 import { ref } from "vue";
 
@@ -22,10 +22,7 @@ const start = ref<string>("");
 
 const user = await getCurrentUser();
 
-const profiles = useCollection(
-  query(collection(db, "profiles"), where("owner", "==", user!.uid)),
-  { ssrKey: "prof" }
-);
+const profiles = useCollection(getProfilesOf(user!), { ssrKey: "prof" });
 
 setTimeout(async () => {
   if (profiles.value.length === 0) await r.push("/settings/editProfile");
@@ -67,7 +64,11 @@ async function save(): Promise<void> {
       <h3>Profil:</h3>
       <select v-model="profile">
         <option>- auswählen -</option>
-        <option v-for="prof in profiles" :key="prof.name">
+        <option
+          v-for="prof in profiles"
+          :value="(prof as any).id"
+          :key="prof.name"
+        >
           {{ prof.name }}
         </option>
       </select>

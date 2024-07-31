@@ -1,6 +1,6 @@
 <script lang="ts" setup>
+import { updateHours, getHoursOf, getProfilesOf } from "../fire";
 import { useCurrentUser, useCollection } from "vuefire";
-import { getHoursOf, getProfilesOf } from "../fire";
 import { ref, watch } from "vue";
 import { round } from "../utils";
 
@@ -51,12 +51,17 @@ function onSelect(date: ISODate): void {
   });
 
   profiles.value.forEach((prof) => {
-    total.value[prof.name] = 0;
-    cur.value[prof.name] = [];
+    total.value[prof.id] = 0;
+    cur.value[prof.id] = [];
   });
 
-  hours.value.forEach((hour) => {
+  hours.value.forEach(async (hour) => {
     if (!(hour.profile in cur.value)) return;
+
+    if (!("version" in (hours.value.at(0) ?? {}))) {
+      await updateHours(user.value!);
+      location.reload();
+    }
 
     if (new Date(hour.date.join("-")).toISOString() !== ISO) return;
 
@@ -81,9 +86,9 @@ function onSelect(date: ISODate): void {
               <p>{{ h.start }} - {{ h.end }}</p>
               <p>{{ i > 0 ? "+" : "" }}{{ round(h.total * prof.pph) }}€</p>
             </li>
-            <li v-if="total[prof.name] > 0" class="total">
-              <p>{{ total[prof.name] }} Stunden</p>
-              <p>{{ round(total[prof.name] * prof.pph) }}€</p>
+            <li v-if="total[prof.id] > 0" class="total">
+              <p>{{ total[prof.id] }} Stunden</p>
+              <p>{{ round(total[prof.id] * prof.pph) }}€</p>
             </li>
             <li v-else class="noHours">
               <p>Hier hast du nicht gearbeitet</p>

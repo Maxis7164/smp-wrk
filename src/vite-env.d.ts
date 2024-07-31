@@ -36,6 +36,7 @@ type ErrorMap<T = any> = {
 type ISODate = [number, number, number];
 
 type Hour = {
+  version: number;
   profile: string;
   date: string[];
   total: number;

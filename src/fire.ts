@@ -17,6 +17,7 @@ import {
   CollectionReference,
   getCountFromServer,
   documentId,
+  writeBatch,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { confirm } from "./components/modal";
@@ -198,6 +199,7 @@ export async function addHours(
 
   const hour: Hour = {
     owner: user.uid,
+    version: 1,
     profile,
     total,
     start,
@@ -218,11 +220,32 @@ export async function exists(
   collection: CollectionReference<DocumentData, DocumentData>,
   id: string
 ): Promise<boolean> {
-  const snap = await getCountFromServer(
-    query(collection, where(documentId(), "==", id))
-  );
+  try {
+    const snap = await getCountFromServer(
+      query(collection, where(documentId(), "==", id))
+    );
 
-  return !!snap.data().count;
+    return !!snap.data().count;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}
+
+export async function updateHours(user: User) {
+  const profs = (await getDocs(getProfilesOf(user))).docs;
+  const docs = await getDocs(query(getHoursOf(user)));
+
+  const batch = writeBatch(db);
+
+  docs.forEach((doc) => {
+    const data = doc.data();
+    const prof = profs.find((p) => p.data().name === data.profile);
+
+    if (prof?.id) batch.update(doc.ref, { profile: prof.id, version: 1 });
+  });
+
+  await batch.commit();
 }
 
 export function fromCurrentUser(user: User): QueryFieldFilterConstraint {

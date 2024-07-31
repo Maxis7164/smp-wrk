@@ -85,7 +85,11 @@ async function save(): Promise<void> {
       <h3>Profil:</h3>
       <select :disabled="!!check" v-model="profile">
         <option>- auswählen -</option>
-        <option v-for="prof in profiles" :key="prof.name">
+        <option
+          v-for="prof in profiles"
+          :value="(prof as any).id"
+          :key="prof.name"
+        >
           {{ prof.name }}
         </option>
       </select>

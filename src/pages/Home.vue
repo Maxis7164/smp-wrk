@@ -15,6 +15,8 @@ const r = useRouter();
 
 if (!auth) throw new LoadFirebaseError("auth/none");
 
+type A = (typeof profiles.value)[0];
+
 const profiles = useCollection<Profile>(
   query(collection(db, "profiles"), fromCurrentUser(user.value!)),
   { ssrKey: "profiles" }
@@ -38,7 +40,7 @@ watch(hours, (nxt) => {
   if (!nxt) return;
 
   nxt.forEach((h) => {
-    const prof = profiles.value.find((p) => p.name === h.profile);
+    const prof = profiles.value.find((p) => p.id === h.profile);
 
     if (!prof) return;
 
@@ -54,17 +56,19 @@ watch(hours, (nxt) => {
   });
 });
 
-function getTotal(profile: Profile) {
+function getTotal(profile: A) {
   const nxt = hours.value
-    .filter((h) => h.profile === profile.name)
+    .filter((h) => h.profile === profile.id)
     .map((h) => h.total);
 
   return nxt.length === 0 ? 0 : nxt.reduce((acc, cur) => acc + cur);
 }
 
-exists(collection(db, "checkin"), user.value!.uid).then(
-  (isCheckedIn) => (hasCheckedIn.value = isCheckedIn)
-);
+setTimeout(() => {
+  exists(collection(db, "checkin"), user.value!.uid).then(
+    (isCheckedIn) => (hasCheckedIn.value = isCheckedIn)
+  );
+}, 2000);
 </script>
 
 <template>
