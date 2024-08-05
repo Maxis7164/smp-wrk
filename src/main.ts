@@ -24,9 +24,13 @@ import Test from "./pages/Test.vue";
 const app = createApp(App);
 
 //? prevent service worker from working in localhost to prevent stale app
-if (location.hostname !== "localhost" || import.meta.env.VITE_SW_DEV === "1") {
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
-}
+if (location.hostname !== "localhost" || import.meta.env.VITE_SW_DEV === "1")
+  a: {
+    break a;
+
+    if ("serviceWorker" in navigator)
+      navigator.serviceWorker.register("./sw.js");
+  } //! sw malfunctioning
 
 const testGuard: NavigationGuardWithThis<undefined> = () =>
   import.meta.env.DEV ? true : "/";
