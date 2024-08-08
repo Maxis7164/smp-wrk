@@ -1,25 +1,13 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { range } from "../utils";
+import { MONTHS } from "../fire";
 
 const props = defineProps<{ initial?: boolean; dates: string[] }>();
 const emit = defineEmits<{ (e: "select", i: ISODate): void }>();
 
 const DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"] as const;
-const MONTHS = [
-  "Januar",
-  "Februar",
-  "März",
-  "April",
-  "Mai",
-  "Juni",
-  "Juli",
-  "August",
-  "September",
-  "Oktober",
-  "November",
-  "Dezember",
-] as const;
+
 const c = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] as const;
 const cur = new Date();
 
