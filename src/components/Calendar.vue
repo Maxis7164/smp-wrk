@@ -96,7 +96,9 @@ const hasEvent = (i: number): boolean => {
     .toISOString()
     .slice(0, 10);
 
-  return dates.value.includes(date);
+  const rel = i + 1 - day.value;
+
+  return dates.value.includes(date) && rel >= 0 && rel <= c[month.value];
 };
 
 loadMonth(month.value, year.value);
