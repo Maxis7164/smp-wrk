@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { updateHours, getHoursOf, getProfilesOf } from "../fire";
+import { updateHours, getHoursOf, getProfilesOf, MONTHS } from "../fire";
 import { useCurrentUser, useCollection } from "vuefire";
 import { ref, watch } from "vue";
 import { round } from "../utils";
@@ -18,6 +18,7 @@ const hours = useCollection<Hour>(getHoursOf(user.value!), {
 
 const total = ref<{ [key: string]: number }>({});
 const cur = ref<{ [key: string]: Hour[] }>({});
+const d = ref<ISODate>([0, 0, 0]);
 const dates = ref<string[]>([]);
 
 watch(
@@ -34,6 +35,8 @@ watch(
 
 function onSelect(date: ISODate): void {
   if (!hours.value) return;
+
+  d.value = date;
 
   const ISO = new Date(...date, 2, 0, 0, 0).toISOString();
 
@@ -78,6 +81,7 @@ function onSelect(date: ISODate): void {
     </section>
     <section class="day">
       <h2>So hast du gearbeitet:</h2>
+      <p>{{ d[2] }}.{{ MONTHS[d[1]] }}.{{ d[0] }}</p>
       <ul>
         <li v-for="prof in profiles" :key="prof.name">
           <h3>{{ prof.name }}</h3>
@@ -105,7 +109,11 @@ section {
   margin-bottom: 1.25rem;
 
   > h2 {
-    margin: 0 0.125rem 0.625rem 0;
+    margin-bottom: 0.75rem;
+  }
+  > p {
+    margin-bottom: 0.5rem;
+    text-align: center;
   }
 
   > ul {
