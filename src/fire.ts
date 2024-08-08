@@ -18,6 +18,8 @@ import {
   getCountFromServer,
   documentId,
   writeBatch,
+  limit,
+  getDoc,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { confirm } from "./components/modal";
@@ -221,11 +223,8 @@ export async function exists(
   id: string
 ): Promise<boolean> {
   try {
-    const snap = await getCountFromServer(
-      query(collection, where(documentId(), "==", id))
-    );
-
-    return !!snap.data().count;
+    const a = await getDoc(doc(collection, id));
+    return a.exists();
   } catch (err) {
     console.error(err);
     return false;
