@@ -28,7 +28,9 @@ const hours = useCollection<Hour>(
   }
 );
 
-const display = computed<Hour[]>(() => sort(hours.value));
+hours.promise.value.then((res) => console.log(res));
+
+const display = ref<Hour[]>(sort(hours.value));
 const totalHours = ref<number>(0);
 const totalPay = ref<number>(0);
 
@@ -49,6 +51,8 @@ watch(hours, (nxt) => {
   if (!profiles.value) return;
 
   if (nxt) {
+    display.value = sort(hours.value);
+
     let tot: number = 0;
 
     nxt.forEach((hour) => {
