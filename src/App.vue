@@ -92,53 +92,42 @@ div.wrap.slide-left-enter-active,
 div.wrap.slide-left-leave-active,
 div.wrap.slide-right-enter-active,
 div.wrap.slide-right-leave-active {
-  transition: left var(--anim-speed) ease-out, right var(--anim-speed) ease-out,
+  transition: transform var(--anim-speed) ease-out,
     filter var(--anim-speed) ease-out;
 }
 
+.slide-left-enter-active,
 .slide-right-leave-active {
-  z-index: 200;
-  opacity: 1;
-}
-.slide-right-enter-active {
-  z-index: 1;
+  z-index: 20;
 }
 
 .slide-left-enter-from {
-  position: absolute;
-  right: -100%;
+  transform: translate(100%);
 }
 .slide-left-enter-to {
-  position: absolute;
-  right: 0;
+  transform: translate(0);
 }
 .slide-left-leave-from {
-  filter: brightness(100%);
-  position: absolute;
-  right: 0;
+  transform: translate(0);
+  filter: blur(0) brightness(100%);
 }
 .slide-left-leave-to {
-  filter: brightness(50%);
-  position: absolute;
-  right: 30%;
+  transform: translate(-30%);
+  filter: blur(0.5rem) brightness(50%);
 }
 
 .slide-right-enter-from {
-  filter: brightness(50%);
-  position: absolute;
-  left: -30%;
+  transform: translate(-30%);
+  filter: blur(0.5rem) brightness(50%);
 }
 .slide-right-enter-to {
-  filter: brightness(100%);
-  position: absolute;
-  left: 0;
+  transform: translate(0);
+  filter: blur(0) brightness(100%);
 }
 .slide-right-leave-from {
-  position: absolute;
-  left: 0;
+  transform: translate(0);
 }
 .slide-right-leave-to {
-  position: absolute;
-  left: 100%;
+  transform: translate(100%);
 }
 </style>
