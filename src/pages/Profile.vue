@@ -25,12 +25,6 @@ const hours = useCollection<Hour>(
   }
 );
 
-console.log(profiles.value.at(0), route.params.profile);
-
-profiles.promise.value.then((res) => console.log(res.map((a) => a.id)));
-
-hours.promise.value.then((res) => console.log(res.map((a) => a.profile)));
-
 const display = ref<Hour[]>(sort(hours.value));
 const totalHours = ref<number>(0);
 const totalPay = ref<number>(0);
