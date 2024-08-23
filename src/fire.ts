@@ -244,7 +244,7 @@ export async function updateHours(user: User) {
   await batch.commit();
 }
 
-export function fromCurrentUser(user: User): QueryFieldFilterConstraint {
+export function fromUser(user: User): QueryFieldFilterConstraint {
   return where("owner", "==", user.uid);
 }
 
@@ -253,21 +253,17 @@ export function getCheckInOf(user: User): DocumentReference<CheckIn, CheckIn> {
 }
 export function getProfilesOf(
   user: User,
-  ...constrains: QueryConstraint[]
+  ...constraints: QueryConstraint[]
 ): Query<Profile, Profile> {
   return query(
     collection(db, "profiles"),
-    fromCurrentUser(user),
-    ...constrains
+    fromUser(user),
+    ...constraints
   ) as any;
 }
 export function getHoursOf(
   user: User,
-  ...constrains: QueryConstraint[]
+  ...constraints: QueryConstraint[]
 ): Query<Hour, Hour> {
-  return query(
-    collection(db, "hours"),
-    fromCurrentUser(user),
-    ...constrains
-  ) as any;
+  return query(collection(db, "hours"), fromUser(user), ...constraints) as any;
 }
