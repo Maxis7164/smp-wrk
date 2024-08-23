@@ -93,7 +93,7 @@ function toDebug() {
             @click="
               $router.push({
                 path: '/settings/editProfile',
-                query: { profile: prof.name },
+                query: { profile: prof.id },
               })
             "
             class="text"

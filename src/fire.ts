@@ -17,6 +17,8 @@ import {
   CollectionReference,
   writeBatch,
   getDoc,
+  DocumentSnapshot,
+  updateDoc,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { confirm } from "./components/modal";
@@ -267,3 +269,23 @@ export function getHoursOf(
 ): Query<Hour, Hour> {
   return query(collection(db, "hours"), fromUser(user), ...constraints) as any;
 }
+
+//#region getters
+export function getProfile(
+  id: string
+): Promise<DocumentSnapshot<Profile, Profile>> {
+  return getDoc(doc(db, "profiles", id)) as any;
+}
+//#endregion
+
+//#region actions
+export async function updateProfile(profile: Profile, id?: string) {
+  if (id && id.length > 0)
+    try {
+      await updateDoc(doc(db, "profiles", id), profile);
+    } catch (err) {
+      console.error(err);
+    }
+  else await addDoc(collection(db, "profiles"), profile);
+}
+//#endregion
