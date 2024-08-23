@@ -1,85 +1,87 @@
 <script lang="ts" setup>
-import { onUnmounted, ref } from "vue";
-import { Banner, BannerType, listen } from "./banner";
+import { useBanner, type Banner, type BannerType } from "../composables/banner";
+import { ref } from "vue";
 
-const translate = ref<Record<string, unknown> | unknown[]>([]);
 const type = ref<BannerType>("info");
-const message = ref<string>("asd");
-
-const display = ref<boolean>(false);
+const message = ref<string>("hallo");
 const show = ref<boolean>(false);
 
-let active: boolean = false;
+let to: ReturnType<typeof setTimeout>;
+
 const quene: Banner[] = [];
 
-function buildBanner(banner: Banner) {
-  if (active) return quene.push(banner);
-  active = true;
+function load(b: Banner): void {
+  quene.push(b);
 
-  type.value = banner.type;
-  message.value = banner.message;
-  translate.value = banner.translate;
+  //? check if banner is currently active
+  if (quene.at(1)) return;
 
-  display.value = true;
-  setTimeout(() => (show.value = true), 100);
+  message.value = b.message;
+  type.value = b.type;
+  show.value = true;
 
-  setTimeout(close, banner.duration + 800);
+  to = setTimeout(() => close(), b.timeout);
 }
 
-onUnmounted(listen(buildBanner, close));
+function close() {
+  if (show.value === false) return;
 
-function close(): void {
   show.value = false;
+  clearTimeout(to);
+  quene.shift();
 
-  setTimeout(() => {
-    display.value = false;
-    active = false;
-
-    if (quene.length > 0) buildBanner(quene.shift()!);
-  }, 800);
+  if (quene.length > 0) setTimeout(() => load(quene.shift()!), 800);
 }
 
-const $t: (...args: any[]) => void = () => null; //? placeholder for vue-i18n
+useBanner(load);
 </script>
 
 <template>
-  <section
-    @click="close"
-    :hidden="!display"
-    :class="{ show, [type]: true }"
-    class="banner"
-  >
-    <p>
-      {{ message.at(0) === "@" ? $t(message.slice(1), translate) : message }}
-    </p>
-  </section>
+  <transition>
+    <section v-if="show" @click="close()" :class="[type]" class="banner">
+      <p>{{ message }}</p>
+    </section>
+  </transition>
 </template>
 
 <style lang="scss" scoped>
 section.banner {
-  transform: translateY(-100%);
-  transition: transform 800ms;
-  background: #009;
-  padding: 0.75rem;
-  position: fixed;
+  justify-content: center;
+  background: var(--srf);
+  align-items: center;
   cursor: pointer;
-  width: 100vw;
+  position: fixed;
+  display: flex;
+  padding: 1rem;
   z-index: 10;
+  width: 100%;
   left: 0;
   top: 0;
 
+  &.info {
+    background: var(--p1);
+    color: #fff;
+  }
   &.error {
     background: #900;
+    color: #fff;
   }
 
-  &.show {
+  &.v-enter-from,
+  &.v-leave-to {
+    transform: translateY(-100%);
+  }
+  &.v-enter-to,
+  &.v-leave-from {
     transform: translateY(0);
+  }
+  &.v-enter-active,
+  &.v-leave-active {
+    transition: transform 800ms;
   }
 
   p {
     text-align: center;
-    user-select: none;
-    color: #fff;
   }
 }
 </style>

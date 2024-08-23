@@ -2,7 +2,7 @@
 import { useCollection, useCurrentUser, useDocument } from "vuefire";
 import { addHours, getCheckInOf, getProfilesOf } from "../fire";
 import { deleteDoc, setDoc } from "firebase/firestore";
-import { call } from "../components/banner";
+import { banner } from "../composables/banner";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
 
@@ -40,7 +40,8 @@ watch(
 );
 
 async function save(): Promise<void> {
-  if (profile.value === NOPROF) return call("error", "Bitte gib ein Profil an");
+  if (profile.value === NOPROF)
+    return banner("error", "Bitte gib ein Profil an");
 
   loading.value = true;
 
@@ -55,7 +56,7 @@ async function save(): Promise<void> {
     await deleteDoc(getCheckInOf(user.value!));
 
     if (!done)
-      return call(
+      return banner(
         "error",
         "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!"
       );

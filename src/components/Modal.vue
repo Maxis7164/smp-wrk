@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { call } from "./banner";
+import { banner } from "../composables/banner";
 import {
   CheckupFunction,
   __awnserModal__,
@@ -43,7 +43,7 @@ function close(exit: number): void {
     case "prompt":
       const invalid = (mod.value.checkup ?? DUMMY)(inp.value);
 
-      if (invalid.length > 0) return call("info", invalid);
+      if (invalid.length > 0) return banner("info", invalid);
       else show.value = __awnserModal__(exit ? inp.value : "");
       break;
     case "confirm":

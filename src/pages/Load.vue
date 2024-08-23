@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useRoute, useRouter } from "vue-router";
+import { banner } from "../composables/banner";
 import { getDocs } from "firebase/firestore";
-import { call } from "../components/banner";
 import { useFirebaseAuth } from "vuefire";
 import { getProfilesOf } from "../fire";
 import { ref } from "vue";
@@ -40,7 +40,7 @@ async function loginGoogle(): Promise<void> {
     console.error(
       `[!] <Load.vue::loginGoogle()> Login failed: ${(err as any).message}`
     );
-    call("error", "Login failed, please try again.");
+    banner("error", "Login failed, please try again.");
   }
   load.value = true;
 }

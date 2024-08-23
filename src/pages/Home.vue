@@ -2,9 +2,9 @@
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
 import { db, exists, fromUser, LoadFirebaseError } from "../fire";
 import { collection, query } from "firebase/firestore";
+import { currency, round } from "../utils";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
-import { currency, round } from "../utils";
 
 import Loading from "../components/Loading.vue";
 import PageLayout from "../layouts/PageLayout.vue";

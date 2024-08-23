@@ -1,10 +1,8 @@
 <script lang="ts" setup>
-import { useDocument, getCurrentUser, useCollection } from "vuefire";
-import { call } from "../components/banner";
-import { collection, doc, query, where } from "firebase/firestore";
-import { useRouter } from "vue-router";
+import { getCurrentUser, useCollection } from "vuefire";
 import { addHours, getProfilesOf } from "../fire";
-import { db } from "../fire";
+import { banner } from "../composables/banner";
+import { useRouter } from "vue-router";
 import { ref } from "vue";
 
 import DialogLayout from "../layouts/DialogLayout.vue";
@@ -38,7 +36,7 @@ async function save(): Promise<void> {
     end.value === ""
   ) {
     loading.value = false;
-    return call(
+    return banner(
       "error",
       "Bitte wähle ein Profil aus und gib den Tag, sowie Anfangs- und Endzeit an"
     );
@@ -53,7 +51,10 @@ async function save(): Promise<void> {
 
   loading.value = false;
   if (!done)
-    return call("error", "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!");
+    return banner(
+      "error",
+      "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!"
+    );
   r.push("/");
 }
 </script>

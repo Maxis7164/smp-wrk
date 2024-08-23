@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useCurrentUser, useFirebaseAuth } from "vuefire";
 import { confirm, prompt } from "../components/modal";
-import { call } from "../components/banner";
+import { banner } from "../composables/banner";
 import { delCurrentUser } from "../fire";
 import { useRouter } from "vue-router";
 
@@ -15,7 +15,7 @@ const r = useRouter();
 
 function signOut(): void {
   if (!auth)
-    return call(
+    return banner(
       "error",
       "Ein unerwarteter Fehler kam auf - bitte versuche es erneut"
     );
@@ -26,7 +26,7 @@ function signOut(): void {
 
 async function changeUsername(): Promise<void> {
   if (!auth)
-    return call(
+    return banner(
       "error",
       "Ein unerwarteter Fehler kam auf - bitte versuche es erneut"
     );
@@ -49,13 +49,13 @@ async function changeUsername(): Promise<void> {
 
 async function delAcc(): Promise<void> {
   if (!auth)
-    return call(
+    return banner(
       "error",
       "Ein unerwarteter Fehler kam auf - lade die Seite neu und versuche es erneut"
     );
 
   if (!auth.currentUser)
-    return call(
+    return banner(
       "error",
       "Account kann nicht gelöscht werden, da kein Account angemeldet ist!"
     );

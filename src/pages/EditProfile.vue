@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
-import { useRoute, useRouter } from "vue-router";
-import { call } from "../components/banner";
-import { useCurrentUser } from "vuefire";
 import { db, getProfile, updateProfile } from "../fire";
+import { useRoute, useRouter } from "vue-router";
+import { collection } from "firebase/firestore";
+import { banner } from "../composables/banner";
+import { useCurrentUser } from "vuefire";
 import { ref, watch } from "vue";
 
 import DialogLayout from "../layouts/DialogLayout.vue";
@@ -43,9 +43,10 @@ async function load(prof: LocationQueryType) {
 }
 
 async function save() {
-  if (name.value.length === 0) return call("error", "Gib bitte einen Namen an");
+  if (name.value.length === 0)
+    return banner("error", "Gib bitte einen Namen an");
   if (pay.value <= 0)
-    return call(
+    return banner(
       "error",
       "Dein Arbeitsprofil kann keinen Stundenlohn kleiner oder gleich 0 haben!"
     );

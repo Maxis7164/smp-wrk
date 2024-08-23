@@ -22,7 +22,7 @@ import {
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { confirm } from "./components/modal";
-import { call } from "./components/banner";
+import { banner } from "./composables/banner";
 import { getCurrentUser } from "vuefire";
 import { User } from "firebase/auth";
 import { saveFile } from "./files";
@@ -187,7 +187,7 @@ export async function addHours(
   }
 
   if (profile === NOPROF || date.length === 0 || start === "" || end === "") {
-    call(
+    banner(
       "error",
       "Bitte wähle ein Profil aus und gib den Tag, sowie Anfangs- und Endzeit an"
     );

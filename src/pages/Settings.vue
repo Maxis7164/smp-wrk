@@ -9,7 +9,7 @@ import { db, expDb, delDb, getProfilesOf, getHoursOf } from "../fire";
 import { doc, where, deleteDoc, getDocs } from "firebase/firestore";
 import { useTheme, Theme } from "../composables/theme";
 import { confirm } from "../components/modal";
-import { call } from "../components/banner";
+import { banner } from "../composables/banner";
 import { useRouter } from "vue-router";
 
 import SlideButton from "../components/SlideButton.vue";
@@ -50,7 +50,10 @@ async function deleteProfile(profile: Profile & { id: string }): Promise<void> {
 
 function signOut(): void {
   if (!auth)
-    call("error", "Ein unerwarteter Fehler kam auf - bitte versuche es erneut");
+    banner(
+      "error",
+      "Ein unerwarteter Fehler kam auf - bitte versuche es erneut"
+    );
 
   auth!.signOut();
   r.push("/load");
