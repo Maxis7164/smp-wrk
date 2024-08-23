@@ -4,7 +4,7 @@ import { db, exists, fromUser, LoadFirebaseError } from "../fire";
 import { collection, query } from "firebase/firestore";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
-import { round } from "../utils";
+import { currency, round } from "../utils";
 
 import Loading from "../components/Loading.vue";
 import PageLayout from "../layouts/PageLayout.vue";
@@ -76,12 +76,12 @@ setTimeout(() => {
     <section class="current">
       <ul>
         <li>
-          <h2>{{ round(currentHours) }} Stunden</h2>
+          <h2>{{ round(currentHours).toLocaleString() }} Stunden</h2>
           <p>hast du diesen Monat gearbeitet</p>
         </li>
         <li>
           <p>damit verdienst du</p>
-          <h2>{{ round(currentPay) }}€</h2>
+          <h2>{{ currency(round(currentPay)) }}€</h2>
         </li>
       </ul>
     </section>
@@ -91,13 +91,13 @@ setTimeout(() => {
         <li>
           <button @click="$router.push('/hours')">
             <h3>Gesamt:</h3>
-            <p>{{ round(allHours) }} Stunden</p>
+            <p>{{ round(allHours).toLocaleString() }} Stunden</p>
           </button>
         </li>
         <li v-for="prof in profiles">
           <button @click="$router.push(`/hours/${prof.id}`)">
             <h3>{{ prof.name }}:</h3>
-            <p>{{ round(getTotal(prof)) }} Stunden</p>
+            <p>{{ round(getTotal(prof)).toLocaleString() }} Stunden</p>
           </button>
         </li>
       </ul>

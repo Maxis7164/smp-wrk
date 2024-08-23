@@ -10,6 +10,16 @@ export function range(iterationCount: number): null[] {
   return new Array(iterationCount).fill(null);
 }
 
+export function currency(val: string | number): string {
+  let str: string = typeof val === "number" ? val.toLocaleString() : val;
+  const num: number = typeof val === "number" ? val : parseInt(val);
+
+  if ((num * 100) % 100 === 0) str += ",0";
+  if ((num * 100) % 10 === 0) str += "0";
+
+  return str;
+}
+
 export function getHours(time: string): number {
   const hours = time.split(":")[0];
 

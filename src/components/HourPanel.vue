@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { VueFirestoreQueryData } from "vuefire";
-import { getEuroDate, round } from "../utils";
+import { currency, getEuroDate, round } from "../utils";
 import { getProfilesOf } from "../fire";
 import { where } from "firebase/firestore";
 import { User } from "firebase/auth";
@@ -19,8 +19,8 @@ defineEmits<{ (e: "delete", h: Hour): void }>();
   <li v-for="h in hours" :key="h.start + '@' + h.date.join('.')">
     <h4>{{ getEuroDate(h.date).join(".") }}</h4>
     <p class="time">{{ h.start }} - {{ h.end }}</p>
-    <p>{{ h.total }} Stunden</p>
-    <p>{{ round(h.total * (profiles?.[0]?.pph ?? -1)) }}€</p>
+    <p>{{ h.total.toLocaleString() }} Stunden</p>
+    <p>{{ currency(round(h.total * (profiles?.[0]?.pph ?? -1))) }}€</p>
     <button @click="" class="text">Bearbeiten</button>
     <button @click="$emit('delete', h)" class="text risk">Löschen</button>
   </li>

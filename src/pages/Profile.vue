@@ -2,7 +2,7 @@
 import { documentId, where } from "firebase/firestore";
 import { getHoursOf, getProfilesOf } from "../fire";
 import { useCollection, useCurrentUser } from "vuefire";
-import { round } from "../utils";
+import { currency, round } from "../utils";
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
@@ -65,12 +65,12 @@ watch(hours, (nxt) => {
     <section v-if="hours.length > 0" class="overview">
       <ul>
         <li>
-          <h2>{{ round(totalHours) }} Stunden</h2>
+          <h2>{{ round(totalHours).toLocaleString() }} Stunden</h2>
           <p>hast du bisher gearbeitet</p>
         </li>
         <li>
           <p>damit hast du so viel verdient:</p>
-          <h2>{{ round(totalPay) }}€</h2>
+          <h2>{{ currency(round(totalPay)) }}€</h2>
         </li>
       </ul>
     </section>

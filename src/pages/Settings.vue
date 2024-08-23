@@ -14,6 +14,7 @@ import { useRouter } from "vue-router";
 
 import SlideButton from "../components/SlideButton.vue";
 import PageLayout from "../layouts/PageLayout.vue";
+import { currency } from "../utils";
 
 const auth = useFirebaseAuth();
 const user = useCurrentUser();
@@ -87,7 +88,7 @@ function toDebug() {
       <ul>
         <li v-if="user" v-for="prof in profiles" :key="prof.name">
           <h3>{{ prof.name }}</h3>
-          <p>{{ prof.pph }}€/h</p>
+          <p>{{ currency(prof.pph) }}€/h</p>
           <button
             @click="
               $router.push({
