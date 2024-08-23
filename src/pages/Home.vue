@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
-import { db, exists, fromCurrentUser, LoadFirebaseError } from "../fire";
+import { db, exists, fromUser, LoadFirebaseError } from "../fire";
 import { collection, query } from "firebase/firestore";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
@@ -18,11 +18,11 @@ if (!auth) throw new LoadFirebaseError("auth/none");
 type A = (typeof profiles.value)[0];
 
 const profiles = useCollection<Profile>(
-  query(collection(db, "profiles"), fromCurrentUser(user.value!)),
+  query(collection(db, "profiles"), fromUser(user.value!)),
   { ssrKey: "profiles" }
 );
 const hours = useCollection<Hour>(
-  query(collection(db, "hours"), fromCurrentUser(user.value!)),
+  query(collection(db, "hours"), fromUser(user.value!)),
   { ssrKey: "hours" }
 );
 
@@ -95,7 +95,7 @@ setTimeout(() => {
           </button>
         </li>
         <li v-for="prof in profiles">
-          <button @click="$router.push(`/hours/${prof.name}`)">
+          <button @click="$router.push(`/hours/${prof.id}`)">
             <h3>{{ prof.name }}:</h3>
             <p>{{ round(getTotal(prof)) }} Stunden</p>
           </button>

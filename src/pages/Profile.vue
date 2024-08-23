@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { where } from "firebase/firestore";
+import { documentId, where } from "firebase/firestore";
 import { getHoursOf, getProfilesOf } from "../fire";
 import { useCollection, useCurrentUser } from "vuefire";
 import { round } from "../utils";
@@ -15,20 +15,21 @@ const profile = computed(() => route.params.profile as string);
 const user = useCurrentUser();
 
 const profiles = useCollection<Profile>(
-  getProfilesOf(user.value!, where("name", "==", profile.value)),
+  getProfilesOf(user.value!, where(documentId(), "==", profile.value)),
   { ssrKey: "profiles" }
 );
 const hours = useCollection<Hour>(
-  getHoursOf(
-    user.value!,
-    where("profile", "==", profiles.value.at(0)?.id ?? "")
-  ),
+  getHoursOf(user.value!, where("profile", "==", profile.value ?? "")),
   {
     ssrKey: "hours",
   }
 );
 
-hours.promise.value.then((res) => console.log(res));
+console.log(profiles.value.at(0), route.params.profile);
+
+profiles.promise.value.then((res) => console.log(res.map((a) => a.id)));
+
+hours.promise.value.then((res) => console.log(res.map((a) => a.profile)));
 
 const display = ref<Hour[]>(sort(hours.value));
 const totalHours = ref<number>(0);
@@ -66,7 +67,7 @@ watch(hours, (nxt) => {
 </script>
 
 <template>
-  <PageLayout :name="`${profile}`">
+  <PageLayout :name="`${profiles.at(0)?.name ?? 'Profil'}`">
     <section v-if="hours.length > 0" class="overview">
       <ul>
         <li>
