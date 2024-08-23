@@ -20,6 +20,7 @@ import Checkin from "./pages/Checkin.vue";
 import Account from "./pages/Account.vue";
 import Profile from "./pages/Profile.vue";
 import Test from "./pages/Test.vue";
+import { createPinia } from "pinia";
 
 const app = createApp(App);
 
@@ -68,6 +69,11 @@ router.beforeEach(async (to) => {
 });
 
 app.use(router);
+//#endregion
+
+//#region pinia
+const pinia = createPinia();
+app.use(pinia);
 //#endregion
 
 //#region VueFire

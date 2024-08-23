@@ -7,7 +7,7 @@ import {
 } from "vuefire";
 import { db, expDb, delDb, getProfilesOf, getHoursOf } from "../fire";
 import { doc, where, deleteDoc, getDocs } from "firebase/firestore";
-import { setTheme, type Theme } from "../theme";
+import { useTheme, Theme } from "../composables/theme";
 import { confirm } from "../components/modal";
 import { call } from "../components/banner";
 import { useRouter } from "vue-router";
@@ -15,9 +15,9 @@ import { useRouter } from "vue-router";
 import SlideButton from "../components/SlideButton.vue";
 import PageLayout from "../layouts/PageLayout.vue";
 
-const theme = parseInt(localStorage.getItem("theme") ?? "2");
 const auth = useFirebaseAuth();
 const user = useCurrentUser();
+const t = useTheme();
 const r = useRouter();
 
 let debug: number = 0;
@@ -112,7 +112,7 @@ function toDebug() {
     </section>
     <section class="theme">
       <h2>Appthema</h2>
-      <SlideButton :default="theme" @update="(v) => setTheme(v as Theme)" />
+      <SlideButton :default="t.theme" @update="(v) => t.setTheme(v as Theme)" />
     </section>
     <section class="data">
       <button @click="expDb">Daten exportieren</button>

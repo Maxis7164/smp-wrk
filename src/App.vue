@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { LoadFirebaseError } from "./fire";
 import { useFirebaseAuth } from "vuefire";
-import { loadTheme } from "./theme";
 import { ref } from "vue";
 
 import Banner from "./components/Banner.vue";
 import Modal from "./components/Modal.vue";
+import { useTheme } from "./composables/theme";
 
 if (import.meta.env.DEV) document.title = "Simpler Work (DEV)";
 
 const auth = useFirebaseAuth();
 
+useTheme();
+
 const err = ref<LoadFirebaseError>();
 
-loadTheme();
+// loadTheme();
 
 if (auth)
   auth.onAuthStateChanged((user) => {
