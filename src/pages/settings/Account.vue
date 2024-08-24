@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useCurrentUser, useFirebaseAuth } from "vuefire";
-import { confirm, prompt } from "@components/modal";
+import { confirm, prompt } from "@composables/modal";
 import { banner } from "@composables/banner";
 import { delCurrentUser, delDb } from "src/fire";
 import { useRouter } from "vue-router";

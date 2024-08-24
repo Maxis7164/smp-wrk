@@ -1,3 +1,5 @@
+import { onUnmounted } from "vue";
+
 type Listener = (modal: Modal<keyof ModalResults>) => void;
 type Unsubscribe = () => void;
 
@@ -32,23 +34,15 @@ const listeners: Listener[] = [];
 
 const quene: OpenModal<any>[] = [];
 
-export function listen(listener: Listener): Unsubscribe {
-  listeners.push(listener);
-  return () => listeners.splice(listeners.indexOf(listener), 1);
-}
-
-export function __awnserModal__<K extends keyof ModalResults>(
+function __answerModal__<K extends keyof ModalResults>(
   result: any,
   rejects?: true
 ): boolean;
-export function __awnserModal__<K extends keyof ModalResults>(
+function __answerModal__<K extends keyof ModalResults>(
   result: ModalResults[K],
   rejects?: false
 ): boolean;
-export function __awnserModal__<K extends keyof ModalResults>(
-  result: any,
-  rejects: boolean = false
-): boolean {
+function __answerModal__(result: any, rejects: boolean = false): boolean {
   const modal = quene.at(0);
 
   if (!modal) {
@@ -132,4 +126,11 @@ export function confirm(
     title,
     buttons: buttons ?? ["Ok", "Cancel"],
   });
+}
+
+export function useModal(subscriber: Listener) {
+  listeners.push(subscriber);
+  onUnmounted(() => listeners.splice(listeners.indexOf(subscriber), 1));
+
+  return __answerModal__;
 }

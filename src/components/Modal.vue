@@ -2,12 +2,11 @@
 import { banner } from "../composables/banner";
 import {
   CheckupFunction,
-  __awnserModal__,
-  listen,
+  useModal,
   type Modal,
   type ModalResults,
-} from "./modal";
-import { ref, shallowRef, onUnmounted } from "vue";
+} from "@composables/modal";
+import { ref, shallowRef } from "vue";
 
 const DUMMY: CheckupFunction = (_: string) => "";
 
@@ -22,7 +21,7 @@ const trans = ref<boolean>(false);
 const show = ref<boolean>(false);
 const inp = ref<string>("");
 
-const unsub = listen((modal) =>
+const answer = useModal((modal) =>
   setTimeout(
     () => {
       mod.value = modal;
@@ -38,23 +37,21 @@ const unsub = listen((modal) =>
 function close(exit: number): void {
   switch (mod.value.type) {
     case "alert":
-      show.value = __awnserModal__(undefined);
+      show.value = answer(undefined);
       break;
     case "prompt":
       const invalid = (mod.value.checkup ?? DUMMY)(inp.value);
 
       if (invalid.length > 0) return banner("info", invalid);
-      else show.value = __awnserModal__(exit ? inp.value : "");
+      else show.value = answer(exit ? inp.value : "");
       break;
     case "confirm":
-      show.value = __awnserModal__(!!exit);
+      show.value = answer(!!exit);
       break;
   }
 
   trans.value = false;
 }
-
-onUnmounted(() => unsub());
 </script>
 
 <template>

@@ -8,8 +8,8 @@ import {
 import { db, getProfilesOf, getHoursOf, Profile } from "src/fire";
 import { doc, where, deleteDoc, getDocs } from "firebase/firestore";
 import { useTheme, Theme } from "@composables/theme";
+import { confirm } from "@composables/modal";
 import { banner } from "@composables/banner";
-import { confirm } from "@components/modal";
 import { currency } from "src/utils";
 import { useRouter } from "vue-router";
 

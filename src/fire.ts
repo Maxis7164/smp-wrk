@@ -21,11 +21,10 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
+import { confirm } from "@composables/modal";
 import { banner } from "@composables/banner";
-import { confirm } from "@components/modal";
 import { getCurrentUser } from "vuefire";
 import { User } from "firebase/auth";
-import { saveFile } from "src/files";
 import { getTime } from "src/utils";
 
 export type CheckIn = {
