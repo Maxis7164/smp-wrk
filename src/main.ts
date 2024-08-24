@@ -18,7 +18,7 @@ import EditProfile from "@pages/settings/EditProfile.vue";
 import EditHours from "@pages/EditHours.vue";
 import Hours from "@pages/Hours.vue";
 import Checkin from "@pages/Checkin.vue";
-import Account from "@pages/Account.vue";
+import Account from "@pages/settings/Account.vue";
 import Profile from "@pages/profiles/[id].vue";
 
 const app = createApp(App);

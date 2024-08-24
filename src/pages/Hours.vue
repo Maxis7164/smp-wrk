@@ -1,12 +1,5 @@
 <script lang="ts" setup>
-import {
-  updateHours,
-  getHoursOf,
-  getProfilesOf,
-  MONTHS,
-  Profile,
-  Hour,
-} from "src/fire";
+import { getHoursOf, getProfilesOf, MONTHS, Profile, Hour } from "src/fire";
 import { useCurrentUser, useCollection } from "vuefire";
 import { round } from "src/utils";
 import { ref, watch } from "vue";
@@ -66,11 +59,6 @@ function onSelect(date: ISODate): void {
   });
 
   hours.value.forEach(async (hour) => {
-    if (!("version" in (hours.value.at(0) ?? {}))) {
-      await updateHours(user.value!);
-      location.reload();
-    }
-
     if (!(hour.profile in cur.value)) return;
 
     if (new Date(hour.date.join("-")).toISOString() !== ISO) return;

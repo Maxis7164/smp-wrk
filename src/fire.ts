@@ -50,23 +50,6 @@ export type Profile = {
   pph: number;
 };
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
-  authDomain: "smp-sdl.firebaseapp.com",
-  projectId: "smp-sdl",
-  storageBucket: "smp-sdl.appspot.com",
-  messagingSenderId: "1054742679816",
-  appId: "1:1054742679816:web:388a0c329927f9b7515cbd",
-};
-
-export const firebaseApp = initializeApp(firebaseConfig);
-
-export const db = initializeFirestore(firebaseApp, {
-  localCache: persistentLocalCache({
-    tabManager: persistentMultipleTabManager(),
-  }),
-});
-
 export const MONTHS = [
   "Januar",
   "Februar",
@@ -97,41 +80,26 @@ export class LoadFirebaseError extends Error {
   }
 }
 
-export async function expDb(): Promise<boolean> {
-  const user = await getCurrentUser();
-  if (!user)
-    return (
-      false &&
-      console.error(
-        "[!] <fire.ts::expDb> Cannot access user data while not being signed in!"
-      )
-    );
+//#region initialization
+const firebaseConfig = {
+  apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
+  authDomain: "smp-sdl.firebaseapp.com",
+  projectId: "smp-sdl",
+  storageBucket: "smp-sdl.appspot.com",
+  messagingSenderId: "1054742679816",
+  appId: "1:1054742679816:web:388a0c329927f9b7515cbd",
+};
 
-  const pd = getProfilesOf(user);
-  const hd = getHoursOf(user);
+export const firebaseApp = initializeApp(firebaseConfig);
 
-  const [profSnap, hoursSnap] = await Promise.all([getDocs(pd), getDocs(hd)]);
+export const db = initializeFirestore(firebaseApp, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
+//#endregion
 
-  const profiles = profSnap.docs.map((doc) => doc.data());
-  const hours = hoursSnap.docs.map((doc) => doc.data());
-
-  const data: DatabaseExport = {
-    version: 0,
-    profiles,
-    hours,
-  };
-
-  try {
-    saveFile([JSON.stringify(data)], "Simpler-Work-Data.json", {
-      type: "application/json",
-    });
-    return true;
-  } catch (err) {
-    console.error(`[!] <fire.ts::expDb> Could not save file: ${err}`);
-    return false;
-  }
-}
-
+//#region deleters
 export async function delDb(): Promise<boolean> {
   const doDel = await confirm(
     "Möchtest du wirklich alle Daten von dir löschen? Das beinhaltet alle deine Stunden und alle deine Arbeitsprofile",
@@ -179,9 +147,15 @@ export async function delCurrentUser(): Promise<void> {
 
   if (!user) return;
 
-  await delDb();
+  const done = await delDb();
+  if (!done)
+    return console.error(
+      "[!] Could not delete User: DB was unable to delete user data!"
+    );
+
   user.delete();
 }
+//#endregion
 
 function calcTotal(start: string, end: string): number {
   const s = getTime(start);
@@ -252,29 +226,21 @@ export async function exists(
   }
 }
 
-export async function updateHours(user: User) {
-  const profs = (await getDocs(getProfilesOf(user))).docs;
-  const docs = await getDocs(query(getHoursOf(user)));
-
-  const batch = writeBatch(db);
-
-  docs.forEach((doc) => {
-    const data = doc.data();
-    const prof = profs.find((p) => p.data().name === data.profile);
-
-    if (prof?.id) batch.update(doc.ref, { profile: prof.id, version: 1 });
-  });
-
-  await batch.commit();
-}
-
+//#region getters
 export function fromUser(user: User): QueryFieldFilterConstraint {
   return where("owner", "==", user.uid);
+}
+
+export function getProfile(
+  id: string
+): Promise<DocumentSnapshot<Profile, Profile>> {
+  return getDoc(doc(db, "profiles", id)) as any;
 }
 
 export function getCheckInOf(user: User): DocumentReference<CheckIn, CheckIn> {
   return doc(db, `checkin/${user.uid}`) as any;
 }
+
 export function getProfilesOf(
   user: User,
   ...constraints: QueryConstraint[]
@@ -285,18 +251,12 @@ export function getProfilesOf(
     ...constraints
   ) as any;
 }
+
 export function getHoursOf(
   user: User,
   ...constraints: QueryConstraint[]
 ): Query<Hour, Hour> {
   return query(collection(db, "hours"), fromUser(user), ...constraints) as any;
-}
-
-//#region getters
-export function getProfile(
-  id: string
-): Promise<DocumentSnapshot<Profile, Profile>> {
-  return getDoc(doc(db, "profiles", id)) as any;
 }
 //#endregion
 
