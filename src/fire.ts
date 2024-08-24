@@ -21,12 +21,34 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
-import { confirm } from "./components/modal";
-import { banner } from "./composables/banner";
+import { banner } from "@composables/banner";
+import { confirm } from "@components/modal";
 import { getCurrentUser } from "vuefire";
 import { User } from "firebase/auth";
-import { saveFile } from "./files";
-import { getTime } from "./utils";
+import { saveFile } from "src/files";
+import { getTime } from "src/utils";
+
+export type CheckIn = {
+  profile: string;
+  begin: string;
+  date: string[];
+};
+
+export type Hour = {
+  version: number;
+  profile: string;
+  date: string[];
+  total: number;
+  owner: string;
+  start: string;
+  end: string;
+};
+
+export type Profile = {
+  owner: string;
+  name: string;
+  pph: number;
+};
 
 const firebaseConfig = {
   apiKey: "AIzaSyBdzNlSAVqMLq7JIWwonzJztS1eMROCJyY",
@@ -287,5 +309,15 @@ export async function updateProfile(profile: Profile, id?: string) {
       console.error(err);
     }
   else await addDoc(collection(db, "profiles"), profile);
+}
+
+export async function deleteHours(id: string) {
+  const doDel = await confirm(
+    "Möchtest du wirklich deine Arbeitszeit löschen? Diese Aktion ist nicht wiederherstellbar!",
+    "Arbeitszeit löschen",
+    ["Ja", "Nein"]
+  );
+
+  if (doDel) deleteDoc(doc(db, "hours", id));
 }
 //#endregion

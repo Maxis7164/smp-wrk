@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { LoadFirebaseError } from "./fire";
+import { useTheme } from "@composables/theme";
+import { LoadFirebaseError } from "src/fire";
 import { useFirebaseAuth } from "vuefire";
 import { ref } from "vue";
 
-import Banner from "./components/Banner.vue";
-import Modal from "./components/Modal.vue";
-import { useTheme } from "./composables/theme";
+import Banner from "@components/Banner.vue";
+import Modal from "@components/Modal.vue";
 
 if (import.meta.env.DEV) document.title = "Simpler Work (DEV)";
 

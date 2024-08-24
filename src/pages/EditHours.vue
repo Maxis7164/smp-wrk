@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { getCurrentUser, useCollection } from "vuefire";
-import { addHours, getProfilesOf } from "../fire";
-import { banner } from "../composables/banner";
+import { addHours, getProfilesOf } from "src/fire";
+import { banner } from "@composables/banner";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 
-import DialogLayout from "../layouts/DialogLayout.vue";
+import DialogLayout from "@layouts/DialogLayout.vue";
 
 const r = useRouter();
 

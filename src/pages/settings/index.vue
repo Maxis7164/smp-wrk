@@ -5,16 +5,16 @@ import {
   getCurrentUser,
   useCollection,
 } from "vuefire";
-import { db, expDb, delDb, getProfilesOf, getHoursOf } from "../fire";
+import { db, expDb, delDb, getProfilesOf, getHoursOf, Profile } from "src/fire";
 import { doc, where, deleteDoc, getDocs } from "firebase/firestore";
-import { useTheme, Theme } from "../composables/theme";
-import { confirm } from "../components/modal";
-import { banner } from "../composables/banner";
+import { useTheme, Theme } from "@composables/theme";
+import { banner } from "@composables/banner";
+import { confirm } from "@components/modal";
+import { currency } from "src/utils";
 import { useRouter } from "vue-router";
 
-import SlideButton from "../components/SlideButton.vue";
-import PageLayout from "../layouts/PageLayout.vue";
-import { currency } from "../utils";
+import SlideButton from "@components/SlideButton.vue";
+import PageLayout from "@layouts/PageLayout.vue";
 
 const auth = useFirebaseAuth();
 const user = useCurrentUser();

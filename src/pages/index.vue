@@ -1,13 +1,20 @@
 <script lang="ts" setup>
+import {
+  db,
+  exists,
+  fromUser,
+  LoadFirebaseError,
+  Profile,
+  Hour,
+} from "src/fire";
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
-import { db, exists, fromUser, LoadFirebaseError } from "../fire";
 import { collection, query } from "firebase/firestore";
-import { currency, round } from "../utils";
+import { currency, round } from "src/utils";
 import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
 
-import Loading from "../components/Loading.vue";
-import PageLayout from "../layouts/PageLayout.vue";
+import PageLayout from "@layouts/PageLayout.vue";
+import Loading from "@components/Loading.vue";
 
 const user = useCurrentUser();
 const auth = useFirebaseAuth();

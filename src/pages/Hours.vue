@@ -1,11 +1,18 @@
 <script lang="ts" setup>
-import { updateHours, getHoursOf, getProfilesOf, MONTHS } from "../fire";
+import {
+  updateHours,
+  getHoursOf,
+  getProfilesOf,
+  MONTHS,
+  Profile,
+  Hour,
+} from "src/fire";
 import { useCurrentUser, useCollection } from "vuefire";
+import { round } from "src/utils";
 import { ref, watch } from "vue";
-import { round } from "../utils";
 
-import PageLayout from "../layouts/PageLayout.vue";
-import Calendar from "../components/Calendar.vue";
+import PageLayout from "@layouts/PageLayout.vue";
+import Calendar from "@components/Calendar.vue";
 
 const user = useCurrentUser();
 

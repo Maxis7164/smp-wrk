@@ -5,22 +5,21 @@ import {
   type RouteRecordRaw,
 } from "vue-router";
 import { VueFire, VueFireAuth, getCurrentUser } from "vuefire";
-import { firebaseApp } from "./fire";
+import { firebaseApp } from "src/fire";
+import { createPinia } from "pinia";
 import { createApp } from "vue";
 import "./style.scss";
 
 import App from "./App.vue";
-import Home from "./pages/Home.vue";
-import Settings from "./pages/Settings.vue";
-import Load from "./pages/Load.vue";
-import EditProfile from "./pages/EditProfile.vue";
-import EditHours from "./pages/EditHours.vue";
-import Hours from "./pages/Hours.vue";
-import Checkin from "./pages/Checkin.vue";
-import Account from "./pages/Account.vue";
-import Profile from "./pages/Profile.vue";
-import Test from "./pages/Test.vue";
-import { createPinia } from "pinia";
+import Home from "@pages/index.vue";
+import Settings from "@pages/settings/index.vue";
+import Load from "@pages/Load.vue";
+import EditProfile from "@pages/settings/EditProfile.vue";
+import EditHours from "@pages/EditHours.vue";
+import Hours from "@pages/Hours.vue";
+import Checkin from "@pages/Checkin.vue";
+import Account from "@pages/Account.vue";
+import Profile from "@pages/profiles/[id].vue";
 
 const app = createApp(App);
 
@@ -48,7 +47,6 @@ const routes: RouteRecordRaw[] = [
   { path: "/hours", component: Hours },
   { path: "/hours/:profile", component: Profile },
   { path: "/check-in", component: Checkin },
-  { path: "/test", component: Test, beforeEnter: [testGuard] },
 ];
 
 const router = createRouter({

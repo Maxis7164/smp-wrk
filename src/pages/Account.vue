@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { useCurrentUser, useFirebaseAuth } from "vuefire";
-import { confirm, prompt } from "../components/modal";
-import { banner } from "../composables/banner";
-import { delCurrentUser } from "../fire";
+import { confirm, prompt } from "@components/modal";
+import { banner } from "@composables/banner";
+import { delCurrentUser } from "src/fire";
 import { useRouter } from "vue-router";
 
-import PageLayout from "../layouts/PageLayout.vue";
+import PageLayout from "@layouts/PageLayout.vue";
 import { updateProfile } from "firebase/auth";
-import { ref } from "vue";
 
 const auth = useFirebaseAuth();
 const user = useCurrentUser();

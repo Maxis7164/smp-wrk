@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import type { VueFirestoreQueryData } from "vuefire";
 import { currency, getEuroDate, round } from "../utils";
-import { getProfilesOf } from "../fire";
-import { where } from "firebase/firestore";
+import type { VueFirestoreQueryData } from "vuefire";
 import { User } from "firebase/auth";
+import { deleteHours } from "../fire";
 
 type _Nullable<T> = T | null | undefined;
 
@@ -12,7 +11,6 @@ const props = defineProps<{
   hours: Hour[];
   profiles: VueFirestoreQueryData<Profile>;
 }>();
-defineEmits<{ (e: "delete", h: Hour): void }>();
 </script>
 
 <template>
@@ -22,7 +20,9 @@ defineEmits<{ (e: "delete", h: Hour): void }>();
     <p>{{ h.total.toLocaleString() }} Stunden</p>
     <p>{{ currency(round(h.total * (profiles?.[0]?.pph ?? -1))) }}€</p>
     <button @click="" class="text">Bearbeiten</button>
-    <button @click="$emit('delete', h)" class="text risk">Löschen</button>
+    <button @click="deleteHours((h as any).id)" class="text risk">
+      Löschen
+    </button>
   </li>
 </template>
 

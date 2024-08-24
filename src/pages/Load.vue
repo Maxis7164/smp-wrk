@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useRoute, useRouter } from "vue-router";
-import { banner } from "../composables/banner";
 import { getDocs } from "firebase/firestore";
+import { banner } from "@composables/banner";
 import { useFirebaseAuth } from "vuefire";
-import { getProfilesOf } from "../fire";
+import { getProfilesOf } from "src/fire";
 import { ref } from "vue";
 
-import Loading from "../components/Loading.vue";
+import Loading from "@components/Loading.vue";
 
 const auth = useFirebaseAuth();
 const route = useRoute();

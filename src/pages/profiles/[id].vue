@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { documentId, where } from "firebase/firestore";
-import { getHoursOf, getProfilesOf } from "../fire";
+import { getHoursOf, getProfilesOf, Profile, Hour } from "src/fire";
 import { useCollection, useCurrentUser } from "vuefire";
-import { currency, round } from "../utils";
+import { documentId, where } from "firebase/firestore";
+import { currency, round } from "src/utils";
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
-import PageLayout from "../layouts/PageLayout.vue";
-import HourPanel from "../components/HourPanel.vue";
+import HourPanel from "@components/HourPanel.vue";
+import PageLayout from "@layouts/PageLayout.vue";
 
 const route = useRoute();
 const profile = computed(() => route.params.profile as string);
