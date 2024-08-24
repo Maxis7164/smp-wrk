@@ -10,12 +10,13 @@ import { useCollection, useCurrentUser } from "vuefire";
 import { documentId, where } from "firebase/firestore";
 import { currency, round } from "src/utils";
 import { computed, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import HourPanel from "@components/HourPanel.vue";
 import PageLayout from "@layouts/PageLayout.vue";
 import { confirm } from "@composables/modal";
 
+const router = useRouter();
 const route = useRoute();
 const id = computed(() => route.params.profile as string);
 
@@ -80,13 +81,14 @@ async function delProf() {
 
   if (doDel) {
     await deleteProfile(profile.value.id);
+    router.back();
   }
 }
 </script>
 
 <template>
   <PageLayout :name="`${profiles.at(0)?.name ?? 'Profil'}`">
-    <section v-if="hours.length > 0" class="overview">
+    <section class="overview">
       <ul>
         <li>
           <h2>{{ round(totalHours).toLocaleString() }} Stunden</h2>
@@ -98,7 +100,7 @@ async function delProf() {
         </li>
       </ul>
     </section>
-    <section v-if="hours.length > 0" class="impressive">
+    <section class="impressive">
       <button
         @click="
           $router.push(`/settings/editProfile?profile=${profiles.at(0)!.id}`)
@@ -171,11 +173,11 @@ section {
       overflow-y: auto;
 
       li.noHours {
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -70%);
         position: absolute;
         display: inline;
         left: 50%;
-        top: 50%;
+        top: 70%;
       }
     }
   }
