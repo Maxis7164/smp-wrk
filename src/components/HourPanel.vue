@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { currency, getEuroDate, round } from "../utils";
+import { currency, getEuroDate, round } from "src/utils";
 import type { VueFirestoreQueryData } from "vuefire";
+import { deleteHours, Hour, Profile } from "src/fire";
 import { User } from "firebase/auth";
-import { deleteHours } from "../fire";
 
 type _Nullable<T> = T | null | undefined;
 
-const props = defineProps<{
+defineProps<{
   user: _Nullable<User>;
   hours: Hour[];
   profiles: VueFirestoreQueryData<Profile>;

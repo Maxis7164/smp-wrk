@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { banner } from "../composables/banner";
+import { banner } from "@composables/banner";
 import {
   CheckupFunction,
   useModal,

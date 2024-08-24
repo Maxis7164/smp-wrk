@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
-import { range } from "../utils";
-import { MONTHS } from "../fire";
+import { MONTHS } from "src/fire";
+import { range } from "src/utils";
 
 const props = defineProps<{ initial?: boolean; dates: string[] }>();
 const emit = defineEmits<{ (e: "select", i: ISODate): void }>();
