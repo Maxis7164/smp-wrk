@@ -1,5 +1,11 @@
 <script lang="ts" setup>
-import { getHoursOf, getProfilesOf, Profile, Hour } from "src/fire";
+import {
+  getHoursOf,
+  getProfilesOf,
+  Profile,
+  Hour,
+  deleteProfile,
+} from "src/fire";
 import { useCollection, useCurrentUser } from "vuefire";
 import { documentId, where } from "firebase/firestore";
 import { currency, round } from "src/utils";
@@ -8,18 +14,19 @@ import { useRoute } from "vue-router";
 
 import HourPanel from "@components/HourPanel.vue";
 import PageLayout from "@layouts/PageLayout.vue";
+import { confirm } from "@composables/modal";
 
 const route = useRoute();
-const profile = computed(() => route.params.profile as string);
+const id = computed(() => route.params.profile as string);
 
 const user = useCurrentUser();
 
 const profiles = useCollection<Profile>(
-  getProfilesOf(user.value!, where(documentId(), "==", profile.value)),
+  getProfilesOf(user.value!, where(documentId(), "==", id.value)),
   { ssrKey: "profiles" }
 );
 const hours = useCollection<Hour>(
-  getHoursOf(user.value!, where("profile", "==", profile.value ?? "")),
+  getHoursOf(user.value!, where("profile", "==", id.value ?? "")),
   {
     ssrKey: "hours",
   }
@@ -28,6 +35,8 @@ const hours = useCollection<Hour>(
 const display = ref<Hour[]>(sort(hours.value));
 const totalHours = ref<number>(0);
 const totalPay = ref<number>(0);
+
+const profile = computed(() => profiles.value.at(0));
 
 type A = typeof hours.value;
 
@@ -58,6 +67,21 @@ watch(hours, (nxt) => {
     totalHours.value += tot;
   }
 });
+
+async function delProf() {
+  if (!profile.value)
+    return console.error("Cannot delete non-existing profile!");
+
+  const doDel = await confirm(
+    `Möchtest du wirklich dein "${profile.value.name}" Profil löschen?`,
+    "Profil löschen",
+    ["Ja", "Nein"]
+  );
+
+  if (doDel) {
+    await deleteProfile(profile.value.id);
+  }
+}
 </script>
 
 <template>
@@ -75,7 +99,15 @@ watch(hours, (nxt) => {
       </ul>
     </section>
     <section v-if="hours.length > 0" class="impressive">
-      <h3>Erstaunlich, nicht wahr?</h3>
+      <button
+        @click="
+          $router.push(`/settings/editProfile?profile=${profiles.at(0)!.id}`)
+        "
+        class="text"
+      >
+        Bearbeiten
+      </button>
+      <button @click="delProf" class="text risk">Löschen</button>
     </section>
     <section class="hours">
       <ul class="hours">
@@ -126,8 +158,13 @@ section {
     }
   }
   &.impressive {
-    text-align: center;
-    margin: 3rem 0;
+    justify-content: space-around;
+    margin: 2.5rem 0;
+    display: flex;
+
+    button {
+      font-weight: 600;
+    }
   }
   &.hours {
     ul {

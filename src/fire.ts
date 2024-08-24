@@ -141,6 +141,10 @@ export async function delDb(): Promise<boolean> {
   return true;
 }
 
+export function deleteProfile(id: string) {
+  return deleteDoc(doc(db, "profiles", id));
+}
+
 export async function delCurrentUser(): Promise<void> {
   const user = await getCurrentUser();
 

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { db, getProfile, updateProfile } from "src/fire";
+import { getProfile, updateProfile } from "src/fire";
 import { useRoute, useRouter } from "vue-router";
-import { collection } from "firebase/firestore";
 import { banner } from "@composables/banner";
 import { useCurrentUser } from "vuefire";
 import { ref, watch } from "vue";
@@ -9,8 +8,6 @@ import { ref, watch } from "vue";
 import DialogLayout from "@layouts/DialogLayout.vue";
 
 type LocationQueryType = typeof route.query.a;
-
-const profiles = collection(db, "profiles");
 
 const user = useCurrentUser();
 const route = useRoute();
@@ -30,6 +27,8 @@ watch(
 
 async function load(prof: LocationQueryType) {
   if (typeof prof !== "string") return;
+
+  if (prof.length === 0) return;
 
   const doc = await getProfile(prof);
 
