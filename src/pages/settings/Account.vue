@@ -2,7 +2,7 @@
 import { useCurrentUser, useFirebaseAuth } from "vuefire";
 import { confirm, prompt } from "@components/modal";
 import { banner } from "@composables/banner";
-import { delCurrentUser } from "src/fire";
+import { delCurrentUser, delDb } from "src/fire";
 import { useRouter } from "vue-router";
 
 import PageLayout from "@layouts/PageLayout.vue";
@@ -74,6 +74,12 @@ async function delAcc(): Promise<void> {
 
   if (isSure) await delCurrentUser();
 }
+
+async function deleteDatabase(): Promise<void> {
+  const isDel = await delDb();
+
+  if (isDel) r.push("/settings/editProfile?setup=1");
+}
 </script>
 
 <template>
@@ -88,12 +94,15 @@ async function delAcc(): Promise<void> {
         <li>
           <button @click="changeUsername">Nutzernamen Bearbeiten</button>
         </li>
+        <li>
+          <button @click="signOut" class="risk">Abmelden</button>
+        </li>
       </ul>
     </section>
     <section class="manage">
       <ul>
         <li>
-          <button @click="signOut" class="risk">Abmelden</button>
+          <button @click="deleteDatabase" class="risk">Daten löschen</button>
         </li>
         <li>
           <button @click="delAcc" class="risk">Account Löschen</button>

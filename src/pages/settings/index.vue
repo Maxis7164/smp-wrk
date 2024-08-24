@@ -5,7 +5,7 @@ import {
   getCurrentUser,
   useCollection,
 } from "vuefire";
-import { db, expDb, delDb, getProfilesOf, getHoursOf, Profile } from "src/fire";
+import { db, getProfilesOf, getHoursOf, Profile } from "src/fire";
 import { doc, where, deleteDoc, getDocs } from "firebase/firestore";
 import { useTheme, Theme } from "@composables/theme";
 import { banner } from "@composables/banner";
@@ -57,12 +57,6 @@ function signOut(): void {
 
   auth!.signOut();
   r.push("/load");
-}
-
-async function deleteDatabase(): Promise<void> {
-  const isDel = await delDb();
-
-  if (isDel) r.push("/settings/editProfile?setup=1");
 }
 
 function toDebug() {
@@ -117,10 +111,6 @@ function toDebug() {
     <section class="theme">
       <h2>Appthema</h2>
       <SlideButton :default="t.theme" @update="(v) => t.setTheme(v as Theme)" />
-    </section>
-    <section class="data">
-      <button @click="expDb">Daten exportieren</button>
-      <button class="risk" @click="deleteDatabase">Daten löschen</button>
     </section>
     <section class="appversion">
       <p @click="toDebug">
