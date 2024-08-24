@@ -86,7 +86,7 @@ async function delProf() {
 
 <template>
   <PageLayout :name="`${profiles.at(0)?.name ?? 'Profil'}`">
-    <section v-if="hours.length > 0" class="overview">
+    <section class="overview">
       <ul>
         <li>
           <h2>{{ round(totalHours).toLocaleString() }} Stunden</h2>
@@ -98,7 +98,7 @@ async function delProf() {
         </li>
       </ul>
     </section>
-    <section v-if="hours.length > 0" class="impressive">
+    <section class="impressive">
       <button
         @click="
           $router.push(`/settings/editProfile?profile=${profiles.at(0)!.id}`)
@@ -171,11 +171,11 @@ section {
       overflow-y: auto;
 
       li.noHours {
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -70%);
         position: absolute;
         display: inline;
         left: 50%;
-        top: 50%;
+        top: 70%;
       }
     }
   }
