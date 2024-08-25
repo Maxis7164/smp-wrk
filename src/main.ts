@@ -1,5 +1,6 @@
 import {
   NavigationGuardWithThis,
+  RouteLocationNormalized,
   createRouter,
   createWebHashHistory,
   type RouteRecordRaw,
@@ -54,13 +55,28 @@ const router = createRouter({
   routes,
 });
 
+// page transition
+const DIALOG = ["/settings/editProfile", "/checkin", "/editHours"];
+
+const isDeeper = (to: number, from: number) => to < from;
+const isHome = (to: RouteLocationNormalized) => to.fullPath === "/";
+const isDialog = (r: RouteLocationNormalized) =>
+  DIALOG.reduce((prev, curr) => prev || r.fullPath.includes(curr), false);
+
+// page transition
 router.afterEach((to, from) => {
-  const toDepth = to.path.split("/").length;
-  const fromDepth = from.path.split("/").length;
-  to.meta.transition =
-    toDepth < fromDepth || to.path === "/" ? "slide-right" : "slide-left";
+  const toDepth = to.fullPath.split("/").length;
+  const fromDepth = from.fullPath.split("/").length;
+
+  to.meta.transition = isDialog(from)
+    ? "slide-out"
+    : isDeeper(toDepth, fromDepth) || isHome(to)
+    ? "slide-out"
+    : "slide-in";
 });
 
+// auth guard
+// auth guard
 router.beforeEach(async (to) => {
   if (to.meta.anonymous === true || (await getCurrentUser())) return true;
   else return { path: "/load", query: { redir: to.path } };

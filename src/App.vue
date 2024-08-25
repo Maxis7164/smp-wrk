@@ -31,7 +31,7 @@ const reload = () => location.reload();
 <template>
   <suspense v-if="auth">
     <router-view v-slot="{ Component, route }">
-      <transition :name="route.meta.transition as string ?? 'slide-left'">
+      <transition :name="route.meta.transition as string ?? 'slide-in'">
         <component :is="Component" />
       </transition>
     </router-view>
@@ -88,46 +88,46 @@ div.no-firebase {
   }
 }
 
-div.wrap.slide-left-enter-active,
-div.wrap.slide-left-leave-active,
-div.wrap.slide-right-enter-active,
-div.wrap.slide-right-leave-active {
+div.wrap.slide-in-enter-active,
+div.wrap.slide-in-leave-active,
+div.wrap.slide-out-enter-active,
+div.wrap.slide-out-leave-active {
   transition: transform var(--anim-speed) ease-out,
     filter var(--anim-speed) ease-out;
 }
 
-.slide-left-enter-active,
-.slide-right-leave-active {
+.slide-in-enter-active,
+.slide-out-leave-active {
   z-index: 20;
 }
 
-.slide-left-enter-from {
+.slide-in-enter-from {
   transform: translate(100%);
 }
-.slide-left-enter-to {
+.slide-in-enter-to {
   transform: translate(0);
 }
-.slide-left-leave-from {
+.slide-in-leave-from {
   transform: translate(0);
   filter: blur(0) brightness(100%);
 }
-.slide-left-leave-to {
+.slide-in-leave-to {
   transform: translate(-30%);
   filter: blur(0.5rem) brightness(50%);
 }
 
-.slide-right-enter-from {
+.slide-out-enter-from {
   transform: translate(-30%);
   filter: blur(0.5rem) brightness(50%);
 }
-.slide-right-enter-to {
+.slide-out-enter-to {
   transform: translate(0);
   filter: blur(0) brightness(100%);
 }
-.slide-right-leave-from {
+.slide-out-leave-from {
   transform: translate(0);
 }
-.slide-right-leave-to {
+.slide-out-leave-to {
   transform: translate(100%);
 }
 </style>
