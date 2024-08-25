@@ -1,6 +1,7 @@
 import {
   NavigationGuardWithThis,
   RouteLocationNormalized,
+  RouteLocationNormalized,
   createRouter,
   createWebHashHistory,
   type RouteRecordRaw,
@@ -63,6 +64,14 @@ const isDialog = (r: RouteLocationNormalized) =>
   DIALOG.reduce((prev, curr) => prev || r.fullPath.includes(curr), false);
 
 // page transition
+const DIALOG = ["/settings/editProfile", "/checkin", "/editHours"];
+
+const isDeeper = (to: number, from: number) => to < from;
+const isHome = (to: RouteLocationNormalized) => to.fullPath === "/";
+const isDialog = (r: RouteLocationNormalized) =>
+  DIALOG.reduce((prev, curr) => prev || r.fullPath.includes(curr), false);
+
+// page transition
 router.afterEach((to, from) => {
   const toDepth = to.fullPath.split("/").length;
   const fromDepth = from.fullPath.split("/").length;
@@ -74,6 +83,7 @@ router.afterEach((to, from) => {
     : "slide-left";
 });
 
+// auth guard
 // auth guard
 router.beforeEach(async (to) => {
   if (to.meta.anonymous === true || (await getCurrentUser())) return true;
