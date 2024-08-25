@@ -5,13 +5,14 @@ import {
   fromUser,
   LoadFirebaseError,
   Profile,
-  Hour,
+  HourAggregation,
+  getTotalHoursOf,
 } from "src/fire";
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
 import { collection, query } from "firebase/firestore";
 import { currency, round } from "src/utils";
 import { useRouter } from "vue-router";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 
 import PageLayout from "@layouts/PageLayout.vue";
 import Loading from "@components/Loading.vue";
@@ -22,60 +23,23 @@ const r = useRouter();
 
 if (!auth) throw new LoadFirebaseError("auth/none");
 
-type A = (typeof profiles.value)[0];
-
 const profiles = useCollection<Profile>(
   query(collection(db, "profiles"), fromUser(user.value!)),
   { ssrKey: "profiles" }
-);
-const hours = useCollection<Hour>(
-  query(collection(db, "hours"), fromUser(user.value!)),
-  { ssrKey: "hours" }
 );
 
 const ready = ref<boolean>(true);
 
 const hasCheckedIn = ref<boolean>(false);
-
-const currentHours = ref<number>(0);
-const currentPay = ref<number>(0);
-const allHours = ref<number>(0);
-
-const D = new Date();
-
-watch(hours, (nxt) => {
-  if (!nxt) return;
-
-  nxt.forEach((h) => {
-    const prof = profiles.value.find((p) => p.id === h.profile);
-
-    if (!prof) return;
-
-    allHours.value += h.total;
-
-    if (
-      parseInt(h.date[1]) === D.getMonth() + 1 &&
-      parseInt(h.date[0]) === D.getFullYear()
-    ) {
-      currentHours.value += h.total;
-      currentPay.value += h.total * prof.pph;
-    }
-  });
-});
-
-function getTotal(profile: A) {
-  const nxt = hours.value
-    .filter((h) => h.profile === profile.id)
-    .map((h) => h.total);
-
-  return nxt.length === 0 ? 0 : nxt.reduce((acc, cur) => acc + cur);
-}
+const totals = ref<HourAggregation>({ total: 0, pay: 0 });
 
 setTimeout(() => {
   exists(collection(db, "checkin"), user.value!.uid).then(
     (isCheckedIn) => (hasCheckedIn.value = isCheckedIn)
   );
 }, 2000);
+
+getTotalHoursOf(user.value!).then((res) => (totals.value = res));
 </script>
 
 <template>
@@ -83,12 +47,12 @@ setTimeout(() => {
     <section class="current">
       <ul>
         <li>
-          <h2>{{ round(currentHours).toLocaleString() }} Stunden</h2>
+          <h2>{{ round(totals.total).toLocaleString() }} Stunden</h2>
           <p>hast du diesen Monat gearbeitet</p>
         </li>
         <li>
           <p>damit verdienst du</p>
-          <h2>{{ currency(round(currentPay)) }}€</h2>
+          <h2>{{ currency(round(totals.pay)) }}€</h2>
         </li>
       </ul>
     </section>
@@ -98,13 +62,13 @@ setTimeout(() => {
         <li>
           <button @click="$router.push('/hours')">
             <h3>Gesamt:</h3>
-            <p>{{ round(allHours).toLocaleString() }} Stunden</p>
+            <p>{{ round(totals.total).toLocaleString() }} Stunden</p>
           </button>
         </li>
         <li v-for="prof in profiles">
           <button @click="$router.push(`/hours/${prof.id}`)">
             <h3>{{ prof.name }}:</h3>
-            <p>{{ round(getTotal(prof)).toLocaleString() }} Stunden</p>
+            <p>{{ round(totals[prof.name] ?? 0).toLocaleString() }} Stunden</p>
           </button>
         </li>
       </ul>

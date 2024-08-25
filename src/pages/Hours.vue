@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { getHoursOf, getProfilesOf, MONTHS, Profile, Hour } from "src/fire";
+import {
+  getHoursOf,
+  getProfilesOf,
+  MONTHS,
+  Profile,
+  Hour,
+  getNewHoursOf,
+} from "src/fire";
 import { useCurrentUser, useCollection } from "vuefire";
 import { round } from "src/utils";
 import { ref, watch } from "vue";
@@ -12,7 +19,7 @@ const user = useCurrentUser();
 const profiles = useCollection<Profile>(getProfilesOf(user.value!), {
   ssrKey: "profiles",
 });
-const hours = useCollection<Hour>(getHoursOf(user.value!), {
+const hours = useCollection<Hour>(getNewHoursOf(user.value!), {
   ssrKey: "hours",
 });
 

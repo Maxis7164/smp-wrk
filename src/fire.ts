@@ -19,6 +19,9 @@ import {
   getDoc,
   DocumentSnapshot,
   updateDoc,
+  getAggregateFromServer,
+  sum,
+  collectionGroup,
 } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { confirm } from "@composables/modal";
@@ -47,6 +50,12 @@ export type Profile = {
   owner: string;
   name: string;
   pph: number;
+};
+
+export type HourAggregation = {
+  [key: string]: number;
+  total: number;
+  pay: number;
 };
 
 export const MONTHS = [
@@ -141,10 +150,6 @@ export async function delDb(): Promise<boolean> {
   return true;
 }
 
-export function deleteProfile(id: string) {
-  return deleteDoc(doc(db, "profiles", id));
-}
-
 export async function delCurrentUser(): Promise<void> {
   const user = await getCurrentUser();
 
@@ -208,7 +213,7 @@ export async function addHours(
   };
 
   try {
-    await addDoc(collection(db, "hours"), hour);
+    await addDoc(collection(db, "profiles", profile, "hours"), hour);
     return true;
   } catch (err) {
     console.error(err);
@@ -255,11 +260,90 @@ export function getProfilesOf(
   ) as any;
 }
 
+export function getNewHoursOf(user: User, ...constraints: QueryConstraint[]) {
+  return query(collectionGroup(db, "hours"), fromUser(user), ...constraints);
+}
+
 export function getHoursOf(
   user: User,
   ...constraints: QueryConstraint[]
 ): Query<Hour, Hour> {
   return query(collection(db, "hours"), fromUser(user), ...constraints) as any;
+}
+
+export async function getLeacyHoursOf(
+  user: User,
+  ...constraints: QueryConstraint[]
+) {
+  const profs = await getDocs(getProfilesOf(user, ...constraints));
+
+  const res: HourAggregation = {
+    total: 0,
+    pay: 0,
+  };
+
+  for await (let prof of profs.docs) {
+    const data = prof.data();
+
+    const qu = await getAggregateFromServer(
+      query(
+        collection(db, "hours"),
+        fromUser(user),
+        where("profile", "==", prof.id)
+      ),
+      { total: sum("total") }
+    );
+
+    const aggr = qu.data();
+
+    res[data.name] = aggr.total;
+    res.total += aggr.total;
+    res.pay += aggr.total * data.pph;
+  }
+
+  return res;
+}
+
+export async function getTotalHoursOf(
+  user: User,
+  ...constraints: QueryConstraint[]
+) {
+  const aggregation: HourAggregation = {
+    total: 0,
+    pay: 0,
+  };
+
+  const profs = await getDocs(getProfilesOf(user, ...constraints));
+
+  for await (let prof of profs.docs) {
+    const data = prof.data();
+
+    const req = await getAggregateFromServer(
+      query(collection(db, "profiles", prof.id, "hours"), fromUser(user)),
+      { total: sum("total") }
+    );
+
+    const result = req.data();
+
+    aggregation[data.name] = result.total;
+    aggregation.total += result.total;
+    aggregation.pay += result.total * data.pph;
+  }
+
+  //#region legacy
+  const legacy = await getLeacyHoursOf(user);
+  aggregation.total += legacy.total;
+  aggregation.pay += legacy.pay;
+
+  for (let prof of Object.keys(legacy)) {
+    if (["total", "pay"].includes(prof)) continue;
+
+    if (prof in aggregation) aggregation[prof] += legacy[prof];
+    else aggregation[prof] = legacy[prof];
+  }
+  //#endregion
+
+  return aggregation;
 }
 //#endregion
 
@@ -272,6 +356,24 @@ export async function updateProfile(profile: Profile, id?: string) {
       console.error(err);
     }
   else await addDoc(collection(db, "profiles"), profile);
+}
+
+export async function deleteProfile(id: string) {
+  const doDel = await confirm(
+    "Möchtest du wirklich deine Arbeitszeit löschen? Diese Aktion ist nicht wiederherstellbar!",
+    "Arbeitszeit löschen",
+    ["Ja", "Nein"]
+  );
+
+  if (doDel)
+    try {
+      deleteDoc(doc(db, "profiles", id));
+      return true;
+    } catch (err) {
+      console.error(err);
+    }
+
+  return false;
 }
 
 export async function deleteHours(id: string) {

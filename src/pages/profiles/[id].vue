@@ -1,20 +1,19 @@
 <script lang="ts" setup>
 import {
-  getHoursOf,
   getProfilesOf,
   Profile,
   Hour,
   deleteProfile,
+  getNewHoursOf,
 } from "src/fire";
 import { useCollection, useCurrentUser } from "vuefire";
 import { documentId, where } from "firebase/firestore";
+import { useRoute, useRouter } from "vue-router";
 import { currency, round } from "src/utils";
 import { computed, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
 
 import HourPanel from "@components/HourPanel.vue";
 import PageLayout from "@layouts/PageLayout.vue";
-import { confirm } from "@composables/modal";
 
 const router = useRouter();
 const route = useRoute();
@@ -27,7 +26,7 @@ const profiles = useCollection<Profile>(
   { ssrKey: "profiles" }
 );
 const hours = useCollection<Hour>(
-  getHoursOf(user.value!, where("profile", "==", id.value ?? "")),
+  getNewHoursOf(user.value!, where("profile", "==", id.value)),
   {
     ssrKey: "hours",
   }
@@ -73,16 +72,8 @@ async function delProf() {
   if (!profile.value)
     return console.error("Cannot delete non-existing profile!");
 
-  const doDel = await confirm(
-    `Möchtest du wirklich dein "${profile.value.name}" Profil löschen?`,
-    "Profil löschen",
-    ["Ja", "Nein"]
-  );
-
-  if (doDel) {
-    await deleteProfile(profile.value.id);
-    router.back();
-  }
+  const success = await deleteProfile(profile.value.id);
+  if (success) router.back();
 }
 </script>
 
