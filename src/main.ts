@@ -1,7 +1,6 @@
 import {
   NavigationGuardWithThis,
   RouteLocationNormalized,
-  RouteLocationNormalized,
   createRouter,
   createWebHashHistory,
   type RouteRecordRaw,
@@ -56,15 +55,6 @@ const router = createRouter({
   routes,
 });
 
-// page transition
-const DIALOG = ["/settings/editProfile", "/checkin", "/editHours"];
-
-const isDeeper = (to: number, from: number) => to < from;
-const isHome = (to: RouteLocationNormalized) => to.fullPath === "/";
-const isDialog = (r: RouteLocationNormalized) =>
-  DIALOG.reduce((prev, curr) => prev || r.fullPath.includes(curr), false);
-
-// page transition
 // page transition
 const DIALOG = ["/settings/editProfile", "/checkin", "/editHours"];
 
