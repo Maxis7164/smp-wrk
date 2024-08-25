@@ -27,8 +27,6 @@ const loading = ref<boolean>(false);
 watch(
   check,
   (nxt) => {
-    console.log(check);
-
     if (nxt) {
       profile.value = nxt.profile;
       start.value = nxt.begin;
