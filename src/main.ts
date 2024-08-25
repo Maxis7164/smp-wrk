@@ -1,7 +1,6 @@
 import {
   NavigationGuardWithThis,
   RouteLocationNormalized,
-  RouteLocationNormalized,
   createRouter,
   createWebHashHistory,
   type RouteRecordRaw,
@@ -56,13 +55,6 @@ const router = createRouter({
   routes,
 });
 
-const DIALOG = ["/settings/editProfile", "/checkin", "/editHours"];
-
-const isDeeper = (to: number, from: number) => to < from;
-const isHome = (to: RouteLocationNormalized) => to.fullPath === "/";
-const isDialog = (r: RouteLocationNormalized) =>
-  DIALOG.reduce((prev, curr) => prev || r.fullPath.includes(curr), false);
-
 // page transition
 const DIALOG = ["/settings/editProfile", "/checkin", "/editHours"];
 
@@ -77,9 +69,9 @@ router.afterEach((to, from) => {
   const fromDepth = from.fullPath.split("/").length;
 
   to.meta.transition = isDialog(from)
-    ? "slide-right"
+    ? "slide-out"
     : isDeeper(toDepth, fromDepth) || isHome(to)
-    ? "slide-right"
+    ? "slide-out"
     : "slide-left";
 });
 
