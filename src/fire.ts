@@ -57,6 +57,7 @@ export type Profile = {
 export type HourAggregation = {
   [key: string]: number;
   total: number;
+  month: number;
   pay: number;
 };
 
@@ -280,11 +281,18 @@ export function getHoursOf(
 
 export async function getLeacyHoursOf(
   user: User,
-  ...constraints: QueryConstraint[]
+  constraints?: {
+    profiles?: QueryConstraint[];
+    hours?: QueryConstraint[];
+  }
 ) {
-  const profs = await getDocs(getProfilesOf(user, ...constraints));
+  const M = new Date().toISOString().slice(5, 7);
+  const profs = await getDocs(
+    getProfilesOf(user, ...(constraints?.profiles ?? []))
+  );
 
   const res: HourAggregation = {
+    month: 0,
     total: 0,
     pay: 0,
   };
@@ -292,50 +300,87 @@ export async function getLeacyHoursOf(
   for await (let prof of profs.docs) {
     const data = prof.data();
 
-    const qu = await getAggregateFromServer(
-      query(
-        collection(db, "hours"),
-        fromUser(user),
-        where("profile", "==", prof.id)
+    const [rm, ra] = await Promise.all([
+      getAggregateFromServer(
+        query(
+          collection(db, "hours"),
+          fromUser(user),
+          where("profile", "==", prof.id),
+          where("date.month", "==", M)
+        ),
+        { total: sum("total") }
       ),
-      { total: sum("total") }
-    );
+      getAggregateFromServer(
+        query(
+          collection(db, "hours"),
+          fromUser(user),
+          where("profile", "==", prof.id)
+        ),
+        { total: sum("total") }
+      ),
+    ]);
 
-    const aggr = qu.data();
+    const month = rm.data();
+    const all = ra.data();
 
-    res[data.name] = aggr.total;
-    res.total += aggr.total;
-    res.pay += aggr.total * data.pph;
+    res[data.name] = all.total;
+    res.total += all.total;
+
+    res.month += month.total;
+    res.pay += month.total * data.pph;
   }
+
+  console.log(res);
 
   return res;
 }
 
-export async function getTotalHoursOf(
+function getAggrQuery(
   user: User,
+  id: string,
   ...constraints: QueryConstraint[]
 ) {
+  return query(
+    collection(db, "profiles", id, "hours"),
+    fromUser(user),
+    ...constraints
+  );
+}
+
+export async function getSummaryOf(user: User) {
+  const M = new Date().toISOString().slice(5, 7);
   const aggregation: HourAggregation = {
+    month: 0,
     total: 0,
     pay: 0,
   };
 
-  const profs = await getDocs(getProfilesOf(user, ...constraints));
+  const profs = await getDocs(getProfilesOf(user));
 
   for await (let prof of profs.docs) {
     const data = prof.data();
 
-    const req = await getAggregateFromServer(
-      query(collection(db, "profiles", prof.id, "hours"), fromUser(user)),
-      { total: sum("total") }
-    );
+    const [rm, ra] = await Promise.all([
+      getAggregateFromServer(
+        getAggrQuery(user, prof.id, where("date.month", "==", M)),
+        { total: sum("total") }
+      ),
+      getAggregateFromServer(getAggrQuery(user, prof.id), {
+        total: sum("total"),
+      }),
+    ]);
 
-    const result = req.data();
+    const month = rm.data();
+    const all = ra.data();
 
-    aggregation[data.name] = result.total;
-    aggregation.total += result.total;
-    aggregation.pay += result.total * data.pph;
+    aggregation[data.name] = all.total;
+    aggregation.total += all.total;
+
+    aggregation.month += month.total;
+    aggregation.pay += month.total * data.pph;
   }
+
+  console.log(aggregation);
 
   //#region legacy
   const legacy = await getLeacyHoursOf(user);

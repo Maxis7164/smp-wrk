@@ -6,25 +6,17 @@ import {
   LoadFirebaseError,
   Profile,
   HourAggregation,
-  getTotalHoursOf,
-  getNewHoursOf,
-  Hour,
-  getHoursOf,
+  getSummaryOf,
 } from "src/fire";
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
-import {
-  collection,
-  doc,
-  FieldValue,
-  getDocs,
-  query,
-  updateDoc,
-} from "firebase/firestore";
+import { collection, query, where } from "firebase/firestore";
 import { currency, round } from "src/utils";
 import { ref } from "vue";
 
 import PageLayout from "@layouts/PageLayout.vue";
 import Loading from "@components/Loading.vue";
+
+const CUR = new Date().toISOString().slice(5, 7);
 
 const user = useCurrentUser();
 const auth = useFirebaseAuth();
@@ -39,7 +31,7 @@ const profiles = useCollection<Profile>(
 const ready = ref<boolean>(true);
 
 const hasCheckedIn = ref<boolean>(false);
-const totals = ref<HourAggregation>({ total: 0, pay: 0 });
+const totals = ref<HourAggregation>({ total: 0, pay: 0, month: 0 });
 
 setTimeout(() => {
   exists(collection(db, "checkin"), user.value!.uid).then(
@@ -47,7 +39,8 @@ setTimeout(() => {
   );
 }, 2000);
 
-getTotalHoursOf(user.value!).then((res) => (totals.value = res));
+getSummaryOf(user.value!).then((res) => (totals.value = res));
+setTimeout(() => console.log(totals.value), 1000);
 </script>
 
 <template>
@@ -55,7 +48,7 @@ getTotalHoursOf(user.value!).then((res) => (totals.value = res));
     <section class="current">
       <ul>
         <li>
-          <h2>{{ round(totals.total).toLocaleString() }} Stunden</h2>
+          <h2>{{ round(totals.month).toLocaleString() }} Stunden</h2>
           <p>hast du diesen Monat gearbeitet</p>
         </li>
         <li>
