@@ -6,6 +6,7 @@ import { useRouter } from "vue-router";
 import { ref } from "vue";
 
 import DialogLayout from "@layouts/DialogLayout.vue";
+import { convertToDatestamp } from "src/utils";
 
 const r = useRouter();
 
@@ -44,7 +45,7 @@ async function save(): Promise<void> {
 
   const done = await addHours(
     profile.value,
-    date.value.split("-"),
+    convertToDatestamp(date.value),
     start.value,
     end.value
   );

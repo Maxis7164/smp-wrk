@@ -1,5 +1,7 @@
-export function getEuroDate(date: string[]): string[] {
-  return [date[2], date[1], date[0]];
+import type { Datestamp } from "src/fire";
+
+export function getEuroDate(date: Datestamp): string[] {
+  return [date.day, date.month, date.year];
 }
 
 export function round(val: number): number {
@@ -47,4 +49,14 @@ export function getTime(time: string): number {
   const m = getMinutes(time);
 
   return h * 60 + m;
+}
+
+export function convertToDatestamp(d: string): Datestamp {
+  const D = d.split("-");
+
+  return {
+    day: D[2],
+    month: D[1],
+    year: D[0],
+  };
 }

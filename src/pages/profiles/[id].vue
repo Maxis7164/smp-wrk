@@ -42,7 +42,8 @@ type A = typeof hours.value;
 
 function sort(arr: A): A {
   return arr.sort((a, b) =>
-    new Date(a.date.join("-")).getTime() > new Date(b.date.join("-")).getTime()
+    new Date(`${a.date.year}-${a.date.month}-${a.date.day}`).getTime() >
+    new Date(`${b.date.year}-${b.date.month}-${b.date.day}`).getTime()
       ? -1
       : 1
   );

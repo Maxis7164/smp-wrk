@@ -7,11 +7,20 @@ import {
   Profile,
   HourAggregation,
   getTotalHoursOf,
+  getNewHoursOf,
+  Hour,
+  getHoursOf,
 } from "src/fire";
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
-import { collection, query } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  FieldValue,
+  getDocs,
+  query,
+  updateDoc,
+} from "firebase/firestore";
 import { currency, round } from "src/utils";
-import { useRouter } from "vue-router";
 import { ref } from "vue";
 
 import PageLayout from "@layouts/PageLayout.vue";
@@ -19,7 +28,6 @@ import Loading from "@components/Loading.vue";
 
 const user = useCurrentUser();
 const auth = useFirebaseAuth();
-const r = useRouter();
 
 if (!auth) throw new LoadFirebaseError("auth/none");
 

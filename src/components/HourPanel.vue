@@ -14,7 +14,7 @@ defineProps<{
 </script>
 
 <template>
-  <li v-for="h in hours" :key="h.start + '@' + h.date.join('.')">
+  <li v-for="h in hours" :key="h.start + '@' + Object.values(h.date).join('-')">
     <h4>{{ getEuroDate(h.date).join(".") }}</h4>
     <p class="time">{{ h.start }} - {{ h.end }}</p>
     <p>{{ h.total.toLocaleString() }} Stunden</p>

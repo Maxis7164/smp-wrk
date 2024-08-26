@@ -33,7 +33,9 @@ watch(
   () => {
     const D = new Date();
 
-    dates.value = hours.value.map((hour) => hour.date.join("-"));
+    dates.value = hours.value.map(
+      (h) => `${h.date.year}-${h.date.month}-${h.date.day}`
+    );
 
     onSelect([D.getFullYear(), D.getMonth(), D.getDate()]);
   },
@@ -50,7 +52,7 @@ function onSelect(date: ISODate): void {
   hours.value.forEach((h) => {
     if (
       new Date(
-        `${h.date[0]}-${h.date[1]}-${h.date[2]}T00:00:00.000Z`
+        `${h.date.year}-${h.date.month}-${h.date.day}T00:00:00.000Z`
       ).toISOString() === ISO
     ) {
       total.value[h.profile] += h.total;
@@ -68,7 +70,12 @@ function onSelect(date: ISODate): void {
   hours.value.forEach(async (hour) => {
     if (!(hour.profile in cur.value)) return;
 
-    if (new Date(hour.date.join("-")).toISOString() !== ISO) return;
+    if (
+      new Date(
+        `${hour.date.year}-${hour.date.month}-${hour.date.day}`
+      ).toISOString() !== ISO
+    )
+      return;
 
     total.value[hour.profile] += hour.total;
     cur.value[hour.profile].push(hour);

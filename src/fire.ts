@@ -30,16 +30,18 @@ import { getCurrentUser } from "vuefire";
 import { User } from "firebase/auth";
 import { getTime } from "src/utils";
 
+export type Datestamp = { day: string; month: string; year: string };
+
 export type CheckIn = {
   profile: string;
+  date: Datestamp;
   begin: string;
-  date: string[];
 };
 
 export type Hour = {
   version: number;
   profile: string;
-  date: string[];
+  date: Datestamp;
   total: number;
   owner: string;
   start: string;
@@ -177,7 +179,7 @@ function calcTotal(start: string, end: string): number {
 const NOPROF = "- auswählen -";
 export async function addHours(
   profile: string,
-  date: string[],
+  date: Datestamp,
   start: string,
   end: string
 ): Promise<boolean> {
@@ -190,7 +192,12 @@ export async function addHours(
     return false;
   }
 
-  if (profile === NOPROF || date.length === 0 || start === "" || end === "") {
+  if (
+    profile === NOPROF ||
+    false /*TODO add check for date */ ||
+    start === "" ||
+    end === ""
+  ) {
     banner(
       "error",
       "Bitte wähle ein Profil aus und gib den Tag, sowie Anfangs- und Endzeit an"
