@@ -344,7 +344,7 @@ function getAggrQuery(
 }
 
 export async function getSummaryOf(user: User) {
-  const M = new Date().toISOString().slice(5, 7);
+  const M = new Date().getMonth();
   const aggregation: HourAggregation = {
     month: 0,
     total: 0,
