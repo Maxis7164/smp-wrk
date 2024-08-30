@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { currency, getEuroDate, round } from "src/utils";
+import { currency, Datestamp, round } from "src/utils";
 import type { VueFirestoreQueryData } from "vuefire";
 import { deleteHours, Hour, Profile } from "src/fire";
 import { User } from "firebase/auth";
@@ -15,7 +15,7 @@ defineProps<{
 
 <template>
   <li v-for="h in hours" :key="h.start + '@' + Object.values(h.date).join('-')">
-    <h4>{{ getEuroDate(h.date).join(".") }}</h4>
+    <h4>{{ Datestamp.fromData(h.date).toEuroDate() }}</h4>
     <p class="time">{{ h.start }} - {{ h.end }}</p>
     <p>{{ h.total.toLocaleString() }} Stunden</p>
     <p>{{ currency(round(h.total * (profiles?.[0]?.pph ?? -1))) }}€</p>

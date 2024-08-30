@@ -1,18 +1,17 @@
 <script lang="ts" setup>
 import {
-  getHoursOf,
+  getNewHoursOf,
   getProfilesOf,
   MONTHS,
-  Profile,
-  Hour,
-  getNewHoursOf,
+  type Profile,
+  type Hour,
 } from "src/fire";
 import { useCurrentUser, useCollection } from "vuefire";
-import { round } from "src/utils";
 import { ref, watch } from "vue";
 
 import PageLayout from "@layouts/PageLayout.vue";
 import Calendar from "@components/Calendar.vue";
+import { Datestamp, DatestampData, round } from "src/utils";
 
 const user = useCurrentUser();
 
@@ -23,61 +22,44 @@ const hours = useCollection<Hour>(getNewHoursOf(user.value!), {
   ssrKey: "hours",
 });
 
-const total = ref<{ [key: string]: number }>({});
+const total = ref<{ hours: number; pay: number }>({ hours: 0, pay: 0 });
+const d = ref<Datestamp>(Datestamp.fromData(Datestamp.PLACEHOLDER));
 const cur = ref<{ [key: string]: Hour[] }>({});
-const d = ref<ISODate>([0, 0, 0]);
-const dates = ref<string[]>([]);
+const dates = ref<Datestamp[]>([]);
 
 watch(
   hours,
   () => {
     const D = new Date();
 
-    dates.value = hours.value.map(
-      (h) => `${h.date.year}-${h.date.month}-${h.date.day}`
-    );
+    dates.value = hours.value.map((h) => Datestamp.fromData(h.date));
 
-    onSelect([D.getFullYear(), D.getMonth(), D.getDate()]);
+    onSelect(new Datestamp(D));
   },
   { once: true }
 );
 
-function onSelect(date: ISODate): void {
+function onSelect(date: DatestampData): void {
   if (!hours.value) return;
 
-  d.value = date;
-
-  const ISO = new Date(...date, 2, 0, 0, 0).toISOString();
-
-  hours.value.forEach((h) => {
-    if (
-      new Date(
-        `${h.date.year}-${h.date.month}-${h.date.day}T00:00:00.000Z`
-      ).toISOString() === ISO
-    ) {
-      total.value[h.profile] += h.total;
-      return true;
-    }
-
-    return false;
-  });
+  d.value = Datestamp.fromData(date);
 
   profiles.value.forEach((prof) => {
-    total.value[prof.id] = 0;
+    total.value = { hours: 0, pay: 0 };
     cur.value[prof.id] = [];
   });
 
   hours.value.forEach(async (hour) => {
     if (!(hour.profile in cur.value)) return;
 
-    if (
-      new Date(
-        `${hour.date.year}-${hour.date.month}-${hour.date.day}`
-      ).toISOString() !== ISO
-    )
-      return;
+    const prof = profiles.value.find((p) => p.id === hour.profile);
 
-    total.value[hour.profile] += hour.total;
+    if (!prof) return;
+
+    if (!Datestamp.fromData(hour.date).isEqual(d.value)) return;
+
+    total.value.hours += hour.total;
+    total.value.pay += round(hour.total * prof.pph);
     cur.value[hour.profile].push(hour);
   });
 }
@@ -90,23 +72,25 @@ function onSelect(date: ISODate): void {
     </section>
     <section class="day">
       <h2>So hast du gearbeitet:</h2>
-      <p>{{ d[2] }}.{{ MONTHS[d[1]] }}.{{ d[0] }}</p>
       <ul>
-        <li v-for="prof in profiles" :key="prof.name">
-          <h3>{{ prof.name }}</h3>
-          <ul>
-            <li v-for="(h, i) in cur[prof.name]">
-              <p>{{ h.start }} - {{ h.end }}</p>
-              <p>{{ i > 0 ? "+" : "" }}{{ round(h.total * prof.pph) }}€</p>
-            </li>
-            <li v-if="total[prof.id] > 0" class="total">
-              <p>{{ total[prof.id] }} Stunden</p>
-              <p>{{ round(total[prof.id] * prof.pph) }}€</p>
-            </li>
-            <li v-else class="noHours">
-              <p>Hier hast du nicht gearbeitet</p>
-            </li>
-          </ul>
+        <h3>{{ d.toEuroDate() }}</h3>
+        <li v-for="prof in profiles">
+          <div v-if="prof.id in cur && cur[prof.id].length > 0">
+            <h3>{{ prof.name }}</h3>
+            <ul>
+              <li v-for="h in cur[prof.id]">
+                <p>{{ h.start }} - {{ h.end }}</p>
+                <p>{{ round(h.total * prof.pph) }}€</p>
+              </li>
+            </ul>
+          </div>
+        </li>
+        <li v-if="total.hours > 0" class="total">
+          <p>{{ round(total.hours) }} Stunden</p>
+          <p>{{ total.pay }}€</p>
+        </li>
+        <li v-else class="none">
+          <p>Für den Tag wurden keine Stunden eingetragen</p>
         </li>
       </ul>
     </section>
@@ -126,46 +110,58 @@ section {
   }
 
   > ul {
-    > li {
+    background: var(--srf);
+    border-radius: 1rem;
+    padding: 1.25rem;
+
+    > h3 {
       margin-bottom: 0.75rem;
-      background: var(--srf);
-      border-radius: 1rem;
+      text-align: center;
     }
 
     li {
-      position: relative;
+      margin-bottom: 0.5rem;
+      margin-left: 0.125rem;
       display: block;
-      padding: 1rem;
 
       h3 {
-        text-align: center;
+        margin-bottom: 0.25rem;
       }
-
       ul li {
         justify-content: space-between;
         display: flex;
+      }
 
-        &.total {
-          font-weight: 600;
+      &.total {
+        justify-content: space-between;
+        padding-top: 0.5rem;
+        position: relative;
+        display: flex;
+        margin: 0;
 
-          &::before {
-            content: "";
+        &::before {
+          content: "";
 
-            background: var(--brd);
-            position: absolute;
-            display: block;
-            height: 1px;
-            width: 95%;
-            left: 2.5%;
-            top: 0;
-          }
-        }
-
-        &.noHours p {
-          margin: 0 auto;
+          background: var(--brd);
+          position: absolute;
+          display: block;
+          height: 1px;
+          width: 95%;
+          left: 2.5%;
+          top: 0;
         }
       }
+
+      &.none {
+        text-align: center;
+        margin: 0 auto;
+        width: 50%;
+      }
     }
+  }
+
+  &:last-child {
+    margin-bottom: 3.5rem;
   }
 }
 </style>

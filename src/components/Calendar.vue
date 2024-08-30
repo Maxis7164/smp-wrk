@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
 import { MONTHS } from "src/fire";
-import { range } from "src/utils";
+import { Datestamp, range } from "src/utils";
 
-const props = defineProps<{ initial?: boolean; dates: string[] }>();
-const emit = defineEmits<{ (e: "select", i: ISODate): void }>();
+const props = defineProps<{ initial?: boolean; dates: Datestamp[] }>();
+const emit = defineEmits<{ (e: "select", date: Datestamp): void }>();
 
 const DAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"] as const;
 
@@ -16,7 +16,7 @@ const month = ref<number>(cur.getMonth());
 const day = ref<number>(0);
 
 const sel = ref<number[]>([cur.getDate(), cur.getMonth(), cur.getFullYear()]);
-const dates = computed<string[]>(() => props.dates);
+const dates = computed<Datestamp[]>(() => props.dates);
 
 function getDate(i: number): number {
   const d = i + 1 - day.value;
@@ -41,7 +41,7 @@ function select(i: number): void {
   if (relMonth !== 0) goToMonth(relMonth);
 
   sel.value = [nxt, month.value, year.value];
-  emit("select", [sel.value[2], sel.value[1], sel.value[0]]);
+  emit("select", new Datestamp(sel.value[0], sel.value[1], sel.value[2]));
 }
 
 function goToMonth(to: number): void {
@@ -80,18 +80,21 @@ const isFiller = (i: number): number =>
   i < day.value ? -1 : i + 1 > c[month.value] + day.value ? 1 : 0;
 
 const hasEvent = (i: number): boolean => {
-  const date = new Date(`${year.value}-${month.value + 1}-${getDate(i + 1)}`)
-    .toISOString()
-    .slice(0, 10);
+  const date = new Datestamp(getDate(i), month.value, year.value);
 
   const rel = i + 1 - day.value;
 
-  return dates.value.includes(date) && rel >= 0 && rel <= c[month.value];
+  return (
+    dates.value.some((d) => d.isEqual(date)) &&
+    rel >= 0 &&
+    rel <= c[month.value]
+  );
 };
 
 loadMonth(month.value, year.value);
 
-if (props.initial) emit("select", [sel.value[2], sel.value[1], sel.value[0]]);
+if (props.initial)
+  emit("select", new Datestamp(sel.value[2], sel.value[1], sel.value[0]));
 </script>
 
 <template>

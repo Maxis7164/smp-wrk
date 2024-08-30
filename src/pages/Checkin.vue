@@ -7,7 +7,7 @@ import { useRouter } from "vue-router";
 import { ref, watch } from "vue";
 
 import DialogLayout from "@layouts/DialogLayout.vue";
-import { convertToDatestamp } from "src/utils";
+import { Datestamp } from "src/utils";
 
 const user = useCurrentUser();
 const r = useRouter();
@@ -62,7 +62,7 @@ async function save(): Promise<void> {
     r.push("/");
   } else {
     const check: CheckIn = {
-      date: convertToDatestamp(D.toISOString().slice(0, 10)),
+      date: new Datestamp(D).serialize(),
       profile: profile.value,
       begin: start.value,
     };

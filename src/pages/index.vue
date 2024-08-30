@@ -9,7 +9,7 @@ import {
   getSummaryOf,
 } from "src/fire";
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
-import { collection, query, where } from "firebase/firestore";
+import { collection, query } from "firebase/firestore";
 import { currency, round } from "src/utils";
 import { ref } from "vue";
 
@@ -40,7 +40,6 @@ setTimeout(() => {
 }, 2000);
 
 getSummaryOf(user.value!).then((res) => (totals.value = res));
-setTimeout(() => console.log(totals.value), 1000);
 </script>
 
 <template>

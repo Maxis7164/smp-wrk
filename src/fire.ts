@@ -23,25 +23,23 @@ import {
   sum,
   collectionGroup,
 } from "firebase/firestore";
+import { Datestamp, type DatestampData, getTime } from "src/utils";
 import { initializeApp } from "firebase/app";
 import { confirm } from "@composables/modal";
 import { banner } from "@composables/banner";
 import { getCurrentUser } from "vuefire";
 import { User } from "firebase/auth";
-import { getTime } from "src/utils";
-
-export type Datestamp = { day: string; month: string; year: string };
 
 export type CheckIn = {
+  date: DatestampData;
   profile: string;
-  date: Datestamp;
   begin: string;
 };
 
 export type Hour = {
+  date: DatestampData;
   version: number;
   profile: string;
-  date: Datestamp;
   total: number;
   owner: string;
   start: string;
@@ -180,7 +178,7 @@ function calcTotal(start: string, end: string): number {
 const NOPROF = "- auswählen -";
 export async function addHours(
   profile: string,
-  date: Datestamp,
+  date: Datestamp | DatestampData,
   start: string,
   end: string
 ): Promise<boolean> {
@@ -211,12 +209,12 @@ export async function addHours(
   if (total <= 0) return false;
 
   const hour: Hour = {
+    date: date instanceof Datestamp ? date.serialize() : date,
     owner: user.uid,
     version: 1,
     profile,
     total,
     start,
-    date,
     end,
   };
 
@@ -286,7 +284,7 @@ export async function getLeacyHoursOf(
     hours?: QueryConstraint[];
   }
 ) {
-  const M = new Date().toISOString().slice(5, 7);
+  const M = new Date().getMonth();
   const profs = await getDocs(
     getProfilesOf(user, ...(constraints?.profiles ?? []))
   );
@@ -329,8 +327,6 @@ export async function getLeacyHoursOf(
     res.month += month.total;
     res.pay += month.total * data.pph;
   }
-
-  console.log(res);
 
   return res;
 }
@@ -379,8 +375,6 @@ export async function getSummaryOf(user: User) {
     aggregation.month += month.total;
     aggregation.pay += month.total * data.pph;
   }
-
-  console.log(aggregation);
 
   //#region legacy
   const legacy = await getLeacyHoursOf(user);
