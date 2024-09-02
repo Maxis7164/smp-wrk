@@ -6,7 +6,7 @@ import {
   deleteProfile,
   getNewHoursOf,
 } from "src/fire";
-import { useCollection, useCurrentUser } from "vuefire";
+import { useCollection, useCurrentUser, VueFirestoreQueryData } from "vuefire";
 import { documentId, where } from "firebase/firestore";
 import { useRoute, useRouter } from "vue-router";
 import { currency, round } from "src/utils";
@@ -32,7 +32,7 @@ const hours = useCollection<Hour>(
   }
 );
 
-const display = ref<Hour[]>(sort(hours.value));
+const display = ref<VueFirestoreQueryData<Hour>>(sort(hours.value));
 const totalHours = ref<number>(0);
 const totalPay = ref<number>(0);
 

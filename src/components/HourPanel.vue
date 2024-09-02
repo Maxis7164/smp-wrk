@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { currency, Datestamp, round } from "src/utils";
 import type { VueFirestoreQueryData } from "vuefire";
-import { deleteHours, Hour, Profile } from "src/fire";
+import { deleteHours, Hour, Profile, VueFireEntry } from "src/fire";
 import { User } from "firebase/auth";
 
 type _Nullable<T> = T | null | undefined;
 
 defineProps<{
   user: _Nullable<User>;
-  hours: Hour[];
+  hours: VueFirestoreQueryData<Hour>;
   profiles: VueFirestoreQueryData<Profile>;
 }>();
 </script>
@@ -20,9 +20,7 @@ defineProps<{
     <p>{{ h.total.toLocaleString() }} Stunden</p>
     <p>{{ currency(round(h.total * (profiles?.[0]?.pph ?? -1))) }}€</p>
     <button @click="" class="text">Bearbeiten</button>
-    <button @click="deleteHours((h as any).id)" class="text risk">
-      Löschen
-    </button>
+    <button @click="deleteHours(h)" class="text risk">Löschen</button>
   </li>
 </template>
 

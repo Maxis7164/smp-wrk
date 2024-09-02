@@ -27,7 +27,7 @@ import { Datestamp, type DatestampData, getTime } from "src/utils";
 import { initializeApp } from "firebase/app";
 import { confirm } from "@composables/modal";
 import { banner } from "@composables/banner";
-import { getCurrentUser } from "vuefire";
+import { getCurrentUser, VueFirestoreQueryData } from "vuefire";
 import { User } from "firebase/auth";
 
 export type CheckIn = {
@@ -50,6 +50,10 @@ export type Profile = {
   owner: string;
   name: string;
   pph: number;
+};
+
+export type VueFireEntry<T = import("firebase/firestore").DocumentData> = T & {
+  readonly id: string;
 };
 
 export type HourAggregation = {
@@ -422,13 +426,20 @@ export async function deleteProfile(id: string) {
   return false;
 }
 
-export async function deleteHours(id: string) {
+export async function deleteHours(hour: VueFireEntry<Hour>) {
   const doDel = await confirm(
     "Möchtest du wirklich deine Arbeitszeit löschen? Diese Aktion ist nicht wiederherstellbar!",
     "Arbeitszeit löschen",
     ["Ja", "Nein"]
   );
 
-  if (doDel) deleteDoc(doc(db, "hours", id));
+  if (doDel)
+    try {
+      await deleteDoc(doc(db, "profiles", hour.profile, "hours", hour.id));
+    } catch (err: any) {
+      if (err.code === "permission-denied") {
+        await deleteDoc(doc(db, "hours", hour.id));
+      }
+    }
 }
 //#endregion
