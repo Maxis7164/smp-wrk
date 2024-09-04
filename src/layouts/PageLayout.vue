@@ -1,7 +1,14 @@
 <script lang="ts" setup>
+import { useRoute } from "vue-router";
+import { computed } from "vue";
+
 import BackButton from "../components/BackButton.vue";
 
-defineProps<{ name: string; isHome?: boolean }>();
+const route = useRoute();
+
+const isHome = computed(() => route.fullPath === "/");
+
+defineProps<{ name: string }>();
 </script>
 
 <template>

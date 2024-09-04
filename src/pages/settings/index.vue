@@ -75,9 +75,9 @@ function toDebug() {
       <h2>{{ user?.displayName ?? "loading..." }}</h2>
       <div>
         <button @click="$router.push('/settings/account')" class="text">
-          bearbeiten
+          Bearbeiten
         </button>
-        <button @click="signOut" class="text risk">abmelden</button>
+        <button @click="signOut" class="text risk">Abmelden</button>
       </div>
     </section>
     <section class="profiles">
