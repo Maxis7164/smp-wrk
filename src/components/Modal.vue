@@ -98,7 +98,7 @@ div.back {
 
   section {
     transform: translate(-50%, -40%);
-    width: clamp(275px, 50%, 800px);
+    width: clamp(350px, 50%, 800px);
     flex-direction: column;
     border-radius: 1.25rem;
     background: var(--bg);
