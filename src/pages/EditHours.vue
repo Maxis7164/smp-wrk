@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { getCurrentUser, useCollection } from "vuefire";
-import { addHours, getProfilesOf } from "src/fire";
+import { addHours, getProfilesOf, PROFSSR } from "src/fire";
 import { banner } from "@composables/banner";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 
 import DialogLayout from "@layouts/DialogLayout.vue";
 import { Datestamp } from "src/utils";
+import Icon from "@components/Icon.vue";
 
 const r = useRouter();
 
@@ -21,11 +22,17 @@ const start = ref<string>("");
 
 const user = await getCurrentUser();
 
-const profiles = useCollection(getProfilesOf(user!), { ssrKey: "prof" });
+const profiles = useCollection(getProfilesOf(user!), PROFSSR);
 
 setTimeout(async () => {
   if (profiles.value.length === 0) await r.push("/settings/editProfile");
 }, 5000);
+
+function dateUpdated() {
+  const cur = new Date(`${date.value}T${start.value}`);
+
+  if (cur.getTime() > D.getTime()) console.log("future");
+}
 
 async function save(): Promise<void> {
   loading.value = true;
@@ -58,6 +65,8 @@ async function save(): Promise<void> {
     );
   r.push("/");
 }
+
+const isFuture = () => new Date(date.value).getTime() > D.getTime();
 </script>
 
 <template>
@@ -78,6 +87,7 @@ async function save(): Promise<void> {
     <label for="date">
       <h3>Tag:</h3>
       <input
+        @change="dateUpdated"
         v-model="date"
         type="date"
         name="date"
@@ -89,6 +99,7 @@ async function save(): Promise<void> {
       <label for="start">
         <h3>Von:</h3>
         <input
+          @change="dateUpdated"
           v-model="start"
           type="time"
           name="start"
@@ -106,6 +117,10 @@ async function save(): Promise<void> {
           placeholder="--:--"
         />
       </label>
+    </div>
+    <div v-if="isFuture()" class="info">
+      <Icon name="info" :size="1" />
+      <p>Diese Arbeitszeit liegt in der Zukunft</p>
     </div>
   </DialogLayout>
 </template>
@@ -129,6 +144,11 @@ label {
     max-width: 100%;
     width: 100%;
   }
+}
+div.info {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
 }
 
 div.hours {

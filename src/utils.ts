@@ -103,6 +103,10 @@ export class Datestamp implements DatestampData {
     return this.day == to.day && this.month == to.month && this.year == to.year;
   }
 
+  getTime(): number {
+    return new Date(this.year, this.month, this.day).getTime();
+  }
+
   serialize(): DatestampData {
     return {
       day: this.day,

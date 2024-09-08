@@ -30,7 +30,7 @@ watch(
   (nxt) => {
     if (nxt) {
       profile.value = nxt.profile;
-      start.value = nxt.begin;
+      start.value = nxt.start;
     }
 
     loading.value = false;
@@ -64,7 +64,7 @@ async function save(): Promise<void> {
     const check: CheckIn = {
       date: new Datestamp(D).serialize(),
       profile: profile.value,
-      begin: start.value,
+      start: start.value,
     };
 
     await setDoc(getCheckInOf(user.value!), check);

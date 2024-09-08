@@ -12,10 +12,8 @@ import {
   deleteDoc,
   QueryConstraint,
   doc,
-  DocumentReference,
   DocumentData,
   CollectionReference,
-  writeBatch,
   getDoc,
   DocumentSnapshot,
   updateDoc,
@@ -27,22 +25,20 @@ import { Datestamp, type DatestampData, getTime } from "src/utils";
 import { initializeApp } from "firebase/app";
 import { confirm } from "@composables/modal";
 import { banner } from "@composables/banner";
-import { getCurrentUser, VueFirestoreQueryData } from "vuefire";
+import { getCurrentUser } from "vuefire";
 import { User } from "firebase/auth";
 
 export type CheckIn = {
   date: DatestampData;
   profile: string;
-  begin: string;
+  start: string;
 };
 
-export type Hour = {
-  date: DatestampData;
+export type Hour = CheckIn & {
   version: number;
-  profile: string;
+  isDone: boolean;
   total: number;
   owner: string;
-  start: string;
   end: string;
 };
 
@@ -77,6 +73,9 @@ export const MONTHS = [
   "November",
   "Dezember",
 ] as const;
+
+export const HOURSSR = { ssrKey: "hours" };
+export const PROFSSR = { ssrKey: "profiles" };
 
 const ERR: Typed<string> = {
   "auth/none": "Auth instance is not defined!",
@@ -184,7 +183,8 @@ export async function addHours(
   profile: string,
   date: Datestamp | DatestampData,
   start: string,
-  end: string
+  end: string,
+  isDone?: boolean
 ): Promise<boolean> {
   const user = await getCurrentUser();
 
@@ -215,6 +215,7 @@ export async function addHours(
   const hour: Hour = {
     date: date instanceof Datestamp ? date.serialize() : date,
     owner: user.uid,
+    isDone: isDone ?? false,
     version: 1,
     profile,
     total,
@@ -255,8 +256,8 @@ export function getProfile(
   return getDoc(doc(db, "profiles", id)) as any;
 }
 
-export function getCheckInOf(user: User): DocumentReference<CheckIn, CheckIn> {
-  return doc(db, `checkin/${user.uid}`) as any;
+export function getCheckInOf(user: User) {
+  return doc(db, `checkin/${user.uid}`);
 }
 
 export function getProfilesOf(
@@ -274,11 +275,8 @@ export function getNewHoursOf(user: User, ...constraints: QueryConstraint[]) {
   return query(collectionGroup(db, "hours"), fromUser(user), ...constraints);
 }
 
-export function getHoursOf(
-  user: User,
-  ...constraints: QueryConstraint[]
-): Query<Hour, Hour> {
-  return query(collection(db, "hours"), fromUser(user), ...constraints) as any;
+export function getHoursOf(user: User, ...constraints: QueryConstraint[]) {
+  return query(collection(db, "hours"), fromUser(user), ...constraints);
 }
 
 export async function getLeacyHoursOf(

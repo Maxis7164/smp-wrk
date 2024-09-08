@@ -15,7 +15,7 @@ import { ref } from "vue";
 
 import PageLayout from "@layouts/PageLayout.vue";
 import Loading from "@components/Loading.vue";
-import Icon from "@components/icon.vue";
+import Icon from "@components/Icon.vue";
 
 const user = useCurrentUser();
 const auth = useFirebaseAuth();
@@ -91,7 +91,7 @@ getSummaryOf(user.value!).then((res) => (totals.value = res));
     </section>
     <footer>
       <button @click="$router.push('/editHours')" class="icon high add">
-        <Icon name="add" />
+        <Icon name="add" :size="2.25" />
       </button>
     </footer>
     <Loading back :load="!ready" />
@@ -173,8 +173,6 @@ footer {
   height: 3rem;
 
   button {
-    --size: 2.25rem;
-
     transition: left var(--anim-speed) ease-out, background-color 250ms;
     box-shadow: 0 0 4px 4px #0004;
     padding: 1rem 0.25rem 1rem 1rem;
