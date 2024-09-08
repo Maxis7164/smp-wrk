@@ -22,12 +22,12 @@ export function banner(
   message: string,
   timeout?: number
 ): void {
-  const stdTo = message.length * 50;
+  const stdTo = message.length * 80;
 
   const b: Banner = {
     type,
     message,
-    timeout: timeout ?? stdTo < 3500 ? 3500 : stdTo,
+    timeout: timeout ?? stdTo < 3700 ? 3700 : stdTo,
   };
 
   subs.forEach((sub) => sub(b));
