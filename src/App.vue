@@ -6,7 +6,6 @@ import { ref } from "vue";
 
 import Banner from "@components/Banner.vue";
 import Modal from "@components/Modal.vue";
-import { useInfo } from "@composables/infos";
 
 if (import.meta.env.DEV) document.title = "Simpler Work (DEV)";
 
