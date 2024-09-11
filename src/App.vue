@@ -6,6 +6,7 @@ import { ref } from "vue";
 
 import Banner from "@components/Banner.vue";
 import Modal from "@components/Modal.vue";
+import { useInfo } from "@composables/infos";
 
 if (import.meta.env.DEV) document.title = "Simpler Work (DEV)";
 
@@ -14,8 +15,6 @@ const auth = useFirebaseAuth();
 useTheme();
 
 const err = ref<LoadFirebaseError>();
-
-// loadTheme();
 
 if (auth)
   auth.onAuthStateChanged((user) => {

@@ -10,6 +10,7 @@ import {
 } from "src/fire";
 import { useCollection, useCurrentUser, useFirebaseAuth } from "vuefire";
 import { collection, query } from "firebase/firestore";
+import { useInfo } from "@composables/infos";
 import { currency, round } from "src/utils";
 import { ref } from "vue";
 
@@ -19,6 +20,7 @@ import Icon from "@components/Icon.vue";
 
 const user = useCurrentUser();
 const auth = useFirebaseAuth();
+const infos = useInfo();
 
 if (!auth) throw new LoadFirebaseError("auth/none");
 
@@ -53,6 +55,16 @@ getSummaryOf(user.value!).then((res) => (totals.value = res));
           <p>damit verdienst du</p>
           <h2>{{ currency(round(totals.pay)) }}€</h2>
         </li>
+      </ul>
+    </section>
+    <section class="info">
+      <ul>
+        <TransitionGroup name="fade">
+          <li v-for="(info, i) in infos.list" :key="i">
+            <p>{{ info.message }}</p>
+            <button @click="infos.close(i)">{{ info.action }}</button>
+          </li>
+        </TransitionGroup>
       </ul>
     </section>
     <section class="hours">
@@ -116,6 +128,28 @@ section {
       }
     }
   }
+  &.info {
+    ul {
+      background: transparent;
+
+      li {
+        border-radius: 1.25rem;
+        background: var(--srf);
+        padding: 0;
+        padding-top: 1rem;
+
+        p {
+          margin-bottom: 0.5rem;
+          text-align: center;
+        }
+
+        button {
+          font-weight: 600;
+          width: 100%;
+        }
+      }
+    }
+  }
   &.hours {
     ul li {
       padding: 0;
@@ -143,7 +177,7 @@ section {
   }
 
   > h2 {
-    margin: 0 0.125rem 0.625rem 0;
+    margin: 0 0 0.625rem 0.125rem;
   }
 
   ul {
