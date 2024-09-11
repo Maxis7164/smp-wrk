@@ -118,4 +118,11 @@ export class Datestamp implements DatestampData {
   toEuroDate(): string {
     return `${this.day}.${MONTHS[this.month]} ${this.year}`;
   }
+  toISOFormat(): string {
+    const m = this.month + 1;
+
+    return `${this.year}-${m < 10 ? "0" : ""}${m}-${this.day < 10 ? "0" : ""}${
+      this.day
+    }`;
+  }
 }

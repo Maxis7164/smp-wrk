@@ -424,6 +424,20 @@ export async function deleteProfile(id: string) {
   return false;
 }
 
+export async function updateHours(path: string, start: string, end: string) {
+  const [p, h] = path.split("/");
+  const ref = doc(db, "profiles", p, "hours", h);
+
+  const total = calcTotal(start, end);
+
+  await updateDoc(ref, {
+    start,
+    end,
+    total,
+    isDone: true,
+  } satisfies Partial<Hour>);
+}
+
 export async function deleteHours(hour: VueFireEntry<Hour>) {
   const doDel = await confirm(
     "Möchtest du wirklich deine Arbeitszeit löschen? Diese Aktion ist nicht wiederherstellbar!",

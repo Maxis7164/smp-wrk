@@ -1,15 +1,25 @@
 <script lang="ts" setup>
+import {
+  addHours,
+  db,
+  getProfilesOf,
+  Hour,
+  PROFSSR,
+  updateHours,
+} from "src/fire";
 import { getCurrentUser, useCollection } from "vuefire";
-import { addHours, getProfilesOf, PROFSSR } from "src/fire";
+import { useRoute, useRouter } from "vue-router";
+import { doc, getDoc } from "firebase/firestore";
 import { banner } from "@composables/banner";
-import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { Datestamp } from "src/utils";
+import { computed, ref } from "vue";
 
 import DialogLayout from "@layouts/DialogLayout.vue";
-import { Datestamp } from "src/utils";
 import Icon from "@components/Icon.vue";
 
 const r = useRouter();
+const route = useRoute();
+const id = computed(() => route.query.id);
 
 const D = new Date();
 const NOPROF = "- auswählen -";
@@ -34,6 +44,25 @@ function dateUpdated() {
   if (cur.getTime() > D.getTime()) console.log("future");
 }
 
+async function load() {
+  if (id.value) {
+    if (typeof id.value !== "string") return;
+
+    const [p, h] = id.value.split("/");
+
+    const snap = await getDoc(doc(db, "profiles", p, "hours", h));
+
+    if (!snap.exists()) return;
+
+    const data = snap.data() as Hour;
+
+    profile.value = data.profile;
+    date.value = Datestamp.fromData(data.date).toISOFormat();
+    start.value = data.start;
+    end.value = data.end;
+  }
+}
+
 async function save(): Promise<void> {
   loading.value = true;
 
@@ -50,30 +79,38 @@ async function save(): Promise<void> {
     );
   }
 
-  const done = await addHours(
-    profile.value,
-    Datestamp.fromIsoString(date.value),
-    start.value,
-    end.value
-  );
-
-  loading.value = false;
-  if (!done)
-    return banner(
-      "error",
-      "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!"
+  if (!id.value) {
+    const done = await addHours(
+      profile.value,
+      Datestamp.fromIsoString(date.value),
+      start.value,
+      end.value
     );
-  r.push("/");
+
+    loading.value = false;
+    if (!done)
+      return banner(
+        "error",
+        "Deine Arbeitszeit kann nicht bei 0 Stunden liegen!"
+      );
+    r.push("/");
+  } else {
+    await updateHours(id.value as string, start.value, end.value);
+    loading.value = false;
+    r.back();
+  }
 }
 
 const isFuture = () => new Date(date.value).getTime() > D.getTime();
+
+load();
 </script>
 
 <template>
   <DialogLayout @commit="save" name="Arbeitszeit hinzufügen" :loading>
     <label for="profile">
       <h3>Profil:</h3>
-      <select v-model="profile">
+      <select :disabled="!!id" v-model="profile">
         <option>- auswählen -</option>
         <option
           v-for="prof in profiles"
@@ -87,6 +124,7 @@ const isFuture = () => new Date(date.value).getTime() > D.getTime();
     <label for="date">
       <h3>Tag:</h3>
       <input
+        :disabled="!!id"
         @change="dateUpdated"
         v-model="date"
         type="date"

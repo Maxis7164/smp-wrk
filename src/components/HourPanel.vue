@@ -19,7 +19,17 @@ defineProps<{
     <p class="time">{{ h.start }} - {{ h.end }}</p>
     <p>{{ h.total.toLocaleString() }} Stunden</p>
     <p>{{ currency(round(h.total * (profiles?.[0]?.pph ?? -1))) }}€</p>
-    <button @click="" class="text">Bearbeiten</button>
+    <button
+      @click="
+        $router.push({
+          path: '/editHours',
+          query: { id: `${h.profile}/${h.id}` },
+        })
+      "
+      class="text"
+    >
+      Bearbeiten
+    </button>
     <button @click="deleteHours(h)" class="text risk">Löschen</button>
   </li>
 </template>
