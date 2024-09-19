@@ -178,7 +178,7 @@ function calcTotal(start: string, end: string): number {
   return Math.floor(total * 100) / 100;
 }
 
-const NOPROF = "- auswählen -";
+const NOPROF = "NONE";
 export async function addHours(
   profile: string,
   date: Datestamp | DatestampData,

@@ -22,7 +22,7 @@ const route = useRoute();
 const id = computed(() => route.query.id);
 
 const D = new Date();
-const NOPROF = "- auswählen -";
+const NOPROF = "NONE";
 
 const date = ref<string>(D.toISOString().slice(0, 10));
 const end = ref<string>(D.toTimeString().slice(0, 5));
@@ -111,7 +111,7 @@ load();
     <label for="profile">
       <h3>Profil:</h3>
       <select :disabled="!!id" v-model="profile">
-        <option>- auswählen -</option>
+        <option :value="NOPROF" disabled>- auswählen -</option>
         <option
           v-for="prof in profiles"
           :value="(prof as any).id"
